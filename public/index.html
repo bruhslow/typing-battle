@@ -75,6 +75,13 @@
     button:hover { background: var(--mint-strong); }
     button.secondary { margin-top: 18px; padding: 11px 18px; color: var(--ink); background: transparent; border: 1px solid var(--line); font-size: 13px; }
     .message { min-height: 20px; margin: 12px 0 0; color: var(--coral-dark); font-size: 13px; }
+    .mode-switch { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
+    .mode-button { min-height: 44px; padding: 8px 10px; color: var(--muted); background: #eef2ec; border: 1px solid transparent; font-size: 12px; }
+    .mode-button.active { color: var(--ink); background: var(--mint); border-color: var(--mint-strong); }
+    .private-fields { display: none; }
+    .private-fields.visible { display: block; }
+    .difficulty-select { width: 100%; padding: 13px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fff; font: inherit; }
+    .room-actions { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
 
     .status-line { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; margin-bottom: 28px; }
     .status-line h2 { margin: 0; font-size: 22px; }
@@ -110,7 +117,7 @@
     <header>
       <div class="brand"><span class="brand-mark">TS</span> Type Sprint</div>
       <div class="profile"><label for="username-input">Username</label><input id="username-input" maxlength="24" placeholder="Your name" autocomplete="nickname"></div>
-      <div class="friend-id"><strong>Friend ID</strong> <span id="friend-id">Connecting...</span></div>
+      <div class="friend-id"><strong>Room code</strong> <span id="friend-id">Connecting...</span></div>
       <div class="connection" id="connection">Connecting</div>
     </header>
 
@@ -118,14 +125,22 @@
       <section id="join-screen">
         <div class="eyebrow">Two-player typing race</div>
         <h1>Fast fingers.<br>Clear mind.</h1>
-        <p class="intro">Share your friend ID or enter a friend’s ID to race together in the same room.</p>
+        <p class="intro">Race a random opponent, climb the ranked ladder, or host a private room for a friend.</p>
         <div class="panel">
-          <label for="friend-input">Enter friend ID</label>
+          <div class="mode-switch" role="group" aria-label="Race mode">
+            <button class="mode-button active" data-mode="quick" type="button">Quick match</button>
+            <button class="mode-button" data-mode="ranked" type="button">Ranked</button>
+            <button class="mode-button" data-mode="private" type="button">Private room</button>
+          </div>
+          <div class="private-fields" id="private-fields">
+          <label for="friend-input">Enter room code</label>
           <div class="join-row">
-            <input id="friend-input" maxlength="13" placeholder="TYPE-ABC123" autocomplete="off">
+            <input id="friend-input" maxlength="6" placeholder="ABC123" autocomplete="off">
             <button id="join-button" type="button">Join friend</button>
           </div>
           <button class="secondary" id="create-room-button" type="button">Create a room</button>
+          </div>
+          <button id="random-button" type="button">Find a player</button>
           <p class="message" id="join-message" aria-live="polite"></p>
         </div>
       </section>
@@ -135,7 +150,7 @@
           <h2 id="race-status">Waiting for a rival</h2>
           <span class="room-label" id="room-label"></span>
         </div>
-        <div id="waiting" class="waiting"><span class="pulse"></span><span id="waiting-message">Looking for another player...</span><br><button class="secondary" id="cancel-button" type="button">Cancel search</button></div>
+        <div id="waiting" class="waiting"><span class="pulse"></span><span id="waiting-message">Looking for another player...</span><div class="room-actions"><select class="difficulty-select hidden" id="difficulty-select" aria-label="Room difficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select><button class="secondary hidden" id="start-room-button" type="button">Start room</button><button class="secondary" id="cancel-button" type="button">Leave</button></div></div>
         <div id="race-content" class="hidden">
           <p class="race-copy" id="paragraph"></p>
           <textarea id="typing-area" disabled placeholder="Start typing when the race begins..."></textarea>
@@ -180,6 +195,12 @@
     const waitingMessage = document.querySelector('#waiting-message');
     const youName = document.querySelector('#you-name');
     const opponentName = document.querySelector('#opponent-name');
+    const difficultySelect = document.querySelector('#difficulty-select');
+    const startRoomButton = document.querySelector('#start-room-button');
+    const privateFields = document.querySelector('#private-fields');
+    const randomButton = document.querySelector('#random-button');
+    let selectedMode = 'quick';
+    let isHost = false;
     let roomId = '';
     let paragraph = '';
     let finished = false;
@@ -200,6 +221,13 @@
       paragraphElement.innerHTML = '<span class="typed">' + paragraph.slice(0, safeLength) + '</span>' + paragraph.slice(safeLength);
     }
 
+    document.querySelectorAll('.mode-button').forEach((button) => button.addEventListener('click', () => {
+      selectedMode = button.dataset.mode;
+      document.querySelectorAll('.mode-button').forEach((item) => item.classList.toggle('active', item === button));
+      privateFields.classList.toggle('visible', selectedMode === 'private');
+      randomButton.classList.toggle('hidden', selectedMode === 'private');
+    }));
+
     document.querySelector('#join-button').addEventListener('click', () => {
       const friendId = friendInput.value.trim().toUpperCase();
       const username = usernameInput.value.trim();
@@ -210,6 +238,17 @@
       }
       joinMessage.textContent = '';
       socket.emit('joinFriendRoom', { friendId, username });
+    });
+
+    randomButton.addEventListener('click', () => {
+      const username = usernameInput.value.trim();
+      if (!username) {
+        joinMessage.textContent = 'Choose a username to continue.';
+        usernameInput.focus();
+        return;
+      }
+      joinMessage.textContent = '';
+      socket.emit('findMatch', { username, mode: selectedMode });
     });
 
     friendInput.addEventListener('keydown', (event) => {
@@ -225,11 +264,15 @@
         usernameInput.focus();
         return;
       }
-      socket.emit('createFriendRoom', username);
+      socket.emit('createFriendRoom', { username, difficulty: difficultySelect.value });
     });
+
+    difficultySelect.addEventListener('change', () => socket.emit('setRoomDifficulty', difficultySelect.value));
+    startRoomButton.addEventListener('click', () => socket.emit('startRoom'));
 
     document.querySelector('#cancel-button').addEventListener('click', () => {
       socket.emit('cancelMatch');
+      socket.emit('leaveRoom');
       showScreen(joinScreen);
     });
 
@@ -258,16 +301,20 @@
     });
 
     socket.on('friendRoomCreated', ({ friendId }) => {
+      isHost = true;
       showScreen(raceScreen);
       raceStatus.textContent = 'Waiting for your friend';
       document.querySelector('#room-label').textContent = 'ID / ' + friendId;
-      waitingMessage.textContent = 'Give your friend the ID shown in the top-right corner.';
+      waitingMessage.textContent = 'Give your friend the room code shown in the top-right corner.';
+      difficultySelect.classList.remove('hidden');
+      startRoomButton.classList.add('hidden');
       joinMessage.textContent = '';
     });
 
     socket.on('friendJoined', ({ players }) => {
       const opponent = players.find((item) => item.id !== socket.id);
       if (opponent) waitingMessage.textContent = opponent.username + ' joined. Starting race...';
+      if (isHost) startRoomButton.classList.remove('hidden');
     });
 
     socket.on('disconnect', () => {
@@ -275,9 +322,12 @@
       connection.classList.remove('online');
     });
 
-    socket.on('matchmaking', () => {
+    socket.on('matchmaking', ({ mode, rating }) => {
+      isHost = false;
+      difficultySelect.classList.add('hidden');
+      startRoomButton.classList.add('hidden');
       showScreen(raceScreen);
-      raceStatus.textContent = 'Finding a player';
+      raceStatus.textContent = mode === 'ranked' ? 'Finding a ranked player • ELO ' + rating : 'Finding a player';
       waitingMessage.textContent = 'Looking for another player...';
       document.querySelector('#room-label').textContent = '';
       joinMessage.textContent = '';
@@ -307,6 +357,8 @@
       youName.textContent = player ? player.username : 'You';
       opponentName.textContent = opponent ? opponent.username : 'Opponent';
       raceStatus.textContent = 'Type to race';
+      difficultySelect.classList.add('hidden');
+      startRoomButton.classList.add('hidden');
       waiting.classList.add('hidden');
       raceContent.classList.remove('hidden');
       typingArea.value = '';
@@ -337,6 +389,8 @@
       waitingMessage.textContent = 'Your opponent left. Looking for another player...';
       socket.emit('findMatch', usernameInput.value.trim());
     });
+
+    socket.on('roomDifficulty', (difficulty) => { difficultySelect.value = difficulty; });
 
     socket.on('roomFull', () => { joinMessage.textContent = 'That room already has two players.'; });
     socket.on('errorMessage', (message) => { joinMessage.textContent = message; });

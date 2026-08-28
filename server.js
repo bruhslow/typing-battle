@@ -9,8 +9,9 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 const rooms = new Map();
-const matchmakingQueue = [];
+const matchmakingQueues = { ranked: [], quick: [] };
 const friendIds = new Map();
+const ratings = new Map();
 
 const paragraphs = [
   'The morning train arrived just as the first light spread across the station windows. Travelers gathered their bags and stepped into the new day with quiet purpose.',
@@ -26,19 +27,39 @@ function getRandomParagraph() {
 }
 
 function removeFromQueue(socket) {
-  const queueIndex = matchmakingQueue.indexOf(socket.id);
-  if (queueIndex !== -1) matchmakingQueue.splice(queueIndex, 1);
+  Object.values(matchmakingQueues).forEach((queue) => {
+    const queueIndex = queue.indexOf(socket.id);
+    if (queueIndex !== -1) queue.splice(queueIndex, 1);
+  });
   socket.data.queued = false;
 }
 
-function createMatch() {
-  while (matchmakingQueue.length >= 2) {
-    const firstPlayer = io.sockets.sockets.get(matchmakingQueue.shift());
-    const secondPlayer = io.sockets.sockets.get(matchmakingQueue.shift());
+function playerInfo(player) {
+  return { id: player.id, username: player.data.username || 'Player', rating: ratings.get(player.id) || 1000 };
+}
+
+function startRace(roomId) {
+  const room = rooms.get(roomId);
+  if (!room || room.started || room.players.size !== 2) return false;
+  room.started = true;
+  room.paragraph = getRandomParagraph();
+  io.to(roomId).emit('raceStarted', {
+    paragraph: room.paragraph,
+    difficulty: room.difficulty,
+    players: [...room.players].map((playerId) => playerInfo(io.sockets.sockets.get(playerId))),
+  });
+  return true;
+}
+
+function createMatch(mode) {
+  const queue = matchmakingQueues[mode];
+  while (queue.length >= 2) {
+    const firstPlayer = io.sockets.sockets.get(queue.shift());
+    const secondPlayer = io.sockets.sockets.get(queue.shift());
     if (!firstPlayer || !secondPlayer || firstPlayer.id === secondPlayer.id) continue;
 
-    const roomId = `match-${firstPlayer.id}-${secondPlayer.id}`;
-    const room = { paragraph: getRandomParagraph(), players: new Set([firstPlayer.id, secondPlayer.id]), finished: false };
+    const roomId = `match-${mode}-${firstPlayer.id}-${secondPlayer.id}`;
+    const room = { paragraph: null, players: new Set([firstPlayer.id, secondPlayer.id]), finished: false, started: false, mode, difficulty: 'medium' };
     rooms.set(roomId, room);
 
     [firstPlayer, secondPlayer].forEach((player) => {
@@ -49,26 +70,22 @@ function createMatch() {
 
     firstPlayer.emit('matchFound', {
       roomId,
-      opponent: { id: secondPlayer.id, username: secondPlayer.data.username },
+      opponent: playerInfo(secondPlayer),
+      mode,
     });
     secondPlayer.emit('matchFound', {
       roomId,
-      opponent: { id: firstPlayer.id, username: firstPlayer.data.username },
+      opponent: playerInfo(firstPlayer),
+      mode,
     });
-    io.to(roomId).emit('raceStarted', {
-      paragraph: room.paragraph,
-      players: [
-        { id: firstPlayer.id, username: firstPlayer.data.username },
-        { id: secondPlayer.id, username: secondPlayer.data.username },
-      ],
-    });
+    startRace(roomId);
   }
 }
 
 function createFriendId() {
   let friendId;
   do {
-    friendId = `TYPE-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    friendId = Math.random().toString(36).slice(2, 8).toUpperCase();
   } while (friendIds.has(friendId));
   return friendId;
 }
@@ -104,16 +121,16 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('createFriendRoom', (username) => {
+  socket.on('createFriendRoom', ({ username, difficulty = 'medium' }) => {
     if (typeof username === 'string' && username.trim()) socket.data.username = username.trim().slice(0, 24);
     leaveRoom(socket);
     removeFromQueue(socket);
     const roomId = `friend-${socket.id}`;
-    const room = { paragraph: null, players: new Set([socket.id]), finished: false };
+    const room = { paragraph: null, players: new Set([socket.id]), finished: false, started: false, hostId: socket.id, difficulty: ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : 'medium', mode: 'private' };
     rooms.set(roomId, room);
     socket.data.roomId = roomId;
     socket.join(roomId);
-    socket.emit('friendRoomCreated', { friendId });
+    socket.emit('friendRoomCreated', { friendId, difficulty: room.difficulty });
   });
 
   socket.on('joinFriendRoom', ({ friendId: hostFriendId, username }) => {
@@ -136,29 +153,53 @@ io.on('connection', (socket) => {
       id: playerId,
       username: io.sockets.sockets.get(playerId)?.data.username || 'Player',
     }));
-    io.to(roomId).emit('friendJoined', { players });
-    room.paragraph = getRandomParagraph();
-    io.to(roomId).emit('raceStarted', { paragraph: room.paragraph, players });
+    io.to(roomId).emit('friendJoined', { players, canStart: true });
   });
 
-  socket.on('findMatch', (username) => {
+  socket.on('setRoomDifficulty', (difficulty) => {
+    const room = socket.data.roomId && rooms.get(socket.data.roomId);
+    if (!room || room.hostId !== socket.id || room.started) return;
+    if (['easy', 'medium', 'hard'].includes(difficulty)) {
+      room.difficulty = difficulty;
+      io.to(socket.data.roomId).emit('roomDifficulty', difficulty);
+    }
+  });
+
+  socket.on('startRoom', () => {
+    const roomId = socket.data.roomId;
+    const room = roomId && rooms.get(roomId);
+    if (!room || room.mode !== 'private' || room.hostId !== socket.id) return;
+    if (room.players.size !== 2) {
+      socket.emit('errorMessage', 'Wait for your friend to join first.');
+      return;
+    }
+    startRace(roomId);
+  });
+
+  socket.on('findMatch', ({ username, mode = 'quick' }) => {
     if (typeof username !== 'string' || !username.trim()) {
       socket.emit('errorMessage', 'Choose a username first.');
       return;
     }
+    if (!['ranked', 'quick'].includes(mode)) mode = 'quick';
 
     leaveRoom(socket);
     removeFromQueue(socket);
     socket.data.username = username.trim().slice(0, 24);
-    matchmakingQueue.push(socket.id);
+    ratings.set(socket.id, ratings.get(socket.id) || 1000);
+    matchmakingQueues[mode].push(socket.id);
     socket.data.queued = true;
-    socket.emit('matchmaking', { position: matchmakingQueue.length });
-    createMatch();
+    socket.emit('matchmaking', { position: matchmakingQueues[mode].length, mode, rating: ratings.get(socket.id) });
+    createMatch(mode);
   });
 
   socket.on('cancelMatch', () => {
     removeFromQueue(socket);
     socket.emit('matchmakingCancelled');
+  });
+
+  socket.on('leaveRoom', () => {
+    leaveRoom(socket);
   });
 
   socket.on('joinRoom', (roomId, username) => {
@@ -179,7 +220,7 @@ io.on('connection', (socket) => {
     }
 
     if (!room) {
-      room = { paragraph: null, players: new Set(), finished: false };
+      room = { paragraph: null, players: new Set(), finished: false, started: false, mode: 'private', hostId: roomId };
       rooms.set(normalizedRoomId, room);
     }
 
@@ -189,14 +230,7 @@ io.on('connection', (socket) => {
     socket.emit('joinedRoom', { playerNumber: room.players.size, username: socket.data.username });
 
     if (room.players.size === 2) {
-      room.paragraph = getRandomParagraph();
-      io.to(normalizedRoomId).emit('raceStarted', {
-        paragraph: room.paragraph,
-        players: [...room.players].map((playerId) => ({
-          id: playerId,
-          username: io.sockets.sockets.get(playerId)?.data.username || 'Player',
-        })),
-      });
+      startRace(normalizedRoomId);
     }
   });
 
@@ -217,7 +251,19 @@ io.on('connection', (socket) => {
     if (!room || !room.players.has(socket.id) || room.finished) return;
 
     room.finished = true;
-    io.to(roomId).emit('raceFinished', { winnerId: socket.id });
+    const winner = socket.id;
+    const loser = [...room.players].find((playerId) => playerId !== winner);
+    let ratingChanges;
+    if (room.mode === 'ranked' && loser) {
+      const winnerRating = ratings.get(winner) || 1000;
+      const loserRating = ratings.get(loser) || 1000;
+      const expectedWinner = 1 / (1 + 10 ** ((loserRating - winnerRating) / 400));
+      const change = Math.max(10, Math.round(32 * (1 - expectedWinner)));
+      ratings.set(winner, winnerRating + change);
+      ratings.set(loser, loserRating - change);
+      ratingChanges = { [winner]: change, [loser]: -change };
+    }
+    io.to(roomId).emit('raceFinished', { winnerId: winner, ratingChanges });
   });
 
   socket.on('disconnect', () => {
