@@ -116,6 +116,9 @@
     .search-track { height: 6px; overflow: hidden; border-radius: 3px; background: #e3e9e1; }
     .search-progress { width: 42%; height: 100%; border-radius: inherit; background: var(--coral); animation: search-slide 1.25s ease-in-out infinite; }
     .search-phrase { margin-top: 12px; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px; }
+    .toast { position: fixed; right: 22px; bottom: 22px; z-index: 8; display: flex; max-width: min(360px, calc(100vw - 32px)); align-items: center; gap: 10px; padding: 14px 17px; border: 1px solid rgba(189, 89, 69, .45); border-radius: 10px; color: #fff; background: var(--coral-dark); box-shadow: 0 12px 28px rgba(189, 89, 69, .25); font-size: 13px; animation: toast-in .25s ease-out both; }
+    .toast::before { content: '!'; display: grid; width: 22px; height: 22px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(255, 255, 255, .5); border-radius: 50%; font-weight: 700; }
+    .toast.hiding { animation: toast-out .25s ease-in both; }
     .private-count { display: block; }
     .room-actions { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
 
@@ -150,6 +153,8 @@
     @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes pulse { 50% { opacity: .35; transform: scale(.75); } }
     @keyframes search-slide { 0% { margin-left: -42%; } 50% { margin-left: 58%; } 100% { margin-left: 100%; } }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes toast-out { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(12px); } }
     @media (max-width: 760px) { .home-grid { grid-template-columns: 1fr; gap: 28px; } .home-grid .panel { padding: 22px; } }
     @media (max-width: 600px) { .shell { width: min(100% - 24px, 520px); padding-top: 20px; } header { align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 38px; } .header-tools { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; width: 100%; order: 3; gap: 8px; } .profile { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px; } .profile input { width: 100%; } .friend-id { margin-left: 0; overflow: hidden; } .friend-id strong { display: block; font-size: 9px; } .account-panel { right: 0; width: min(260px, calc(100vw - 24px)); } }
     @media (max-width: 520px) { .home-grid .panel { padding: 18px; } .platform-picker { grid-template-columns: 1fr; } .mode-switch { grid-template-columns: 1fr; gap: 8px; } .mode-button { min-height: 84px; } .device-choice { margin-bottom: 14px; } .join-row { flex-direction: column; } button { min-height: 48px; } .status-line { align-items: flex-start; flex-direction: column; gap: 7px; } .race-copy { padding: 16px; font-size: 13px; line-height: 1.7; } .result-row { grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 10px; font-size: 11px; } .result-row span:first-child { grid-column: 1 / -1; } .result-row span:last-child { text-align: right; } }
@@ -237,6 +242,7 @@
       </section>
     </main>
   </div>
+  <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
@@ -256,6 +262,7 @@
     const resetCodeButton = document.querySelector('#reset-code');
     const waitingMessage = document.querySelector('#waiting-message');
     const roomCount = document.querySelector('#room-count');
+    const toast = document.querySelector('#toast');
     const searchVisual = document.querySelector('#search-visual');
     const searchPhrase = document.querySelector('#search-phrase');
     const youName = document.querySelector('#you-name');
@@ -286,6 +293,7 @@
     let selectedMode = 'quick';
     const currentDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ? 'phone' : 'pc';
     let selectedPlatform = localStorage.getItem('typingBattlePlatform') || 'pc';
+    let toastTimer;
     let phraseTimer;
     const searchPhrases = ['Warming up the keys...', 'Scanning the starting line...', 'Looking for quick fingers...', 'Your rival is almost here...', 'Tuning the race lane...'];
     platformSelect.value = selectedPlatform;
@@ -326,6 +334,16 @@
         phraseIndex = (phraseIndex + 1) % searchPhrases.length;
         searchPhrase.textContent = searchPhrases[phraseIndex];
       }, 2200);
+    }
+
+    function showToast(message) {
+      clearTimeout(toastTimer);
+      toast.classList.remove('hidden', 'hiding');
+      toast.textContent = message;
+      toastTimer = setTimeout(() => {
+        toast.classList.add('hiding');
+        setTimeout(() => toast.classList.add('hidden'), 250);
+      }, 4200);
     }
 
     history.replaceState({ screen: 'home' }, '', window.location.pathname);
@@ -689,6 +707,7 @@
         joinMessage.textContent = 'Your opponent left the match.';
         showScreen(joinScreen);
       }
+      showToast('Your opponent left the match.');
     });
 
     socket.on('roomUpdate', ({ playerCount, maxPlayers, players, hostId }) => {
