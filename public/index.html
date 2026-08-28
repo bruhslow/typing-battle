@@ -47,9 +47,14 @@
       padding: 34px 0 56px;
     }
 
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 52px; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 52px; }
     .brand { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
     .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; color: var(--panel); background: var(--ink); font-family: 'DM Mono', monospace; }
+    .profile { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .profile label { margin: 0; color: var(--muted); font-size: 11px; }
+    .profile input { width: 145px; padding: 8px 10px; font-size: 12px; }
+    .friend-id { color: var(--ink); font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
+    .friend-id strong { color: var(--muted); font-family: 'Space Grotesk', sans-serif; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
     .connection { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; }
     .connection::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--coral); }
     .connection.online::before { background: var(--mint-strong); }
@@ -68,6 +73,7 @@
     input:focus, textarea:focus { border-color: var(--mint-strong); box-shadow: 0 0 0 3px rgba(45, 138, 98, .14); }
     button { border: 0; border-radius: 8px; padding: 0 22px; color: white; background: var(--ink); cursor: pointer; font-weight: 600; white-space: nowrap; }
     button:hover { background: var(--mint-strong); }
+    button.secondary { margin-top: 18px; padding: 11px 18px; color: var(--ink); background: transparent; border: 1px solid var(--line); font-size: 13px; }
     .message { min-height: 20px; margin: 12px 0 0; color: var(--coral-dark); font-size: 13px; }
 
     .status-line { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; margin-bottom: 28px; }
@@ -95,13 +101,16 @@
 
     @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes pulse { 50% { opacity: .35; transform: scale(.75); } }
-    @media (max-width: 520px) { header { margin-bottom: 38px; } .join-row { flex-direction: column; } button { min-height: 48px; } .status-line { align-items: flex-start; flex-direction: column; gap: 7px; } }
+    @media (max-width: 600px) { header { align-items: flex-start; flex-wrap: wrap; margin-bottom: 38px; } .profile { order: 3; width: 100%; } .profile input { flex: 1; } }
+    @media (max-width: 520px) { .join-row { flex-direction: column; } button { min-height: 48px; } .status-line { align-items: flex-start; flex-direction: column; gap: 7px; } }
   </style>
 </head>
 <body>
   <div class="shell">
     <header>
       <div class="brand"><span class="brand-mark">TS</span> Type Sprint</div>
+      <div class="profile"><label for="username-input">Username</label><input id="username-input" maxlength="24" placeholder="Your name" autocomplete="nickname"></div>
+      <div class="friend-id"><strong>Friend ID</strong> <span id="friend-id">Connecting...</span></div>
       <div class="connection" id="connection">Connecting</div>
     </header>
 
@@ -109,13 +118,14 @@
       <section id="join-screen">
         <div class="eyebrow">Two-player typing race</div>
         <h1>Fast fingers.<br>Clear mind.</h1>
-        <p class="intro">Join a room, wait for your rival, and type the same paragraph to the finish line.</p>
+        <p class="intro">Share your friend ID or enter a friend’s ID to race together in the same room.</p>
         <div class="panel">
-          <label for="room-input">Room name</label>
+          <label for="friend-input">Enter friend ID</label>
           <div class="join-row">
-            <input id="room-input" maxlength="32" placeholder="e.g. friday-night" autocomplete="off">
-            <button id="join-button" type="button">Join race</button>
+            <input id="friend-input" maxlength="13" placeholder="TYPE-ABC123" autocomplete="off">
+            <button id="join-button" type="button">Join friend</button>
           </div>
+          <button class="secondary" id="create-room-button" type="button">Create a room</button>
           <p class="message" id="join-message" aria-live="polite"></p>
         </div>
       </section>
@@ -125,17 +135,17 @@
           <h2 id="race-status">Waiting for a rival</h2>
           <span class="room-label" id="room-label"></span>
         </div>
-        <div id="waiting" class="waiting"><span class="pulse"></span>Share the room name with another player.</div>
+        <div id="waiting" class="waiting"><span class="pulse"></span><span id="waiting-message">Looking for another player...</span><br><button class="secondary" id="cancel-button" type="button">Cancel search</button></div>
         <div id="race-content" class="hidden">
           <p class="race-copy" id="paragraph"></p>
           <textarea id="typing-area" disabled placeholder="Start typing when the race begins..."></textarea>
           <div class="bars">
             <div>
-              <div class="bar-head"><span>You</span><span id="you-percent">0%</span></div>
+              <div class="bar-head"><span id="you-name">You</span><span id="you-percent">0%</span></div>
               <div class="track"><div class="fill you-fill" id="you-fill"></div></div>
             </div>
             <div>
-              <div class="bar-head"><span>Opponent</span><span id="opponent-percent">0%</span></div>
+              <div class="bar-head"><span id="opponent-name">Opponent</span><span id="opponent-percent">0%</span></div>
               <div class="track"><div class="fill opponent-fill" id="opponent-fill"></div></div>
             </div>
           </div>
@@ -158,13 +168,18 @@
     const raceScreen = document.querySelector('#race-screen');
     const winnerScreen = document.querySelector('#winner-screen');
     const joinMessage = document.querySelector('#join-message');
-    const roomInput = document.querySelector('#room-input');
+    const usernameInput = document.querySelector('#username-input');
+    const friendInput = document.querySelector('#friend-input');
     const typingArea = document.querySelector('#typing-area');
     const paragraphElement = document.querySelector('#paragraph');
     const raceStatus = document.querySelector('#race-status');
     const waiting = document.querySelector('#waiting');
     const raceContent = document.querySelector('#race-content');
     const connection = document.querySelector('#connection');
+    const friendIdElement = document.querySelector('#friend-id');
+    const waitingMessage = document.querySelector('#waiting-message');
+    const youName = document.querySelector('#you-name');
+    const opponentName = document.querySelector('#opponent-name');
     let roomId = '';
     let paragraph = '';
     let finished = false;
@@ -186,18 +201,36 @@
     }
 
     document.querySelector('#join-button').addEventListener('click', () => {
-      const value = roomInput.value.trim();
-      if (!value) {
-        joinMessage.textContent = 'Enter a room name to continue.';
-        roomInput.focus();
+      const friendId = friendInput.value.trim().toUpperCase();
+      const username = usernameInput.value.trim();
+      if (!username || !friendId) {
+        joinMessage.textContent = username ? 'Enter your friend ID to continue.' : 'Choose a username to continue.';
+        (username ? friendInput : usernameInput).focus();
         return;
       }
       joinMessage.textContent = '';
-      socket.emit('joinRoom', value);
+      socket.emit('joinFriendRoom', { friendId, username });
     });
 
-    roomInput.addEventListener('keydown', (event) => {
+    friendInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') document.querySelector('#join-button').click();
+    });
+
+    usernameInput.addEventListener('change', () => socket.emit('setUsername', usernameInput.value));
+
+    document.querySelector('#create-room-button').addEventListener('click', () => {
+      const username = usernameInput.value.trim();
+      if (!username) {
+        joinMessage.textContent = 'Choose a username to continue.';
+        usernameInput.focus();
+        return;
+      }
+      socket.emit('createFriendRoom', username);
+    });
+
+    document.querySelector('#cancel-button').addEventListener('click', () => {
+      socket.emit('cancelMatch');
+      showScreen(joinScreen);
     });
 
     typingArea.addEventListener('input', () => {
@@ -220,22 +253,59 @@
       connection.classList.add('online');
     });
 
+    socket.on('friendId', (friendId) => {
+      friendIdElement.textContent = friendId;
+    });
+
+    socket.on('friendRoomCreated', ({ friendId }) => {
+      showScreen(raceScreen);
+      raceStatus.textContent = 'Waiting for your friend';
+      document.querySelector('#room-label').textContent = 'ID / ' + friendId;
+      waitingMessage.textContent = 'Give your friend the ID shown in the top-right corner.';
+      joinMessage.textContent = '';
+    });
+
+    socket.on('friendJoined', ({ players }) => {
+      const opponent = players.find((item) => item.id !== socket.id);
+      if (opponent) waitingMessage.textContent = opponent.username + ' joined. Starting race...';
+    });
+
     socket.on('disconnect', () => {
       connection.textContent = 'Disconnected';
       connection.classList.remove('online');
     });
 
-    socket.on('joinedRoom', ({ playerNumber }) => {
-      roomId = roomInput.value.trim();
+    socket.on('matchmaking', () => {
+      showScreen(raceScreen);
+      raceStatus.textContent = 'Finding a player';
+      waitingMessage.textContent = 'Looking for another player...';
+      document.querySelector('#room-label').textContent = '';
+      joinMessage.textContent = '';
+    });
+
+    socket.on('matchFound', ({ roomId: matchedRoomId, opponent }) => {
+      roomId = matchedRoomId;
+      raceStatus.textContent = 'Opponent found';
+      document.querySelector('#room-label').textContent = 'MATCH / ' + roomId;
+      waitingMessage.textContent = 'Starting your race against ' + opponent.username + '...';
+    });
+
+    socket.on('joinedRoom', ({ playerNumber, username }) => {
+      roomId = 'manual-room';
       showScreen(raceScreen);
       document.querySelector('#room-label').textContent = 'ROOM / ' + roomId;
+      youName.textContent = username || 'You';
       raceStatus.textContent = playerNumber === 1 ? 'Waiting for a rival' : 'Getting the race ready';
       joinMessage.textContent = '';
     });
 
-    socket.on('raceStarted', ({ paragraph: sharedParagraph }) => {
+    socket.on('raceStarted', ({ paragraph: sharedParagraph, players = [] }) => {
       paragraph = sharedParagraph;
       finished = false;
+      const player = players.find((item) => item.id === socket.id);
+      const opponent = players.find((item) => item.id !== socket.id);
+      youName.textContent = player ? player.username : 'You';
+      opponentName.textContent = opponent ? opponent.username : 'Opponent';
       raceStatus.textContent = 'Type to race';
       waiting.classList.add('hidden');
       raceContent.classList.remove('hidden');
@@ -253,7 +323,8 @@
 
     socket.on('raceFinished', ({ winnerId }) => {
       typingArea.disabled = true;
-      document.querySelector('#winner-title').textContent = winnerId === socket.id ? 'You win!' : 'So close!';
+      const winnerName = winnerId === socket.id ? youName.textContent : opponentName.textContent;
+      document.querySelector('#winner-title').textContent = winnerId === socket.id ? 'You win!' : winnerName + ' wins';
       document.querySelector('#winner-subtitle').textContent = winnerId === socket.id ? 'Your fingers found the finish line first.' : 'Your opponent crossed the finish line first.';
       showScreen(winnerScreen);
     });
@@ -263,7 +334,8 @@
       waiting.classList.remove('hidden');
       raceContent.classList.add('hidden');
       typingArea.disabled = true;
-      joinMessage.textContent = 'Your opponent left the room.';
+      waitingMessage.textContent = 'Your opponent left. Looking for another player...';
+      socket.emit('findMatch', usernameInput.value.trim());
     });
 
     socket.on('roomFull', () => { joinMessage.textContent = 'That room already has two players.'; });
