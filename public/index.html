@@ -557,14 +557,20 @@
     });
 
     socket.on('playerLeft', ({ playerCount, maxPlayers }) => {
+      const wasPrivateRoom = selectedMode === 'private';
       raceStatus.textContent = 'Waiting for a rival';
       waiting.classList.remove('hidden');
       raceContent.classList.add('hidden');
       typingArea.disabled = true;
-      waitingMessage.textContent = 'A player left the room.';
-      roomCount.textContent = 'Players: ' + playerCount + ' / ' + maxPlayers;
       activeMatch = false;
-      showScreen(raceScreen);
+      if (wasPrivateRoom) {
+        waitingMessage.textContent = 'A player left the room.';
+        roomCount.textContent = 'Players: ' + playerCount + ' / ' + maxPlayers;
+        showScreen(raceScreen);
+      } else {
+        joinMessage.textContent = 'Your opponent left the match.';
+        showScreen(joinScreen);
+      }
     });
 
     socket.on('roomUpdate', ({ playerCount, maxPlayers, players, hostId }) => {
