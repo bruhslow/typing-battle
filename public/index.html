@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Type Sprint</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+    :root {
+      --ink: #17221f;
+      --muted: #6d7b75;
+      --paper: #f6f5ef;
+      --panel: #fffdf8;
+      --line: #d8ded5;
+      --mint: #b7e4c7;
+      --mint-strong: #2d8a62;
+      --coral: #f28f79;
+      --coral-dark: #bd5945;
+      --shadow: 0 20px 60px rgba(32, 55, 44, 0.11);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      opacity: .48;
+      background-image: linear-gradient(rgba(45, 138, 98, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(45, 138, 98, .07) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(to bottom, black, transparent 80%);
+    }
+
+    .shell {
+      width: min(880px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 34px 0 56px;
+    }
+
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 52px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; color: var(--panel); background: var(--ink); font-family: 'DM Mono', monospace; }
+    .connection { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; }
+    .connection::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--coral); }
+    .connection.online::before { background: var(--mint-strong); }
+
+    main { animation: rise .55s ease-out both; }
+    .eyebrow { color: var(--mint-strong); font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { max-width: 620px; margin: 12px 0 16px; font-size: clamp(42px, 8vw, 76px); line-height: .97; letter-spacing: -.055em; }
+    .intro { max-width: 520px; margin: 0 0 34px; color: var(--muted); font-size: 17px; line-height: 1.55; }
+
+    .panel { padding: clamp(22px, 5vw, 42px); border: 1px solid rgba(216, 222, 213, .9); border-radius: 14px; background: rgba(255, 253, 248, .9); box-shadow: var(--shadow); }
+    .hidden { display: none !important; }
+    label { display: block; margin-bottom: 9px; font-size: 13px; font-weight: 600; }
+    .join-row { display: flex; gap: 10px; }
+    input, textarea, button { font: inherit; }
+    input { width: 100%; min-width: 0; padding: 15px 16px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fff; outline: none; }
+    input:focus, textarea:focus { border-color: var(--mint-strong); box-shadow: 0 0 0 3px rgba(45, 138, 98, .14); }
+    button { border: 0; border-radius: 8px; padding: 0 22px; color: white; background: var(--ink); cursor: pointer; font-weight: 600; white-space: nowrap; }
+    button:hover { background: var(--mint-strong); }
+    .message { min-height: 20px; margin: 12px 0 0; color: var(--coral-dark); font-size: 13px; }
+
+    .status-line { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; margin-bottom: 28px; }
+    .status-line h2 { margin: 0; font-size: 22px; }
+    .room-label { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 12px; }
+    .waiting { padding: 30px 0 12px; text-align: center; color: var(--muted); }
+    .pulse { display: inline-block; width: 9px; height: 9px; margin-right: 8px; border-radius: 50%; background: var(--coral); animation: pulse 1.4s infinite; }
+
+    .race-copy { margin: 0 0 24px; padding: 22px; border-left: 4px solid var(--mint-strong); border-radius: 0 8px 8px 0; color: var(--muted); background: #f0f5ee; font-family: 'DM Mono', monospace; font-size: 16px; line-height: 1.8; }
+    .race-copy .typed { color: var(--mint-strong); }
+    textarea { display: block; width: 100%; min-height: 120px; resize: vertical; padding: 16px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fff; outline: none; font-family: 'DM Mono', monospace; line-height: 1.6; }
+    .bars { display: grid; gap: 18px; margin-top: 30px; }
+    .bar-head { display: flex; justify-content: space-between; margin-bottom: 7px; font-size: 13px; }
+    .bar-head span:last-child { color: var(--muted); font-family: 'DM Mono', monospace; }
+    .track { height: 10px; overflow: hidden; border-radius: 5px; background: #e3e9e1; }
+    .fill { height: 100%; width: 0; border-radius: inherit; transition: width .16s ease-out; }
+    .you-fill { background: var(--mint-strong); }
+    .opponent-fill { background: var(--coral); }
+
+    .winner { text-align: center; }
+    .winner-badge { display: inline-grid; place-items: center; width: 68px; height: 68px; margin-bottom: 18px; border-radius: 50%; color: var(--panel); background: var(--coral); font-size: 30px; }
+    .winner h2 { margin: 0 0 10px; font-size: clamp(32px, 7vw, 52px); letter-spacing: -.04em; }
+    .winner p { margin: 0 0 28px; color: var(--muted); }
+    .winner button { min-height: 46px; }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 50% { opacity: .35; transform: scale(.75); } }
+    @media (max-width: 520px) { header { margin-bottom: 38px; } .join-row { flex-direction: column; } button { min-height: 48px; } .status-line { align-items: flex-start; flex-direction: column; gap: 7px; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand"><span class="brand-mark">TS</span> Type Sprint</div>
+      <div class="connection" id="connection">Connecting</div>
+    </header>
+
+    <main>
+      <section id="join-screen">
+        <div class="eyebrow">Two-player typing race</div>
+        <h1>Fast fingers.<br>Clear mind.</h1>
+        <p class="intro">Join a room, wait for your rival, and type the same paragraph to the finish line.</p>
+        <div class="panel">
+          <label for="room-input">Room name</label>
+          <div class="join-row">
+            <input id="room-input" maxlength="32" placeholder="e.g. friday-night" autocomplete="off">
+            <button id="join-button" type="button">Join race</button>
+          </div>
+          <p class="message" id="join-message" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section id="race-screen" class="panel hidden">
+        <div class="status-line">
+          <h2 id="race-status">Waiting for a rival</h2>
+          <span class="room-label" id="room-label"></span>
+        </div>
+        <div id="waiting" class="waiting"><span class="pulse"></span>Share the room name with another player.</div>
+        <div id="race-content" class="hidden">
+          <p class="race-copy" id="paragraph"></p>
+          <textarea id="typing-area" disabled placeholder="Start typing when the race begins..."></textarea>
+          <div class="bars">
+            <div>
+              <div class="bar-head"><span>You</span><span id="you-percent">0%</span></div>
+              <div class="track"><div class="fill you-fill" id="you-fill"></div></div>
+            </div>
+            <div>
+              <div class="bar-head"><span>Opponent</span><span id="opponent-percent">0%</span></div>
+              <div class="track"><div class="fill opponent-fill" id="opponent-fill"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="winner-screen" class="panel winner hidden">
+        <div class="winner-badge">★</div>
+        <h2 id="winner-title">You win!</h2>
+        <p id="winner-subtitle">That was a clean finish.</p>
+        <button id="new-race-button" type="button">Race again</button>
+      </section>
+    </main>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const joinScreen = document.querySelector('#join-screen');
+    const raceScreen = document.querySelector('#race-screen');
+    const winnerScreen = document.querySelector('#winner-screen');
+    const joinMessage = document.querySelector('#join-message');
+    const roomInput = document.querySelector('#room-input');
+    const typingArea = document.querySelector('#typing-area');
+    const paragraphElement = document.querySelector('#paragraph');
+    const raceStatus = document.querySelector('#race-status');
+    const waiting = document.querySelector('#waiting');
+    const raceContent = document.querySelector('#race-content');
+    const connection = document.querySelector('#connection');
+    let roomId = '';
+    let paragraph = '';
+    let finished = false;
+
+    function showScreen(screen) {
+      [joinScreen, raceScreen, winnerScreen].forEach((item) => item.classList.add('hidden'));
+      screen.classList.remove('hidden');
+    }
+
+    function setProgress(element, label, value) {
+      const percent = Math.max(0, Math.min(100, value));
+      element.style.width = percent + '%';
+      label.textContent = Math.round(percent) + '%';
+    }
+
+    function renderParagraph(typedText) {
+      const safeLength = Math.min(typedText.length, paragraph.length);
+      paragraphElement.innerHTML = '<span class="typed">' + paragraph.slice(0, safeLength) + '</span>' + paragraph.slice(safeLength);
+    }
+
+    document.querySelector('#join-button').addEventListener('click', () => {
+      const value = roomInput.value.trim();
+      if (!value) {
+        joinMessage.textContent = 'Enter a room name to continue.';
+        roomInput.focus();
+        return;
+      }
+      joinMessage.textContent = '';
+      socket.emit('joinRoom', value);
+    });
+
+    roomInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') document.querySelector('#join-button').click();
+    });
+
+    typingArea.addEventListener('input', () => {
+      const progress = paragraph ? Math.min(100, (typingArea.value.length / paragraph.length) * 100) : 0;
+      renderParagraph(typingArea.value);
+      setProgress(document.querySelector('#you-fill'), document.querySelector('#you-percent'), progress);
+      socket.emit('progress', progress);
+      if (typingArea.value === paragraph && !finished) {
+        finished = true;
+        socket.emit('finished');
+      }
+    });
+
+    document.querySelector('#new-race-button').addEventListener('click', () => {
+      window.location.reload();
+    });
+
+    socket.on('connect', () => {
+      connection.textContent = 'Connected';
+      connection.classList.add('online');
+    });
+
+    socket.on('disconnect', () => {
+      connection.textContent = 'Disconnected';
+      connection.classList.remove('online');
+    });
+
+    socket.on('joinedRoom', ({ playerNumber }) => {
+      roomId = roomInput.value.trim();
+      showScreen(raceScreen);
+      document.querySelector('#room-label').textContent = 'ROOM / ' + roomId;
+      raceStatus.textContent = playerNumber === 1 ? 'Waiting for a rival' : 'Getting the race ready';
+      joinMessage.textContent = '';
+    });
+
+    socket.on('raceStarted', ({ paragraph: sharedParagraph }) => {
+      paragraph = sharedParagraph;
+      finished = false;
+      raceStatus.textContent = 'Type to race';
+      waiting.classList.add('hidden');
+      raceContent.classList.remove('hidden');
+      typingArea.value = '';
+      typingArea.disabled = false;
+      typingArea.focus();
+      renderParagraph('');
+      setProgress(document.querySelector('#you-fill'), document.querySelector('#you-percent'), 0);
+      setProgress(document.querySelector('#opponent-fill'), document.querySelector('#opponent-percent'), 0);
+    });
+
+    socket.on('opponentProgress', ({ progress }) => {
+      setProgress(document.querySelector('#opponent-fill'), document.querySelector('#opponent-percent'), progress);
+    });
+
+    socket.on('raceFinished', ({ winnerId }) => {
+      typingArea.disabled = true;
+      document.querySelector('#winner-title').textContent = winnerId === socket.id ? 'You win!' : 'So close!';
+      document.querySelector('#winner-subtitle').textContent = winnerId === socket.id ? 'Your fingers found the finish line first.' : 'Your opponent crossed the finish line first.';
+      showScreen(winnerScreen);
+    });
+
+    socket.on('playerLeft', () => {
+      raceStatus.textContent = 'Waiting for a rival';
+      waiting.classList.remove('hidden');
+      raceContent.classList.add('hidden');
+      typingArea.disabled = true;
+      joinMessage.textContent = 'Your opponent left the room.';
+    });
+
+    socket.on('roomFull', () => { joinMessage.textContent = 'That room already has two players.'; });
+    socket.on('errorMessage', (message) => { joinMessage.textContent = message; });
+  </script>
+</body>
+</html>
