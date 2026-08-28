@@ -151,8 +151,8 @@
     @keyframes pulse { 50% { opacity: .35; transform: scale(.75); } }
     @keyframes search-slide { 0% { margin-left: -42%; } 50% { margin-left: 58%; } 100% { margin-left: 100%; } }
     @media (max-width: 760px) { .home-grid { grid-template-columns: 1fr; gap: 28px; } .home-grid .panel { padding: 22px; } }
-    @media (max-width: 600px) { header { align-items: flex-start; flex-wrap: wrap; margin-bottom: 38px; } .header-tools { width: 100%; justify-content: space-between; order: 3; } .profile input { flex: 1; } .friend-id { margin-left: auto; } }
-    @media (max-width: 520px) { .mode-switch { grid-template-columns: 1fr; } .mode-button { min-height: 92px; } .join-row { flex-direction: column; } button { min-height: 48px; } .status-line { align-items: flex-start; flex-direction: column; gap: 7px; } }
+    @media (max-width: 600px) { .shell { width: min(100% - 24px, 520px); padding-top: 20px; } header { align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 38px; } .header-tools { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; width: 100%; order: 3; gap: 8px; } .profile { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px; } .profile input { width: 100%; } .friend-id { margin-left: 0; overflow: hidden; } .friend-id strong { display: block; font-size: 9px; } .account-panel { right: 0; width: min(260px, calc(100vw - 24px)); } }
+    @media (max-width: 520px) { .home-grid .panel { padding: 18px; } .mode-switch { grid-template-columns: 1fr; gap: 8px; } .mode-button { min-height: 84px; } .device-choice { margin-bottom: 14px; } .join-row { flex-direction: column; } button { min-height: 48px; } .status-line { align-items: flex-start; flex-direction: column; gap: 7px; } .race-copy { padding: 16px; font-size: 13px; line-height: 1.7; } .result-row { grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 10px; font-size: 11px; } .result-row span:first-child { grid-column: 1 / -1; } .result-row span:last-child { text-align: right; } }
   </style>
 </head>
 <body>
@@ -284,17 +284,18 @@
     let startTime = 0;
     let errorCount = 0;
     let selectedMode = 'quick';
+    const currentDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ? 'phone' : 'pc';
     let selectedPlatform = localStorage.getItem('typingBattlePlatform') || 'pc';
     let phraseTimer;
     const searchPhrases = ['Warming up the keys...', 'Scanning the starting line...', 'Looking for quick fingers...', 'Your rival is almost here...', 'Tuning the race lane...'];
     platformSelect.value = selectedPlatform;
-    deviceBadge.textContent = selectedPlatform.toUpperCase();
+    deviceBadge.textContent = currentDevice.toUpperCase();
     document.querySelectorAll('.platform-option').forEach((button) => {
       button.classList.toggle('active', button.dataset.platform === selectedPlatform);
       button.addEventListener('click', () => {
         selectedPlatform = button.dataset.platform;
         platformSelect.value = selectedPlatform;
-        deviceBadge.textContent = selectedPlatform.toUpperCase();
+        deviceBadge.textContent = currentDevice.toUpperCase();
         localStorage.setItem('typingBattlePlatform', selectedPlatform);
         document.querySelectorAll('.platform-option').forEach((item) => item.classList.toggle('active', item === button));
       });
@@ -457,7 +458,7 @@
     difficultySelect.addEventListener('change', () => socket.emit('setRoomDifficulty', difficultySelect.value));
     platformSelect.addEventListener('change', () => {
       selectedPlatform = platformSelect.value;
-      deviceBadge.textContent = selectedPlatform.toUpperCase();
+      deviceBadge.textContent = currentDevice.toUpperCase();
       localStorage.setItem('typingBattlePlatform', selectedPlatform);
       document.querySelectorAll('.platform-option').forEach((item) => item.classList.toggle('active', item.dataset.platform === selectedPlatform));
     });
@@ -504,7 +505,7 @@
       selectedMode = mode;
       selectedPlatform = platform || selectedPlatform;
       platformSelect.value = selectedPlatform;
-      deviceBadge.textContent = selectedPlatform.toUpperCase();
+      deviceBadge.textContent = currentDevice.toUpperCase();
       syncPlatformPicker();
       isHost = hostId === socket.id;
       if (mode !== 'private' || started) return;
@@ -578,7 +579,7 @@
       selectedMode = mode;
       selectedPlatform = platform || selectedPlatform;
       platformSelect.value = selectedPlatform;
-      deviceBadge.textContent = selectedPlatform.toUpperCase();
+      deviceBadge.textContent = currentDevice.toUpperCase();
       syncPlatformPicker();
       isHost = false;
       difficultySelect.classList.add('hidden');
@@ -604,7 +605,7 @@
     socket.on('queueUpdate', ({ position, waiting: waitingPlayers, mode, platform }) => {
       selectedPlatform = platform || selectedPlatform;
       platformSelect.value = selectedPlatform;
-      deviceBadge.textContent = selectedPlatform.toUpperCase();
+      deviceBadge.textContent = currentDevice.toUpperCase();
       syncPlatformPicker();
       raceStatus.textContent = mode === 'ranked' ? 'Finding a ranked player' : 'Finding a player';
       waitingMessage.textContent = mode === 'ranked' ? 'Searching for ranked ' + selectedPlatform + ' members...' : 'Searching for ' + selectedPlatform + ' players...';
