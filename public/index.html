@@ -42,13 +42,12 @@
     }
 
     .shell {
-      width: min(880px, calc(100% - 32px));
+      width: min(1120px, calc(100% - 40px));
       margin: 0 auto;
       padding: 34px 0 56px;
     }
 
-    header { display: flex; justify-content: space-between; align-items: center; gap: 22px; margin-bottom: 52px; padding-bottom: 18px; border-bottom: 1px solid rgba(216, 222, 213, .8); }
-    header { position: relative; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 22px; margin-bottom: 72px; padding-bottom: 18px; border-bottom: 1px solid rgba(216, 222, 213, .8); }
     .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
     .brand-mark { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px; color: var(--panel); background: var(--ink); font-family: 'DM Mono', monospace; transition: transform .2s ease, background .2s ease; }
     .brand:hover .brand-mark { transform: rotate(-5deg); background: var(--mint-strong); }
@@ -62,6 +61,7 @@
     .account:hover .account-panel.hidden { display: block !important; }
     .account-panel h3 { margin: 0 0 12px; font-size: 16px; }
     .account-panel input { margin-bottom: 9px; }
+    .account-email { display: block; }
     .account-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .account-actions button { min-height: 40px; padding: 0 8px; font-size: 12px; }
     .account-message { min-height: 18px; margin: 10px 0 0; color: var(--coral-dark); font-size: 11px; line-height: 1.35; }
@@ -93,14 +93,15 @@
     .mode-icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 8px; color: var(--ink); background: rgba(255, 255, 255, .65); font-family: 'DM Mono', monospace; font-size: 11px; }
     .mode-button.active { color: var(--ink); background: var(--mint); border-color: var(--mint-strong); box-shadow: none; transform: none; }
     .mode-button.active .mode-icon { background: var(--ink); color: var(--mint); }
-    .home-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(420px, 1.2fr); gap: clamp(32px, 7vw, 92px); align-items: center; }
+    .home-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(480px, 1.1fr); gap: clamp(32px, 7vw, 110px); align-items: center; }
     .home-copy .intro { margin-bottom: 0; }
-    .home-grid .panel { padding: 28px; }
+    .home-grid .panel { padding: 28px; border-radius: 20px; }
     #random-button { width: 100%; min-height: 54px; font-size: 15px; }
     .private-fields { display: none; }
     .private-fields.visible { display: block; }
     .difficulty-select { width: auto; min-width: 145px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fff; font: inherit; }
     .room-count { width: 100%; margin-top: 12px; color: var(--ink); font-family: 'DM Mono', monospace; font-size: 12px; }
+    .private-count { display: block; }
     .room-actions { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
 
     .status-line { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; margin-bottom: 28px; }
@@ -150,6 +151,7 @@
           <div class="account-panel hidden" id="account-panel">
             <h3 id="account-title">Ranked account</h3>
             <input id="account-username" maxlength="24" placeholder="Username" autocomplete="username">
+            <input class="account-email" id="account-email" type="email" placeholder="Email" autocomplete="email">
             <input id="account-password" type="password" placeholder="Password" autocomplete="current-password">
             <div class="account-actions"><button id="login-button" type="button">Log in</button><button id="signup-button" type="button">Sign up</button></div>
             <p class="account-message" id="account-message" aria-live="polite"></p>
@@ -191,7 +193,7 @@
           <h2 id="race-status">Waiting for a rival</h2>
           <span class="room-label" id="room-label"></span>
         </div>
-        <div id="waiting" class="waiting"><span class="pulse"></span><span id="waiting-message">Looking for another player...</span><div class="room-count" id="room-count"></div><div class="room-actions"><select class="difficulty-select hidden" id="difficulty-select" aria-label="Room difficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select><button class="secondary hidden" id="start-room-button" type="button">Start room</button><button class="secondary" id="cancel-button" type="button">Leave</button></div></div>
+        <div id="waiting" class="waiting"><span class="pulse"></span><span id="waiting-message">Looking for another player...</span><div class="room-count hidden" id="room-count"></div><div class="room-actions"><select class="difficulty-select hidden" id="difficulty-select" aria-label="Room difficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select><button class="secondary hidden" id="start-room-button" type="button">Start room</button><button class="secondary" id="cancel-button" type="button">Leave</button></div></div>
         <div id="race-content" class="hidden">
           <p class="race-copy" id="paragraph"></p>
           <textarea id="typing-area" disabled placeholder="Start typing when the race begins..."></textarea>
@@ -248,6 +250,7 @@
     const accountPanel = document.querySelector('#account-panel');
     const accountTitle = document.querySelector('#account-title');
     const accountUsername = document.querySelector('#account-username');
+    const accountEmail = document.querySelector('#account-email');
     const accountPassword = document.querySelector('#account-password');
     const accountMessage = document.querySelector('#account-message');
     let loggedIn = false;
@@ -280,11 +283,11 @@
     });
 
     document.querySelector('#login-button').addEventListener('click', () => {
-      socket.emit('login', { username: accountUsername.value, password: accountPassword.value });
+      socket.emit('login', { username: accountUsername.value, email: accountEmail.value, password: accountPassword.value });
     });
 
     document.querySelector('#signup-button').addEventListener('click', () => {
-      socket.emit('signup', { username: accountUsername.value, password: accountPassword.value });
+      socket.emit('signup', { username: accountUsername.value, email: accountEmail.value, password: accountPassword.value });
     });
 
     function setProgress(element, label, value) {
@@ -422,6 +425,7 @@
       loggedIn = true;
       usernameInput.value = username;
       accountUsername.value = username;
+      accountEmail.value = '';
       accountPassword.value = '';
       accountMessage.textContent = 'ELO ' + rating;
       accountTitle.textContent = username;
@@ -454,15 +458,22 @@
       document.querySelector('#room-label').textContent = 'ID / ' + friendId;
       waitingMessage.textContent = 'Give your friend the room code shown in the top-right corner.';
       roomCount.textContent = 'Players: ' + playerCount + ' / ' + maxPlayers;
+      roomCount.classList.remove('hidden');
       difficultySelect.classList.remove('hidden');
       startRoomButton.classList.add('hidden');
       joinMessage.textContent = '';
     });
 
-    socket.on('friendJoined', ({ players, playerCount, maxPlayers }) => {
+    socket.on('friendJoined', ({ players, playerCount, maxPlayers, hostId }) => {
       const opponent = players.find((item) => item.id !== socket.id);
-      if (opponent) waitingMessage.textContent = opponent.username + ' joined. Waiting for host to start...';
+      showScreen(raceScreen);
+      activeMatch = false;
+      waiting.classList.remove('hidden');
+      raceContent.classList.add('hidden');
+      waitingMessage.textContent = socket.id === hostId ? opponent.username + ' joined. Waiting for host to start...' : 'Waiting for the host to start the match...';
       roomCount.textContent = 'Players: ' + playerCount + ' / ' + maxPlayers;
+      roomCount.classList.remove('hidden');
+      difficultySelect.classList.toggle('hidden', socket.id !== hostId);
       if (isHost) startRoomButton.classList.remove('hidden');
     });
 
@@ -471,9 +482,12 @@
       isHost = false;
       difficultySelect.classList.add('hidden');
       startRoomButton.classList.add('hidden');
+      roomCount.classList.add('hidden');
       showScreen(raceScreen);
       raceStatus.textContent = mode === 'ranked' ? 'Finding a ranked player • ELO ' + rating : 'Finding a player';
-      waitingMessage.textContent = 'Looking for another player...';
+      waitingMessage.textContent = mode === 'ranked' ? 'Searching for ranked members...' : 'Searching for players...';
+      roomCount.textContent = 'Queue position: 1 • 1 player searching';
+      roomCount.classList.remove('hidden');
       document.querySelector('#room-label').textContent = '';
       joinMessage.textContent = '';
     });
@@ -483,6 +497,13 @@
       raceStatus.textContent = 'Opponent found';
       document.querySelector('#room-label').textContent = 'MATCH / ' + roomId;
       waitingMessage.textContent = 'Starting your race against ' + opponent.username + '...';
+    });
+
+    socket.on('queueUpdate', ({ position, waiting: waitingPlayers, mode }) => {
+      raceStatus.textContent = mode === 'ranked' ? 'Finding a ranked player' : 'Finding a player';
+      waitingMessage.textContent = mode === 'ranked' ? 'Searching for ranked members...' : 'Searching for players...';
+      roomCount.textContent = 'Queue position: ' + position + ' • ' + waitingPlayers + ' ' + (waitingPlayers === 1 ? 'player' : 'players') + ' searching';
+      roomCount.classList.remove('hidden');
     });
 
     socket.on('joinedRoom', ({ playerNumber, username }) => {
@@ -508,6 +529,7 @@
       raceStatus.textContent = 'Type to race';
       difficultySelect.classList.add('hidden');
       startRoomButton.classList.add('hidden');
+      roomCount.classList.add('hidden');
       waiting.classList.add('hidden');
       raceContent.classList.remove('hidden');
       typingArea.value = '';
@@ -547,6 +569,7 @@
 
     socket.on('roomUpdate', ({ playerCount, maxPlayers, players, hostId }) => {
       roomCount.textContent = 'Players: ' + playerCount + ' / ' + maxPlayers;
+      roomCount.classList.remove('hidden');
       const opponent = players.find((item) => item.id !== socket.id);
       if (opponent && !activeMatch) waitingMessage.textContent = opponent.username + ' is in the room. Waiting for host to start...';
       if (socket.id === hostId && playerCount > 1) startRoomButton.classList.remove('hidden');

@@ -149,6 +149,14 @@ function createMatch(mode) {
     });
     startRace(roomId);
   }
+  broadcastQueue(mode);
+}
+
+function broadcastQueue(mode) {
+  matchmakingQueues[mode].forEach((socketId, index) => {
+    const player = io.sockets.sockets.get(socketId);
+    if (player) player.emit('queueUpdate', { position: index + 1, waiting: matchmakingQueues[mode].length, mode });
+  });
 }
 
 function createFriendId() {
@@ -157,6 +165,14 @@ function createFriendId() {
     friendId = Math.random().toString(36).slice(2, 8).toUpperCase();
   } while (friendIds.has(friendId));
   return friendId;
+}
+
+function rotateFriendId(socket) {
+  friendIds.delete(socket.data.friendId);
+  const friendId = createFriendId();
+  friendIds.set(friendId, socket.id);
+  socket.data.friendId = friendId;
+  socket.emit('friendId', friendId);
 }
 
 function leaveRoom(socket) {
@@ -191,33 +207,36 @@ io.on('connection', (socket) => {
   socket.data.friendId = friendId;
   socket.emit('friendId', friendId);
 
-  socket.on('signup', ({ username, password }) => {
+  socket.on('signup', ({ username, email, password }) => {
     const accountName = typeof username === 'string' ? username.trim() : '';
     const accountKey = accountName.toLowerCase();
-    if (!/^[a-zA-Z0-9_ ]{3,24}$/.test(accountName) || typeof password !== 'string' || password.length < 6) {
-      socket.emit('authError', 'Use a username with 3-24 letters/numbers and a password of 6+ characters.');
+    const accountEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    if (!/^[a-zA-Z0-9_ ]{3,24}$/.test(accountName) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(accountEmail) || typeof password !== 'string' || password.length < 6) {
+      socket.emit('authError', 'Use a valid email, a username with 3-24 characters, and a password of 6+ characters.');
       return;
     }
-    if (accounts.has(accountKey)) {
+    if (accounts.has(accountKey) || [...accounts.values()].some((account) => account.email === accountEmail)) {
       socket.emit('authError', 'That username is already taken.');
       return;
     }
     const credentials = hashPassword(password);
-    accounts.set(accountKey, { username: accountName, ...credentials, rating: 1000 });
+    accounts.set(accountKey, { username: accountName, email: accountEmail, ...credentials, rating: 1000 });
     socket.data.accountKey = accountKey;
     socket.data.username = accountName;
     socket.emit('authSuccess', { username: accountName, rating: 1000 });
   });
 
-  socket.on('login', ({ username, password }) => {
+  socket.on('login', ({ username, email, password }) => {
     const accountKey = typeof username === 'string' ? username.trim().toLowerCase() : '';
     const account = accounts.get(accountKey);
-    if (!account || typeof password !== 'string' || !passwordMatches(password, account)) {
+    const emailMatches = typeof email === 'string' && email.trim().toLowerCase() === account?.email;
+    if (!account || !emailMatches || typeof password !== 'string' || !passwordMatches(password, account)) {
       socket.emit('authError', 'Incorrect username or password.');
       return;
     }
     socket.data.accountKey = accountKey;
     socket.data.username = account.username;
+    rotateFriendId(socket);
     socket.emit('authSuccess', { username: account.username, rating: account.rating });
   });
 
@@ -313,6 +332,8 @@ io.on('connection', (socket) => {
 
   socket.on('cancelMatch', () => {
     removeFromQueue(socket);
+    broadcastQueue('quick');
+    broadcastQueue('ranked');
     socket.emit('matchmakingCancelled');
   });
 
