@@ -10,7 +10,7 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 const rooms = new Map();
-const matchmakingQueues = { ranked: { pc: [], phone: [] }, quick: { pc: [], phone: [] } };
+const matchmakingQueues = { ranked: { pc: [], phone: [] }, quick: { pc: [], phone: [], cross: [] } };
 const friendIds = new Map();
 const sessions = new Map();
 const ratings = new Map();
@@ -42,7 +42,7 @@ function removeFromQueue(socket) {
 }
 
 function playerInfo(player) {
-  return { id: player.id, username: player.data.username || 'Player', platform: player.data.platform || 'pc', rating: getRating(player.id) };
+  return { id: player.id, username: player.data.username || 'Player', platform: player.data.device || player.data.platform || 'pc', rating: getRating(player.id) };
 }
 
 function roomPlayers(room) {
@@ -122,7 +122,44 @@ function finishRace(roomId) {
   io.to(roomId).emit('raceFinished', { winnerId, results, mode: room.mode });
 }
 
+function createQuickMatch() {
+  const queuedPlayers = Object.entries(matchmakingQueues.quick).flatMap(([platform, queue]) => queue.map((socketId) => ({ socketId, platform })));
+  queuedPlayers.sort((first, second) => (io.sockets.sockets.get(first.socketId)?.data.queuedAt || 0) - (io.sockets.sockets.get(second.socketId)?.data.queuedAt || 0));
+  while (queuedPlayers.length >= 2) {
+    const first = queuedPlayers[0];
+    const firstPlayer = io.sockets.sockets.get(first.socketId);
+    const secondIndex = queuedPlayers.findIndex((candidate, index) => {
+      if (index === 0) return false;
+      const candidatePlayer = io.sockets.sockets.get(candidate.socketId);
+      return first.platform === 'cross' || candidate.platform === 'cross' || (first.platform === candidatePlayer?.data.device && candidate.platform === firstPlayer?.data.device);
+    });
+    if (!firstPlayer || secondIndex === -1) break;
+    const second = queuedPlayers[secondIndex];
+    const secondPlayer = io.sockets.sockets.get(second.socketId);
+    queuedPlayers.splice(secondIndex, 1);
+    queuedPlayers.shift();
+    [first.platform, second.platform].forEach((platform, index) => {
+      const queue = matchmakingQueues.quick[platform];
+      queue.splice(queue.indexOf(index === 0 ? first.socketId : second.socketId), 1);
+    });
+    if (!secondPlayer) continue;
+    const roomId = `match-quick-${firstPlayer.id}-${secondPlayer.id}`;
+    rooms.set(roomId, { paragraph: null, players: new Set([firstPlayer.id, secondPlayer.id]), finished: false, started: false, mode: 'quick', difficulty: 'medium' });
+    [firstPlayer, secondPlayer].forEach((player) => { player.data.roomId = roomId; player.data.queued = false; player.join(roomId); });
+    firstPlayer.emit('matchFound', { roomId, opponent: playerInfo(secondPlayer), mode: 'quick' });
+    secondPlayer.emit('matchFound', { roomId, opponent: playerInfo(firstPlayer), mode: 'quick' });
+    startRace(roomId);
+  }
+  broadcastQueue('quick', 'pc');
+  broadcastQueue('quick', 'phone');
+  broadcastQueue('quick', 'cross');
+}
+
 function createMatch(mode, platform) {
+  if (mode === 'quick') {
+    createQuickMatch();
+    return;
+  }
   const queue = matchmakingQueues[mode][platform];
   while (queue.length >= 2) {
     const firstPlayer = io.sockets.sockets.get(queue.shift());
@@ -297,11 +334,12 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('createFriendRoom', ({ username, difficulty = 'medium', platform = 'pc' }) => {
+  socket.on('createFriendRoom', ({ username, difficulty = 'medium', platform = 'pc', device = 'pc' }) => {
     if (typeof username === 'string' && username.trim()) socket.data.username = username.trim().slice(0, 24);
     leaveRoom(socket);
     removeFromQueue(socket);
     socket.data.platform = ['pc', 'phone'].includes(platform) ? platform : 'pc';
+    socket.data.device = ['pc', 'phone'].includes(device) ? device : 'pc';
     const roomId = `friend-${socket.id}`;
     const room = { paragraph: null, players: new Set([socket.id]), finished: false, started: false, hostId: socket.id, difficulty: ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : 'medium', mode: 'private' };
     rooms.set(roomId, room);
@@ -311,7 +349,7 @@ io.on('connection', (socket) => {
     socket.emit('friendRoomCreated', { friendId, difficulty: room.difficulty, playerCount: 1, maxPlayers: PRIVATE_ROOM_LIMIT });
   });
 
-  socket.on('joinFriendRoom', ({ friendId: hostFriendId, username, platform = 'pc' }) => {
+  socket.on('joinFriendRoom', ({ friendId: hostFriendId, username, platform = 'pc', device = 'pc' }) => {
     const hostSocketId = friendIds.get(hostFriendId);
     const host = hostSocketId && io.sockets.sockets.get(hostSocketId);
     const roomId = host && host.data.roomId;
@@ -323,6 +361,7 @@ io.on('connection', (socket) => {
     }
     if (typeof username === 'string' && username.trim()) socket.data.username = username.trim().slice(0, 24);
     socket.data.platform = ['pc', 'phone'].includes(platform) ? platform : 'pc';
+    socket.data.device = ['pc', 'phone'].includes(device) ? device : 'pc';
     leaveRoom(socket);
     removeFromQueue(socket);
     room.players.add(socket.id);
@@ -353,13 +392,14 @@ io.on('connection', (socket) => {
     startRace(roomId);
   });
 
-  socket.on('findMatch', ({ username, mode = 'quick', platform = 'pc' }) => {
+  socket.on('findMatch', ({ username, mode = 'quick', platform = 'pc', device = 'pc' }) => {
     if (typeof username !== 'string' || !username.trim()) {
       socket.emit('errorMessage', 'Choose a username first.');
       return;
     }
     if (!['ranked', 'quick'].includes(mode)) mode = 'quick';
-    if (!['pc', 'phone'].includes(platform)) platform = 'pc';
+    if (!['pc', 'phone', 'cross'].includes(platform) || (mode === 'ranked' && platform === 'cross')) platform = 'pc';
+    if (!['pc', 'phone'].includes(device)) device = 'pc';
     if (mode === 'ranked' && !socket.data.accountKey) {
       socket.emit('authRequired');
       return;
@@ -374,11 +414,14 @@ io.on('connection', (socket) => {
     removeFromQueue(socket);
     socket.data.username = username.trim().slice(0, 24);
     socket.data.platform = platform;
+    socket.data.device = device;
+    socket.data.queuedAt = Date.now();
     ratings.set(socket.id, ratings.get(socket.id) || 1000);
-    matchmakingQueues[mode][platform].push(socket.id);
+    const queuePlatform = mode === 'ranked' ? device : platform;
+    matchmakingQueues[mode][queuePlatform].push(socket.id);
     socket.data.queued = true;
-    socket.emit('matchmaking', { position: matchmakingQueues[mode][platform].length, mode, platform, rating: ratings.get(socket.id) });
-    createMatch(mode, platform);
+    socket.emit('matchmaking', { position: matchmakingQueues[mode][queuePlatform].length, mode, platform, queuePlatform, rating: ratings.get(socket.id) });
+    createMatch(mode, queuePlatform);
   });
 
   socket.on('cancelMatch', () => {

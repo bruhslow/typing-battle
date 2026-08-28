@@ -105,7 +105,7 @@
     .difficulty-select { width: auto; min-width: 145px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fff; font: inherit; }
     .device-choice { margin-bottom: 18px; }
     .device-choice label { margin: 0 0 9px; color: var(--muted); font-size: 12px; }
-    .platform-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 5px; border: 1px solid var(--line); border-radius: 11px; background: #f0f3ed; }
+    .platform-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 5px; border: 1px solid var(--line); border-radius: 11px; background: #f0f3ed; }
     .platform-option { display: flex; min-height: 48px; align-items: center; justify-content: center; gap: 8px; padding: 7px 10px; color: var(--muted); background: transparent; font-size: 12px; }
     .platform-option:hover { color: var(--ink); background: rgba(255, 255, 255, .65); box-shadow: none; transform: none; }
     .platform-option.active { color: var(--ink); background: #fffdf8; box-shadow: 0 3px 10px rgba(32, 55, 44, .1); transform: none; }
@@ -152,7 +152,7 @@
     @keyframes search-slide { 0% { margin-left: -42%; } 50% { margin-left: 58%; } 100% { margin-left: 100%; } }
     @media (max-width: 760px) { .home-grid { grid-template-columns: 1fr; gap: 28px; } .home-grid .panel { padding: 22px; } }
     @media (max-width: 600px) { .shell { width: min(100% - 24px, 520px); padding-top: 20px; } header { align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 38px; } .header-tools { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; width: 100%; order: 3; gap: 8px; } .profile { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px; } .profile input { width: 100%; } .friend-id { margin-left: 0; overflow: hidden; } .friend-id strong { display: block; font-size: 9px; } .account-panel { right: 0; width: min(260px, calc(100vw - 24px)); } }
-    @media (max-width: 520px) { .home-grid .panel { padding: 18px; } .mode-switch { grid-template-columns: 1fr; gap: 8px; } .mode-button { min-height: 84px; } .device-choice { margin-bottom: 14px; } .join-row { flex-direction: column; } button { min-height: 48px; } .status-line { align-items: flex-start; flex-direction: column; gap: 7px; } .race-copy { padding: 16px; font-size: 13px; line-height: 1.7; } .result-row { grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 10px; font-size: 11px; } .result-row span:first-child { grid-column: 1 / -1; } .result-row span:last-child { text-align: right; } }
+    @media (max-width: 520px) { .home-grid .panel { padding: 18px; } .platform-picker { grid-template-columns: 1fr; } .mode-switch { grid-template-columns: 1fr; gap: 8px; } .mode-button { min-height: 84px; } .device-choice { margin-bottom: 14px; } .join-row { flex-direction: column; } button { min-height: 48px; } .status-line { align-items: flex-start; flex-direction: column; gap: 7px; } .race-copy { padding: 16px; font-size: 13px; line-height: 1.7; } .result-row { grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 10px; font-size: 11px; } .result-row span:first-child { grid-column: 1 / -1; } .result-row span:last-child { text-align: right; } }
   </style>
 </head>
 <body>
@@ -190,7 +190,7 @@
             <button class="mode-button" data-mode="ranked" type="button"><span class="mode-icon">ELO</span><strong>Ranked</strong><small>Compete for rating</small></button>
             <button class="mode-button" data-mode="private" type="button"><span class="mode-icon">ID</span><strong>Private room</strong><small>Race with a friend</small></button>
           </div>
-          <div class="device-choice"><label>Play against</label><div class="platform-picker" role="group" aria-label="Choose player device"><button class="platform-option active" data-platform="pc" type="button"><span class="platform-icon">PC</span>PC players</button><button class="platform-option" data-platform="phone" type="button"><span class="platform-icon">PH</span>Phone players</button></div><select class="hidden" id="platform-select" aria-hidden="true" tabindex="-1"><option value="pc">PC players</option><option value="phone">Phone players</option></select></div>
+          <div class="device-choice"><label>Play against</label><div class="platform-picker" role="group" aria-label="Choose player device"><button class="platform-option active" data-platform="pc" type="button"><span class="platform-icon">PC</span>PC players</button><button class="platform-option" data-platform="phone" type="button"><span class="platform-icon">PH</span>Phone players</button><button class="platform-option" data-platform="cross" type="button"><span class="platform-icon">ALL</span>Cross-platform</button></div><select class="hidden" id="platform-select" aria-hidden="true" tabindex="-1"><option value="pc">PC players</option><option value="phone">Phone players</option><option value="cross">Cross-platform</option></select></div>
           <div class="private-fields" id="private-fields">
           <label for="friend-input">Enter room code</label>
           <div class="join-row">
@@ -398,6 +398,13 @@
 
     document.querySelectorAll('.mode-button').forEach((button) => button.addEventListener('click', () => {
       selectedMode = button.dataset.mode;
+      const crossPlatformButton = document.querySelector('.platform-option[data-platform="cross"]');
+      crossPlatformButton.classList.toggle('hidden', selectedMode === 'ranked');
+      if (selectedMode === 'ranked' && selectedPlatform === 'cross') {
+        selectedPlatform = 'pc';
+        platformSelect.value = selectedPlatform;
+        syncPlatformPicker();
+      }
       document.querySelectorAll('.mode-button').forEach((item) => item.classList.toggle('active', item === button));
       privateFields.classList.toggle('visible', selectedMode === 'private');
       randomButton.classList.toggle('hidden', selectedMode === 'private');
@@ -412,7 +419,7 @@
         return;
       }
       joinMessage.textContent = '';
-      socket.emit('joinFriendRoom', { friendId, username, platform: platformSelect.value });
+      socket.emit('joinFriendRoom', { friendId, username, platform: platformSelect.value, device: currentDevice });
     });
 
     randomButton.addEventListener('click', () => {
@@ -428,7 +435,7 @@
         return;
       }
       joinMessage.textContent = '';
-      socket.emit('findMatch', { username, mode: selectedMode, platform: platformSelect.value });
+      socket.emit('findMatch', { username, mode: selectedMode, platform: platformSelect.value, device: currentDevice });
     });
 
     friendInput.addEventListener('keydown', (event) => {
@@ -452,7 +459,7 @@
         usernameInput.focus();
         return;
       }
-      socket.emit('createFriendRoom', { username, difficulty: difficultySelect.value, platform: platformSelect.value });
+      socket.emit('createFriendRoom', { username, difficulty: difficultySelect.value, platform: platformSelect.value, device: currentDevice });
     });
 
     difficultySelect.addEventListener('change', () => socket.emit('setRoomDifficulty', difficultySelect.value));
@@ -588,7 +595,7 @@
       showScreen(raceScreen);
       raceStatus.textContent = mode === 'ranked' ? 'Finding a ranked player • ELO ' + rating : 'Finding a player';
       waitingMessage.textContent = mode === 'ranked' ? 'Searching for ranked ' + selectedPlatform + ' members...' : 'Searching for ' + selectedPlatform + ' players...';
-      roomCount.textContent = 'Queue position: 1 • 1 player searching';
+      roomCount.textContent = 'Queue position: 1 • Waiting for a rival';
       roomCount.classList.remove('hidden');
       setSearching(true);
       document.querySelector('#room-label').textContent = '';
@@ -609,7 +616,7 @@
       syncPlatformPicker();
       raceStatus.textContent = mode === 'ranked' ? 'Finding a ranked player' : 'Finding a player';
       waitingMessage.textContent = mode === 'ranked' ? 'Searching for ranked ' + selectedPlatform + ' members...' : 'Searching for ' + selectedPlatform + ' players...';
-      roomCount.textContent = 'Queue position: ' + position + ' • ' + waitingPlayers + ' ' + (waitingPlayers === 1 ? 'player' : 'players') + ' searching';
+      roomCount.textContent = waitingPlayers === 1 ? 'Queue position: 1 • Waiting for a rival' : 'Queue position: ' + position + ' • ' + waitingPlayers + ' players in queue';
       roomCount.classList.remove('hidden');
       setSearching(true);
     });
