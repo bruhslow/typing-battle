@@ -310,7 +310,10 @@
     }
 
     function syncPlatformPicker() {
-      document.querySelectorAll('.platform-option').forEach((item) => item.classList.toggle('active', item.dataset.platform === selectedPlatform));
+      document.querySelectorAll('.platform-option').forEach((item) => {
+        item.classList.toggle('active', item.dataset.platform === selectedPlatform);
+        item.classList.toggle('hidden', selectedMode === 'ranked' && item.dataset.platform !== currentDevice);
+      });
     }
 
     function setSearching(isSearching) {
@@ -400,11 +403,11 @@
       selectedMode = button.dataset.mode;
       const crossPlatformButton = document.querySelector('.platform-option[data-platform="cross"]');
       crossPlatformButton.classList.toggle('hidden', selectedMode === 'ranked');
-      if (selectedMode === 'ranked' && selectedPlatform === 'cross') {
-        selectedPlatform = 'pc';
+      if (selectedMode === 'ranked') {
+        selectedPlatform = currentDevice;
         platformSelect.value = selectedPlatform;
-        syncPlatformPicker();
       }
+      syncPlatformPicker();
       document.querySelectorAll('.mode-button').forEach((item) => item.classList.toggle('active', item === button));
       privateFields.classList.toggle('visible', selectedMode === 'private');
       randomButton.classList.toggle('hidden', selectedMode === 'private');
@@ -595,8 +598,7 @@
       showScreen(raceScreen);
       raceStatus.textContent = mode === 'ranked' ? 'Finding a ranked player • ELO ' + rating : 'Finding a player';
       waitingMessage.textContent = mode === 'ranked' ? 'Searching for ranked ' + selectedPlatform + ' members...' : 'Searching for ' + selectedPlatform + ' players...';
-      roomCount.textContent = 'Queue position: 1 • Waiting for a rival';
-      roomCount.classList.remove('hidden');
+      roomCount.classList.add('hidden');
       setSearching(true);
       document.querySelector('#room-label').textContent = '';
       joinMessage.textContent = '';
@@ -616,8 +618,7 @@
       syncPlatformPicker();
       raceStatus.textContent = mode === 'ranked' ? 'Finding a ranked player' : 'Finding a player';
       waitingMessage.textContent = mode === 'ranked' ? 'Searching for ranked ' + selectedPlatform + ' members...' : 'Searching for ' + selectedPlatform + ' players...';
-      roomCount.textContent = waitingPlayers === 1 ? 'Queue position: 1 • Waiting for a rival' : 'Queue position: ' + position + ' • ' + waitingPlayers + ' players in queue';
-      roomCount.classList.remove('hidden');
+      roomCount.classList.add('hidden');
       setSearching(true);
     });
 
