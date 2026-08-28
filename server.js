@@ -1,5 +1,6 @@
 const path = require('path');
 const http = require('http');
+const crypto = require('crypto');
 const express = require('express');
 const { Server } = require('socket.io');
 
@@ -12,6 +13,8 @@ const rooms = new Map();
 const matchmakingQueues = { ranked: [], quick: [] };
 const friendIds = new Map();
 const ratings = new Map();
+const bannedUntil = new Map();
+const accounts = new Map();
 
 const paragraphs = [
   'The morning train arrived just as the first light spread across the station windows. Travelers gathered their bags and stepped into the new day with quiet purpose.',
@@ -22,8 +25,10 @@ const paragraphs = [
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-function getRandomParagraph() {
-  return paragraphs[Math.floor(Math.random() * paragraphs.length)];
+function getRandomParagraph(difficulty = 'medium') {
+  const ordered = [...paragraphs].sort((first, second) => first.length - second.length);
+  const choices = difficulty === 'easy' ? ordered.slice(0, 2) : difficulty === 'hard' ? ordered.slice(-2) : ordered.slice(1, 3);
+  return choices[Math.floor(Math.random() * choices.length)];
 }
 
 function removeFromQueue(socket) {
@@ -35,20 +40,76 @@ function removeFromQueue(socket) {
 }
 
 function playerInfo(player) {
-  return { id: player.id, username: player.data.username || 'Player', rating: ratings.get(player.id) || 1000 };
+  return { id: player.id, username: player.data.username || 'Player', rating: getRating(player.id) };
 }
 
 function startRace(roomId) {
   const room = rooms.get(roomId);
   if (!room || room.started || room.players.size !== 2) return false;
   room.started = true;
-  room.paragraph = getRandomParagraph();
+  room.startedAt = Date.now();
+  room.finishData = new Map();
+  room.paragraph = getRandomParagraph(room.difficulty);
   io.to(roomId).emit('raceStarted', {
     paragraph: room.paragraph,
     difficulty: room.difficulty,
     players: [...room.players].map((playerId) => playerInfo(io.sockets.sockets.get(playerId))),
   });
   return true;
+}
+
+function getRating(socketId) {
+  const socket = io.sockets.sockets.get(socketId);
+  if (socket?.data.accountKey && accounts.has(socket.data.accountKey)) return accounts.get(socket.data.accountKey).rating;
+  return ratings.get(socketId) || 1000;
+}
+
+function setRating(socketId, rating) {
+  const socket = io.sockets.sockets.get(socketId);
+  if (socket?.data.accountKey && accounts.has(socket.data.accountKey)) accounts.get(socket.data.accountKey).rating = rating;
+  else ratings.set(socketId, rating);
+}
+
+function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
+  return { salt, hash: crypto.scryptSync(password, salt, 64).toString('hex') };
+}
+
+function passwordMatches(password, account) {
+  const attempted = Buffer.from(hashPassword(password, account.salt).hash, 'hex');
+  return crypto.timingSafeEqual(attempted, Buffer.from(account.hash, 'hex'));
+}
+
+function applyRankedPenalty(socket) {
+  const currentRating = getRating(socket.id);
+  const penalty = 50;
+  const until = Date.now() + 60 * 1000;
+  setRating(socket.id, Math.max(0, currentRating - penalty));
+  bannedUntil.set(socket.id, until);
+  socket.emit('rankedPenalty', { rating: getRating(socket.id), bannedUntil: until, seconds: 60 });
+}
+
+function finishRace(roomId) {
+  const room = rooms.get(roomId);
+  if (!room || room.finished || room.finishData.size !== 2) return;
+  room.finished = true;
+  const results = [...room.finishData.entries()]
+    .map(([playerId, data]) => ({ ...playerInfo(io.sockets.sockets.get(playerId)), ...data }))
+    .sort((first, second) => first.elapsedMs - second.elapsedMs);
+  const winnerId = results[0].id;
+
+  if (room.mode === 'ranked') {
+    const winnerRating = getRating(winnerId);
+    const loserRating = getRating(results[1].id);
+    const expectedWinner = 1 / (1 + 10 ** ((loserRating - winnerRating) / 400));
+    const change = Math.max(10, Math.round(32 * (1 - expectedWinner)));
+    setRating(winnerId, winnerRating + change);
+    setRating(results[1].id, Math.max(0, loserRating - change));
+    results[0].ratingChange = change;
+    results[1].ratingChange = -change;
+    results.forEach((result) => { result.rating = getRating(result.id); });
+  }
+
+  io.to(roomId).emit('raceFinished', { winnerId, results, mode: room.mode });
 }
 
 function createMatch(mode) {
@@ -108,11 +169,53 @@ function leaveRoom(socket) {
   delete socket.data.roomId;
 }
 
+function leaveRoomIntentionally(socket) {
+  const roomId = socket.data.roomId;
+  const room = roomId && rooms.get(roomId);
+  if (room?.mode === 'ranked' && room.started && !room.finished) applyRankedPenalty(socket);
+  leaveRoom(socket);
+}
+
 io.on('connection', (socket) => {
   const friendId = createFriendId();
   friendIds.set(friendId, socket.id);
   socket.data.friendId = friendId;
   socket.emit('friendId', friendId);
+
+  socket.on('signup', ({ username, password }) => {
+    const accountName = typeof username === 'string' ? username.trim() : '';
+    const accountKey = accountName.toLowerCase();
+    if (!/^[a-zA-Z0-9_ ]{3,24}$/.test(accountName) || typeof password !== 'string' || password.length < 6) {
+      socket.emit('authError', 'Use a username with 3-24 letters/numbers and a password of 6+ characters.');
+      return;
+    }
+    if (accounts.has(accountKey)) {
+      socket.emit('authError', 'That username is already taken.');
+      return;
+    }
+    const credentials = hashPassword(password);
+    accounts.set(accountKey, { username: accountName, ...credentials, rating: 1000 });
+    socket.data.accountKey = accountKey;
+    socket.data.username = accountName;
+    socket.emit('authSuccess', { username: accountName, rating: 1000 });
+  });
+
+  socket.on('login', ({ username, password }) => {
+    const accountKey = typeof username === 'string' ? username.trim().toLowerCase() : '';
+    const account = accounts.get(accountKey);
+    if (!account || typeof password !== 'string' || !passwordMatches(password, account)) {
+      socket.emit('authError', 'Incorrect username or password.');
+      return;
+    }
+    socket.data.accountKey = accountKey;
+    socket.data.username = account.username;
+    socket.emit('authSuccess', { username: account.username, rating: account.rating });
+  });
+
+  socket.on('logout', () => {
+    delete socket.data.accountKey;
+    socket.emit('loggedOut');
+  });
 
   socket.on('setUsername', (username) => {
     if (typeof username === 'string' && username.trim()) {
@@ -182,6 +285,15 @@ io.on('connection', (socket) => {
       return;
     }
     if (!['ranked', 'quick'].includes(mode)) mode = 'quick';
+    if (mode === 'ranked' && !socket.data.accountKey) {
+      socket.emit('authRequired');
+      return;
+    }
+    const banExpires = bannedUntil.get(socket.id) || 0;
+    if (mode === 'ranked' && banExpires > Date.now()) {
+      socket.emit('rankedBanned', { seconds: Math.ceil((banExpires - Date.now()) / 1000) });
+      return;
+    }
 
     leaveRoom(socket);
     removeFromQueue(socket);
@@ -199,7 +311,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('leaveRoom', () => {
-    leaveRoom(socket);
+    leaveRoomIntentionally(socket);
   });
 
   socket.on('joinRoom', (roomId, username) => {
@@ -245,25 +357,15 @@ io.on('connection', (socket) => {
     });
   });
 
-  socket.on('finished', () => {
+  socket.on('finished', (stats = {}) => {
     const roomId = socket.data.roomId;
     const room = roomId && rooms.get(roomId);
-    if (!room || !room.players.has(socket.id) || room.finished) return;
-
-    room.finished = true;
-    const winner = socket.id;
-    const loser = [...room.players].find((playerId) => playerId !== winner);
-    let ratingChanges;
-    if (room.mode === 'ranked' && loser) {
-      const winnerRating = ratings.get(winner) || 1000;
-      const loserRating = ratings.get(loser) || 1000;
-      const expectedWinner = 1 / (1 + 10 ** ((loserRating - winnerRating) / 400));
-      const change = Math.max(10, Math.round(32 * (1 - expectedWinner)));
-      ratings.set(winner, winnerRating + change);
-      ratings.set(loser, loserRating - change);
-      ratingChanges = { [winner]: change, [loser]: -change };
-    }
-    io.to(roomId).emit('raceFinished', { winnerId: winner, ratingChanges });
+    if (!room || !room.players.has(socket.id) || room.finished || !room.started) return;
+    const wpm = Number.isFinite(stats.wpm) ? Math.max(0, Math.min(300, stats.wpm)) : 0;
+    const errors = Number.isFinite(stats.errors) ? Math.max(0, Math.floor(stats.errors)) : 0;
+    const elapsedMs = Number.isFinite(stats.elapsedMs) ? Math.max(0, stats.elapsedMs) : Date.now() - room.startedAt;
+    room.finishData.set(socket.id, { wpm, errors, elapsedMs });
+    finishRace(roomId);
   });
 
   socket.on('disconnect', () => {

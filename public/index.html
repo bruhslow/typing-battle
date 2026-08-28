@@ -26,7 +26,7 @@
       margin: 0;
       min-height: 100vh;
       color: var(--ink);
-      background: var(--paper);
+      background: radial-gradient(circle at 88% 8%, rgba(242, 143, 121, .15), transparent 28rem), radial-gradient(circle at 8% 82%, rgba(183, 228, 199, .25), transparent 30rem), var(--paper);
       font-family: 'Space Grotesk', sans-serif;
     }
 
@@ -47,40 +47,49 @@
       padding: 34px 0 56px;
     }
 
-    header { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 52px; }
-    .brand { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-    .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; color: var(--panel); background: var(--ink); font-family: 'DM Mono', monospace; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 22px; margin-bottom: 52px; padding-bottom: 18px; border-bottom: 1px solid rgba(216, 222, 213, .8); }
+    .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .brand-mark { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px; color: var(--panel); background: var(--ink); font-family: 'DM Mono', monospace; transition: transform .2s ease, background .2s ease; }
+    .brand:hover .brand-mark { transform: rotate(-5deg); background: var(--mint-strong); }
+    .header-tools { display: flex; align-items: center; gap: 12px; }
     .profile { display: flex; align-items: center; gap: 8px; min-width: 0; }
     .profile label { margin: 0; color: var(--muted); font-size: 11px; }
-    .profile input { width: 145px; padding: 8px 10px; font-size: 12px; }
-    .friend-id { color: var(--ink); font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
+    .profile input { width: 145px; padding: 9px 11px; font-size: 12px; }
+    .friend-id { padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: rgba(255, 253, 248, .7); font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
     .friend-id strong { color: var(--muted); font-family: 'Space Grotesk', sans-serif; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
-    .connection { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; }
-    .connection::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--coral); }
-    .connection.online::before { background: var(--mint-strong); }
 
     main { animation: rise .55s ease-out both; }
     .eyebrow { color: var(--mint-strong); font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
     h1 { max-width: 620px; margin: 12px 0 16px; font-size: clamp(42px, 8vw, 76px); line-height: .97; letter-spacing: -.055em; }
     .intro { max-width: 520px; margin: 0 0 34px; color: var(--muted); font-size: 17px; line-height: 1.55; }
 
-    .panel { padding: clamp(22px, 5vw, 42px); border: 1px solid rgba(216, 222, 213, .9); border-radius: 14px; background: rgba(255, 253, 248, .9); box-shadow: var(--shadow); }
+    .panel { padding: clamp(22px, 5vw, 42px); border: 1px solid rgba(216, 222, 213, .9); border-radius: 14px; background: rgba(255, 253, 248, .94); box-shadow: var(--shadow); }
     .hidden { display: none !important; }
     label { display: block; margin-bottom: 9px; font-size: 13px; font-weight: 600; }
     .join-row { display: flex; gap: 10px; }
     input, textarea, button { font: inherit; }
     input { width: 100%; min-width: 0; padding: 15px 16px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fff; outline: none; }
     input:focus, textarea:focus { border-color: var(--mint-strong); box-shadow: 0 0 0 3px rgba(45, 138, 98, .14); }
-    button { border: 0; border-radius: 8px; padding: 0 22px; color: white; background: var(--ink); cursor: pointer; font-weight: 600; white-space: nowrap; }
-    button:hover { background: var(--mint-strong); }
+    button { border: 0; border-radius: 8px; padding: 0 22px; color: white; background: var(--ink); cursor: pointer; font-weight: 600; white-space: nowrap; transition: transform .2s ease, background .2s ease, box-shadow .2s ease; }
+    button:hover { background: var(--mint-strong); box-shadow: 0 6px 16px rgba(45, 138, 98, .18); transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+    button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 3px solid rgba(242, 143, 121, .45); outline-offset: 2px; }
     button.secondary { margin-top: 18px; padding: 11px 18px; color: var(--ink); background: transparent; border: 1px solid var(--line); font-size: 13px; }
     .message { min-height: 20px; margin: 12px 0 0; color: var(--coral-dark); font-size: 13px; }
-    .mode-switch { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
-    .mode-button { min-height: 44px; padding: 8px 10px; color: var(--muted); background: #eef2ec; border: 1px solid transparent; font-size: 12px; }
-    .mode-button.active { color: var(--ink); background: var(--mint); border-color: var(--mint-strong); }
+    .mode-switch { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+    .mode-button { display: flex; min-height: 118px; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; color: var(--muted); background: #eef2ec; border: 1px solid transparent; text-align: left; }
+    .mode-button strong { color: var(--ink); font-size: 15px; }
+    .mode-button small { max-width: 130px; font-size: 11px; line-height: 1.35; }
+    .mode-icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 8px; color: var(--ink); background: rgba(255, 255, 255, .65); font-family: 'DM Mono', monospace; font-size: 11px; }
+    .mode-button.active { color: var(--ink); background: var(--mint); border-color: var(--mint-strong); box-shadow: none; transform: none; }
+    .mode-button.active .mode-icon { background: var(--ink); color: var(--mint); }
+    .home-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(420px, 1.2fr); gap: clamp(32px, 7vw, 92px); align-items: center; }
+    .home-copy .intro { margin-bottom: 0; }
+    .home-grid .panel { padding: 28px; }
+    #random-button { width: 100%; min-height: 54px; font-size: 15px; }
     .private-fields { display: none; }
     .private-fields.visible { display: block; }
-    .difficulty-select { width: 100%; padding: 13px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fff; font: inherit; }
+    .difficulty-select { width: auto; min-width: 145px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fff; font: inherit; }
     .room-actions { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
 
     .status-line { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; margin-bottom: 28px; }
@@ -92,6 +101,8 @@
     .race-copy { margin: 0 0 24px; padding: 22px; border-left: 4px solid var(--mint-strong); border-radius: 0 8px 8px 0; color: var(--muted); background: #f0f5ee; font-family: 'DM Mono', monospace; font-size: 16px; line-height: 1.8; }
     .race-copy .typed { color: var(--mint-strong); }
     textarea { display: block; width: 100%; min-height: 120px; resize: vertical; padding: 16px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fff; outline: none; font-family: 'DM Mono', monospace; line-height: 1.6; }
+    .typed-feedback { min-height: 24px; margin: 10px 2px 0; color: var(--mint-strong); font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+    .typed-feedback .wrong { color: var(--coral-dark); text-decoration: underline wavy var(--coral); }
     .bars { display: grid; gap: 18px; margin-top: 30px; }
     .bar-head { display: flex; justify-content: space-between; margin-bottom: 7px; font-size: 13px; }
     .bar-head span:last-child { color: var(--muted); font-family: 'DM Mono', monospace; }
@@ -104,33 +115,41 @@
     .winner-badge { display: inline-grid; place-items: center; width: 68px; height: 68px; margin-bottom: 18px; border-radius: 50%; color: var(--panel); background: var(--coral); font-size: 30px; }
     .winner h2 { margin: 0 0 10px; font-size: clamp(32px, 7vw, 52px); letter-spacing: -.04em; }
     .winner p { margin: 0 0 28px; color: var(--muted); }
+    .results { display: grid; gap: 8px; margin: 0 auto 28px; max-width: 540px; text-align: left; }
+    .result-row { display: grid; grid-template-columns: 1fr repeat(3, auto); gap: 16px; padding: 12px 14px; border-bottom: 1px solid var(--line); font-family: 'DM Mono', monospace; font-size: 12px; }
+    .result-row.winner-row { color: var(--mint-strong); font-weight: 500; }
     .winner button { min-height: 46px; }
 
     @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes pulse { 50% { opacity: .35; transform: scale(.75); } }
-    @media (max-width: 600px) { header { align-items: flex-start; flex-wrap: wrap; margin-bottom: 38px; } .profile { order: 3; width: 100%; } .profile input { flex: 1; } }
-    @media (max-width: 520px) { .join-row { flex-direction: column; } button { min-height: 48px; } .status-line { align-items: flex-start; flex-direction: column; gap: 7px; } }
+    @media (max-width: 760px) { .home-grid { grid-template-columns: 1fr; gap: 28px; } .home-grid .panel { padding: 22px; } }
+    @media (max-width: 600px) { header { align-items: flex-start; flex-wrap: wrap; margin-bottom: 38px; } .header-tools { width: 100%; justify-content: space-between; order: 3; } .profile input { flex: 1; } .friend-id { margin-left: auto; } }
+    @media (max-width: 520px) { .mode-switch { grid-template-columns: 1fr; } .mode-button { min-height: 92px; } .join-row { flex-direction: column; } button { min-height: 48px; } .status-line { align-items: flex-start; flex-direction: column; gap: 7px; } }
   </style>
 </head>
 <body>
   <div class="shell">
     <header>
-      <div class="brand"><span class="brand-mark">TS</span> Type Sprint</div>
-      <div class="profile"><label for="username-input">Username</label><input id="username-input" maxlength="24" placeholder="Your name" autocomplete="nickname"></div>
-      <div class="friend-id"><strong>Room code</strong> <span id="friend-id">Connecting...</span></div>
-      <div class="connection" id="connection">Connecting</div>
+      <a class="brand" id="home-link" href="/"><span class="brand-mark">TS</span> Type Sprint</a>
+      <div class="header-tools">
+        <div class="friend-id"><strong>Room code</strong> <span id="friend-id">Connecting...</span></div>
+        <div class="profile"><label for="username-input">Username</label><input id="username-input" maxlength="24" placeholder="Your name" autocomplete="nickname"></div>
+      </div>
     </header>
 
     <main>
       <section id="join-screen">
-        <div class="eyebrow">Two-player typing race</div>
-        <h1>Fast fingers.<br>Clear mind.</h1>
-        <p class="intro">Race a random opponent, climb the ranked ladder, or host a private room for a friend.</p>
-        <div class="panel">
+        <div class="home-grid">
+          <div class="home-copy">
+            <div class="eyebrow">Two-player typing race</div>
+            <h1>Fast fingers.<br>Clear mind.</h1>
+            <p class="intro">Race a random opponent, climb the ranked ladder, or host a private room for a friend.</p>
+          </div>
+          <div class="panel">
           <div class="mode-switch" role="group" aria-label="Race mode">
-            <button class="mode-button active" data-mode="quick" type="button">Quick match</button>
-            <button class="mode-button" data-mode="ranked" type="button">Ranked</button>
-            <button class="mode-button" data-mode="private" type="button">Private room</button>
+            <button class="mode-button active" data-mode="quick" type="button"><span class="mode-icon">GO</span><strong>Quick match</strong><small>Find a rival instantly</small></button>
+            <button class="mode-button" data-mode="ranked" type="button"><span class="mode-icon">ELO</span><strong>Ranked</strong><small>Compete for rating</small></button>
+            <button class="mode-button" data-mode="private" type="button"><span class="mode-icon">ID</span><strong>Private room</strong><small>Race with a friend</small></button>
           </div>
           <div class="private-fields" id="private-fields">
           <label for="friend-input">Enter room code</label>
@@ -142,6 +161,7 @@
           </div>
           <button id="random-button" type="button">Find a player</button>
           <p class="message" id="join-message" aria-live="polite"></p>
+          </div>
         </div>
       </section>
 
@@ -154,6 +174,7 @@
         <div id="race-content" class="hidden">
           <p class="race-copy" id="paragraph"></p>
           <textarea id="typing-area" disabled placeholder="Start typing when the race begins..."></textarea>
+          <div class="typed-feedback" id="typed-feedback" aria-live="polite"></div>
           <div class="bars">
             <div>
               <div class="bar-head"><span id="you-name">You</span><span id="you-percent">0%</span></div>
@@ -171,6 +192,7 @@
         <div class="winner-badge">★</div>
         <h2 id="winner-title">You win!</h2>
         <p id="winner-subtitle">That was a clean finish.</p>
+        <div class="results" id="results"></div>
         <button id="new-race-button" type="button">Race again</button>
       </section>
     </main>
@@ -190,25 +212,31 @@
     const raceStatus = document.querySelector('#race-status');
     const waiting = document.querySelector('#waiting');
     const raceContent = document.querySelector('#race-content');
-    const connection = document.querySelector('#connection');
     const friendIdElement = document.querySelector('#friend-id');
     const waitingMessage = document.querySelector('#waiting-message');
     const youName = document.querySelector('#you-name');
     const opponentName = document.querySelector('#opponent-name');
+    const typedFeedback = document.querySelector('#typed-feedback');
+    const resultsElement = document.querySelector('#results');
     const difficultySelect = document.querySelector('#difficulty-select');
     const startRoomButton = document.querySelector('#start-room-button');
     const privateFields = document.querySelector('#private-fields');
     const randomButton = document.querySelector('#random-button');
-    let selectedMode = 'quick';
     let isHost = false;
     let roomId = '';
     let paragraph = '';
     let finished = false;
+    let activeMatch = false;
+    let startTime = 0;
+    let errorCount = 0;
+    let selectedMode = 'quick';
 
     function showScreen(screen) {
       [joinScreen, raceScreen, winnerScreen].forEach((item) => item.classList.add('hidden'));
       screen.classList.remove('hidden');
     }
+
+    history.replaceState({ screen: 'home' }, '', window.location.pathname);
 
     function setProgress(element, label, value) {
       const percent = Math.max(0, Math.min(100, value));
@@ -220,6 +248,44 @@
       const safeLength = Math.min(typedText.length, paragraph.length);
       paragraphElement.innerHTML = '<span class="typed">' + paragraph.slice(0, safeLength) + '</span>' + paragraph.slice(safeLength);
     }
+
+    function renderTypedFeedback(typedText) {
+      const typedWords = typedText.trim().split(/\s+/).filter(Boolean);
+      const targetWords = paragraph.split(/\s+/);
+      typedFeedback.innerHTML = typedWords.map((word, index) => {
+        const escaped = word.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+        return '<span class="' + (word === targetWords[index] ? '' : 'wrong') + '">' + escaped + '</span>';
+      }).join(' ');
+      errorCount = typedWords.reduce((total, word, index) => total + (word === targetWords[index] ? 0 : 1), 0);
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+    }
+
+    function leaveActiveMatch() {
+      if (!activeMatch) return true;
+      if (!window.confirm(selectedMode === 'ranked' ? 'Leave this ranked match? You will lose ELO and receive a temporary ban.' : 'Leave this match?')) return false;
+      socket.emit('leaveRoom');
+      activeMatch = false;
+      return true;
+    }
+
+    window.addEventListener('beforeunload', (event) => {
+      if (activeMatch) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    });
+
+    document.querySelector('#home-link').addEventListener('click', (event) => {
+      if (!leaveActiveMatch()) event.preventDefault();
+    });
+
+    window.addEventListener('popstate', () => {
+      if (activeMatch && !leaveActiveMatch()) history.forward();
+      else showScreen(joinScreen);
+    });
 
     document.querySelectorAll('.mode-button').forEach((button) => button.addEventListener('click', () => {
       selectedMode = button.dataset.mode;
@@ -271,29 +337,27 @@
     startRoomButton.addEventListener('click', () => socket.emit('startRoom'));
 
     document.querySelector('#cancel-button').addEventListener('click', () => {
+      if (!leaveActiveMatch()) return;
       socket.emit('cancelMatch');
-      socket.emit('leaveRoom');
       showScreen(joinScreen);
     });
 
     typingArea.addEventListener('input', () => {
       const progress = paragraph ? Math.min(100, (typingArea.value.length / paragraph.length) * 100) : 0;
       renderParagraph(typingArea.value);
+      renderTypedFeedback(typingArea.value);
       setProgress(document.querySelector('#you-fill'), document.querySelector('#you-percent'), progress);
       socket.emit('progress', progress);
       if (typingArea.value === paragraph && !finished) {
         finished = true;
-        socket.emit('finished');
+        const elapsedMs = Date.now() - startTime;
+        const wpm = Math.round((paragraph.length / 5) / (elapsedMs / 60000));
+        socket.emit('finished', { wpm, errors: errorCount, elapsedMs });
       }
     });
 
     document.querySelector('#new-race-button').addEventListener('click', () => {
       window.location.reload();
-    });
-
-    socket.on('connect', () => {
-      connection.textContent = 'Connected';
-      connection.classList.add('online');
     });
 
     socket.on('friendId', (friendId) => {
@@ -302,6 +366,7 @@
 
     socket.on('friendRoomCreated', ({ friendId }) => {
       isHost = true;
+      selectedMode = 'private';
       showScreen(raceScreen);
       raceStatus.textContent = 'Waiting for your friend';
       document.querySelector('#room-label').textContent = 'ID / ' + friendId;
@@ -317,12 +382,8 @@
       if (isHost) startRoomButton.classList.remove('hidden');
     });
 
-    socket.on('disconnect', () => {
-      connection.textContent = 'Disconnected';
-      connection.classList.remove('online');
-    });
-
     socket.on('matchmaking', ({ mode, rating }) => {
+      selectedMode = mode;
       isHost = false;
       difficultySelect.classList.add('hidden');
       startRoomButton.classList.add('hidden');
@@ -352,6 +413,10 @@
     socket.on('raceStarted', ({ paragraph: sharedParagraph, players = [] }) => {
       paragraph = sharedParagraph;
       finished = false;
+      activeMatch = true;
+      if (window.location.hash !== '#race') history.pushState({ screen: 'race' }, '', '#race');
+      startTime = Date.now();
+      errorCount = 0;
       const player = players.find((item) => item.id === socket.id);
       const opponent = players.find((item) => item.id !== socket.id);
       youName.textContent = player ? player.username : 'You';
@@ -365,6 +430,7 @@
       typingArea.disabled = false;
       typingArea.focus();
       renderParagraph('');
+      renderTypedFeedback('');
       setProgress(document.querySelector('#you-fill'), document.querySelector('#you-percent'), 0);
       setProgress(document.querySelector('#opponent-fill'), document.querySelector('#opponent-percent'), 0);
     });
@@ -373,11 +439,14 @@
       setProgress(document.querySelector('#opponent-fill'), document.querySelector('#opponent-percent'), progress);
     });
 
-    socket.on('raceFinished', ({ winnerId }) => {
+    socket.on('raceFinished', ({ winnerId, results = [] }) => {
       typingArea.disabled = true;
+      activeMatch = false;
+      history.pushState({ screen: 'results' }, '', '#results');
       const winnerName = winnerId === socket.id ? youName.textContent : opponentName.textContent;
       document.querySelector('#winner-title').textContent = winnerId === socket.id ? 'You win!' : winnerName + ' wins';
       document.querySelector('#winner-subtitle').textContent = winnerId === socket.id ? 'Your fingers found the finish line first.' : 'Your opponent crossed the finish line first.';
+      resultsElement.innerHTML = results.map((result) => '<div class="result-row ' + (result.id === winnerId ? 'winner-row' : '') + '"><span>' + escapeHtml(result.username) + '</span><span>' + result.wpm + ' WPM</span><span>' + result.errors + ' errors</span><span>' + (result.ratingChange ? (result.ratingChange > 0 ? '+' : '') + result.ratingChange + ' ELO' : '') + '</span></div>').join('');
       showScreen(winnerScreen);
     });
 
@@ -387,8 +456,12 @@
       raceContent.classList.add('hidden');
       typingArea.disabled = true;
       waitingMessage.textContent = 'Your opponent left. Looking for another player...';
-      socket.emit('findMatch', usernameInput.value.trim());
+      activeMatch = false;
+      showScreen(joinScreen);
     });
+
+    socket.on('rankedBanned', ({ seconds }) => { joinMessage.textContent = 'Ranked is unavailable for ' + seconds + ' seconds because of your last exit.'; showScreen(joinScreen); });
+    socket.on('rankedPenalty', ({ rating, seconds }) => { joinMessage.textContent = 'Ranked penalty applied. ELO: ' + rating + '. Try again in ' + seconds + ' seconds.'; });
 
     socket.on('roomDifficulty', (difficulty) => { difficultySelect.value = difficulty; });
 
