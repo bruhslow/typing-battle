@@ -15,6 +15,7 @@ const friendIds = new Map();
 const ratings = new Map();
 const bannedUntil = new Map();
 const accounts = new Map();
+const PRIVATE_ROOM_LIMIT = 10;
 
 const paragraphs = [
   'The morning train arrived just as the first light spread across the station windows. Travelers gathered their bags and stepped into the new day with quiet purpose.',
@@ -43,9 +44,16 @@ function playerInfo(player) {
   return { id: player.id, username: player.data.username || 'Player', rating: getRating(player.id) };
 }
 
+function roomPlayers(room) {
+  return [...room.players]
+    .map((playerId) => io.sockets.sockets.get(playerId))
+    .filter(Boolean)
+    .map(playerInfo);
+}
+
 function startRace(roomId) {
   const room = rooms.get(roomId);
-  if (!room || room.started || room.players.size !== 2) return false;
+  if (!room || room.started || room.players.size < 2 || (room.mode !== 'private' && room.players.size !== 2)) return false;
   room.started = true;
   room.startedAt = Date.now();
   room.finishData = new Map();
@@ -53,7 +61,7 @@ function startRace(roomId) {
   io.to(roomId).emit('raceStarted', {
     paragraph: room.paragraph,
     difficulty: room.difficulty,
-    players: [...room.players].map((playerId) => playerInfo(io.sockets.sockets.get(playerId))),
+    players: roomPlayers(room),
   });
   return true;
 }
@@ -90,7 +98,7 @@ function applyRankedPenalty(socket) {
 
 function finishRace(roomId) {
   const room = rooms.get(roomId);
-  if (!room || room.finished || room.finishData.size !== 2) return;
+  if (!room || room.finished || room.finishData.size !== room.players.size) return;
   room.finished = true;
   const results = [...room.finishData.entries()]
     .map(([playerId, data]) => ({ ...playerInfo(io.sockets.sockets.get(playerId)), ...data }))
@@ -161,7 +169,8 @@ function leaveRoom(socket) {
     if (room.players.size === 0) {
       rooms.delete(roomId);
     } else {
-      socket.to(roomId).emit('playerLeft');
+      socket.to(roomId).emit('playerLeft', { playerCount: room.players.size, maxPlayers: PRIVATE_ROOM_LIMIT });
+      socket.to(roomId).emit('roomUpdate', { players: roomPlayers(room), playerCount: room.players.size, maxPlayers: PRIVATE_ROOM_LIMIT, hostId: room.hostId });
     }
   }
 
@@ -233,7 +242,7 @@ io.on('connection', (socket) => {
     rooms.set(roomId, room);
     socket.data.roomId = roomId;
     socket.join(roomId);
-    socket.emit('friendRoomCreated', { friendId, difficulty: room.difficulty });
+    socket.emit('friendRoomCreated', { friendId, difficulty: room.difficulty, playerCount: 1, maxPlayers: PRIVATE_ROOM_LIMIT });
   });
 
   socket.on('joinFriendRoom', ({ friendId: hostFriendId, username }) => {
@@ -242,7 +251,7 @@ io.on('connection', (socket) => {
     const roomId = host && host.data.roomId;
     const room = roomId && rooms.get(roomId);
 
-    if (!host || !room || room.players.size !== 1) {
+    if (!host || !room || room.mode !== 'private' || room.players.size >= PRIVATE_ROOM_LIMIT || room.started) {
       socket.emit('errorMessage', 'That friend ID is not available.');
       return;
     }
@@ -252,11 +261,8 @@ io.on('connection', (socket) => {
     room.players.add(socket.id);
     socket.data.roomId = roomId;
     socket.join(roomId);
-    const players = [...room.players].map((playerId) => ({
-      id: playerId,
-      username: io.sockets.sockets.get(playerId)?.data.username || 'Player',
-    }));
-    io.to(roomId).emit('friendJoined', { players, canStart: true });
+    const players = roomPlayers(room);
+    io.to(roomId).emit('friendJoined', { players, canStart: socket.id === room.hostId, hostId: room.hostId, playerCount: room.players.size, maxPlayers: PRIVATE_ROOM_LIMIT });
   });
 
   socket.on('setRoomDifficulty', (difficulty) => {
@@ -272,8 +278,8 @@ io.on('connection', (socket) => {
     const roomId = socket.data.roomId;
     const room = roomId && rooms.get(roomId);
     if (!room || room.mode !== 'private' || room.hostId !== socket.id) return;
-    if (room.players.size !== 2) {
-      socket.emit('errorMessage', 'Wait for your friend to join first.');
+    if (room.players.size < 2) {
+      socket.emit('errorMessage', 'Wait for at least one friend to join first.');
       return;
     }
     startRace(roomId);

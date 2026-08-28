@@ -48,6 +48,7 @@
     }
 
     header { display: flex; justify-content: space-between; align-items: center; gap: 22px; margin-bottom: 52px; padding-bottom: 18px; border-bottom: 1px solid rgba(216, 222, 213, .8); }
+    header { position: relative; }
     .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
     .brand-mark { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px; color: var(--panel); background: var(--ink); font-family: 'DM Mono', monospace; transition: transform .2s ease, background .2s ease; }
     .brand:hover .brand-mark { transform: rotate(-5deg); background: var(--mint-strong); }
@@ -55,6 +56,15 @@
     .profile { display: flex; align-items: center; gap: 8px; min-width: 0; }
     .profile label { margin: 0; color: var(--muted); font-size: 11px; }
     .profile input { width: 145px; padding: 9px 11px; font-size: 12px; }
+    .account { position: relative; }
+    .account-button { min-height: 38px; padding: 0 14px; font-size: 12px; }
+    .account-panel { position: absolute; top: 48px; right: 0; z-index: 4; width: 260px; padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); box-shadow: var(--shadow); }
+    .account:hover .account-panel.hidden { display: block !important; }
+    .account-panel h3 { margin: 0 0 12px; font-size: 16px; }
+    .account-panel input { margin-bottom: 9px; }
+    .account-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .account-actions button { min-height: 40px; padding: 0 8px; font-size: 12px; }
+    .account-message { min-height: 18px; margin: 10px 0 0; color: var(--coral-dark); font-size: 11px; line-height: 1.35; }
     .friend-id { padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: rgba(255, 253, 248, .7); font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
     .friend-id strong { color: var(--muted); font-family: 'Space Grotesk', sans-serif; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
 
@@ -90,6 +100,7 @@
     .private-fields { display: none; }
     .private-fields.visible { display: block; }
     .difficulty-select { width: auto; min-width: 145px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fff; font: inherit; }
+    .room-count { width: 100%; margin-top: 12px; color: var(--ink); font-family: 'DM Mono', monospace; font-size: 12px; }
     .room-actions { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
 
     .status-line { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; margin-bottom: 28px; }
@@ -134,6 +145,16 @@
       <div class="header-tools">
         <div class="friend-id"><strong>Room code</strong> <span id="friend-id">Connecting...</span></div>
         <div class="profile"><label for="username-input">Username</label><input id="username-input" maxlength="24" placeholder="Your name" autocomplete="nickname"></div>
+        <div class="account">
+          <button class="account-button" id="account-button" type="button">Log in</button>
+          <div class="account-panel hidden" id="account-panel">
+            <h3 id="account-title">Ranked account</h3>
+            <input id="account-username" maxlength="24" placeholder="Username" autocomplete="username">
+            <input id="account-password" type="password" placeholder="Password" autocomplete="current-password">
+            <div class="account-actions"><button id="login-button" type="button">Log in</button><button id="signup-button" type="button">Sign up</button></div>
+            <p class="account-message" id="account-message" aria-live="polite"></p>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -170,7 +191,7 @@
           <h2 id="race-status">Waiting for a rival</h2>
           <span class="room-label" id="room-label"></span>
         </div>
-        <div id="waiting" class="waiting"><span class="pulse"></span><span id="waiting-message">Looking for another player...</span><div class="room-actions"><select class="difficulty-select hidden" id="difficulty-select" aria-label="Room difficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select><button class="secondary hidden" id="start-room-button" type="button">Start room</button><button class="secondary" id="cancel-button" type="button">Leave</button></div></div>
+        <div id="waiting" class="waiting"><span class="pulse"></span><span id="waiting-message">Looking for another player...</span><div class="room-count" id="room-count"></div><div class="room-actions"><select class="difficulty-select hidden" id="difficulty-select" aria-label="Room difficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select><button class="secondary hidden" id="start-room-button" type="button">Start room</button><button class="secondary" id="cancel-button" type="button">Leave</button></div></div>
         <div id="race-content" class="hidden">
           <p class="race-copy" id="paragraph"></p>
           <textarea id="typing-area" disabled placeholder="Start typing when the race begins..."></textarea>
@@ -214,6 +235,7 @@
     const raceContent = document.querySelector('#race-content');
     const friendIdElement = document.querySelector('#friend-id');
     const waitingMessage = document.querySelector('#waiting-message');
+    const roomCount = document.querySelector('#room-count');
     const youName = document.querySelector('#you-name');
     const opponentName = document.querySelector('#opponent-name');
     const typedFeedback = document.querySelector('#typed-feedback');
@@ -222,6 +244,13 @@
     const startRoomButton = document.querySelector('#start-room-button');
     const privateFields = document.querySelector('#private-fields');
     const randomButton = document.querySelector('#random-button');
+    const accountButton = document.querySelector('#account-button');
+    const accountPanel = document.querySelector('#account-panel');
+    const accountTitle = document.querySelector('#account-title');
+    const accountUsername = document.querySelector('#account-username');
+    const accountPassword = document.querySelector('#account-password');
+    const accountMessage = document.querySelector('#account-message');
+    let loggedIn = false;
     let isHost = false;
     let roomId = '';
     let paragraph = '';
@@ -237,6 +266,26 @@
     }
 
     history.replaceState({ screen: 'home' }, '', window.location.pathname);
+
+    accountButton.addEventListener('click', () => {
+      if (loggedIn) {
+        socket.emit('logout');
+        return;
+      }
+      accountPanel.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.account')) accountPanel.classList.add('hidden');
+    });
+
+    document.querySelector('#login-button').addEventListener('click', () => {
+      socket.emit('login', { username: accountUsername.value, password: accountPassword.value });
+    });
+
+    document.querySelector('#signup-button').addEventListener('click', () => {
+      socket.emit('signup', { username: accountUsername.value, password: accountPassword.value });
+    });
 
     function setProgress(element, label, value) {
       const percent = Math.max(0, Math.min(100, value));
@@ -313,6 +362,11 @@
         usernameInput.focus();
         return;
       }
+      if (selectedMode === 'ranked' && !loggedIn) {
+        accountMessage.textContent = 'Log in or sign up to play Ranked.';
+        accountPanel.classList.remove('hidden');
+        return;
+      }
       joinMessage.textContent = '';
       socket.emit('findMatch', { username, mode: selectedMode });
     });
@@ -364,21 +418,51 @@
       friendIdElement.textContent = friendId;
     });
 
-    socket.on('friendRoomCreated', ({ friendId }) => {
+    socket.on('authSuccess', ({ username, rating }) => {
+      loggedIn = true;
+      usernameInput.value = username;
+      accountUsername.value = username;
+      accountPassword.value = '';
+      accountMessage.textContent = 'ELO ' + rating;
+      accountTitle.textContent = username;
+      accountButton.textContent = 'Log out';
+      accountPanel.classList.add('hidden');
+    });
+
+    socket.on('authError', (message) => {
+      accountMessage.textContent = message;
+      accountPanel.classList.remove('hidden');
+    });
+
+    socket.on('authRequired', () => {
+      accountMessage.textContent = 'Log in or sign up to play Ranked.';
+      accountPanel.classList.remove('hidden');
+    });
+
+    socket.on('loggedOut', () => {
+      loggedIn = false;
+      accountTitle.textContent = 'Ranked account';
+      accountButton.textContent = 'Log in';
+      accountMessage.textContent = '';
+    });
+
+    socket.on('friendRoomCreated', ({ friendId, playerCount, maxPlayers }) => {
       isHost = true;
       selectedMode = 'private';
       showScreen(raceScreen);
       raceStatus.textContent = 'Waiting for your friend';
       document.querySelector('#room-label').textContent = 'ID / ' + friendId;
       waitingMessage.textContent = 'Give your friend the room code shown in the top-right corner.';
+      roomCount.textContent = 'Players: ' + playerCount + ' / ' + maxPlayers;
       difficultySelect.classList.remove('hidden');
       startRoomButton.classList.add('hidden');
       joinMessage.textContent = '';
     });
 
-    socket.on('friendJoined', ({ players }) => {
+    socket.on('friendJoined', ({ players, playerCount, maxPlayers }) => {
       const opponent = players.find((item) => item.id !== socket.id);
-      if (opponent) waitingMessage.textContent = opponent.username + ' joined. Starting race...';
+      if (opponent) waitingMessage.textContent = opponent.username + ' joined. Waiting for host to start...';
+      roomCount.textContent = 'Players: ' + playerCount + ' / ' + maxPlayers;
       if (isHost) startRoomButton.classList.remove('hidden');
     });
 
@@ -450,14 +534,22 @@
       showScreen(winnerScreen);
     });
 
-    socket.on('playerLeft', () => {
+    socket.on('playerLeft', ({ playerCount, maxPlayers }) => {
       raceStatus.textContent = 'Waiting for a rival';
       waiting.classList.remove('hidden');
       raceContent.classList.add('hidden');
       typingArea.disabled = true;
-      waitingMessage.textContent = 'Your opponent left. Looking for another player...';
+      waitingMessage.textContent = 'A player left the room.';
+      roomCount.textContent = 'Players: ' + playerCount + ' / ' + maxPlayers;
       activeMatch = false;
-      showScreen(joinScreen);
+      showScreen(raceScreen);
+    });
+
+    socket.on('roomUpdate', ({ playerCount, maxPlayers, players, hostId }) => {
+      roomCount.textContent = 'Players: ' + playerCount + ' / ' + maxPlayers;
+      const opponent = players.find((item) => item.id !== socket.id);
+      if (opponent && !activeMatch) waitingMessage.textContent = opponent.username + ' is in the room. Waiting for host to start...';
+      if (socket.id === hostId && playerCount > 1) startRoomButton.classList.remove('hidden');
     });
 
     socket.on('rankedBanned', ({ seconds }) => { joinMessage.textContent = 'Ranked is unavailable for ' + seconds + ' seconds because of your last exit.'; showScreen(joinScreen); });
