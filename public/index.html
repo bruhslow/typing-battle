@@ -65,7 +65,9 @@
     .account-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .account-actions button { min-height: 40px; padding: 0 8px; font-size: 12px; }
     .account-message { min-height: 18px; margin: 10px 0 0; color: var(--coral-dark); font-size: 11px; line-height: 1.35; }
+    .room-code-wrap { display: flex; align-items: center; gap: 5px; }
     .friend-id { padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: rgba(255, 253, 248, .7); font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
+    .reset-code { width: 30px; min-height: 30px; padding: 0; border: 1px solid var(--line); color: var(--muted); background: transparent; font-size: 17px; line-height: 1; }
     .friend-id strong { color: var(--muted); font-family: 'Space Grotesk', sans-serif; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
 
     main { animation: rise .55s ease-out both; }
@@ -144,7 +146,7 @@
     <header>
       <a class="brand" id="home-link" href="/"><span class="brand-mark">TS</span> Type Sprint</a>
       <div class="header-tools">
-        <div class="friend-id"><strong>Room code</strong> <span id="friend-id">Connecting...</span></div>
+        <div class="room-code-wrap"><div class="friend-id"><strong>Room code</strong> <span id="friend-id">Connecting...</span></div><button class="reset-code" id="reset-code" type="button" title="Get a new room code" aria-label="Get a new room code">↻</button></div>
         <div class="profile"><label for="username-input">Username</label><input id="username-input" maxlength="24" placeholder="Your name" autocomplete="nickname"></div>
         <div class="account">
           <button class="account-button" id="account-button" type="button">Log in</button>
@@ -236,6 +238,7 @@
     const waiting = document.querySelector('#waiting');
     const raceContent = document.querySelector('#race-content');
     const friendIdElement = document.querySelector('#friend-id');
+    const resetCodeButton = document.querySelector('#reset-code');
     const waitingMessage = document.querySelector('#waiting-message');
     const roomCount = document.querySelector('#room-count');
     const youName = document.querySelector('#you-name');
@@ -262,6 +265,9 @@
     let startTime = 0;
     let errorCount = 0;
     let selectedMode = 'quick';
+    const savedFriendId = localStorage.getItem('typingBattleFriendId');
+    const savedUsername = localStorage.getItem('typingBattleUsername');
+    if (savedUsername) usernameInput.value = savedUsername;
 
     function showScreen(screen) {
       [joinScreen, raceScreen, winnerScreen].forEach((item) => item.classList.add('hidden'));
@@ -379,6 +385,14 @@
     });
 
     usernameInput.addEventListener('change', () => socket.emit('setUsername', usernameInput.value));
+    usernameInput.addEventListener('input', () => localStorage.setItem('typingBattleUsername', usernameInput.value));
+
+    resetCodeButton.addEventListener('click', () => {
+      socket.emit('resetFriendId');
+      localStorage.removeItem('typingBattleFriendId');
+      activeMatch = false;
+      showScreen(joinScreen);
+    });
 
     document.querySelector('#create-room-button').addEventListener('click', () => {
       const username = usernameInput.value.trim();
@@ -419,6 +433,28 @@
 
     socket.on('friendId', (friendId) => {
       friendIdElement.textContent = friendId;
+      localStorage.setItem('typingBattleFriendId', friendId);
+    });
+
+    socket.on('connect', () => {
+      if (savedFriendId) socket.emit('restoreSession', { friendId: savedFriendId, username: savedUsername });
+    });
+
+    socket.on('sessionRestored', ({ friendId: restoredFriendId, roomId: restoredRoomId, mode, started, difficulty, players, hostId, playerCount, maxPlayers }) => {
+      friendIdElement.textContent = restoredFriendId;
+      localStorage.setItem('typingBattleFriendId', restoredFriendId);
+      roomId = restoredRoomId;
+      selectedMode = mode;
+      isHost = hostId === socket.id;
+      if (mode !== 'private' || started) return;
+      showScreen(raceScreen);
+      raceStatus.textContent = isHost ? 'Waiting for your friend' : 'Waiting for the host to start the match';
+      waitingMessage.textContent = isHost ? 'Your room is ready.' : 'Waiting for the host to start the match...';
+      roomCount.textContent = 'Players: ' + playerCount + ' / ' + maxPlayers;
+      roomCount.classList.remove('hidden');
+      difficultySelect.value = difficulty;
+      difficultySelect.classList.toggle('hidden', !isHost);
+      startRoomButton.classList.toggle('hidden', !isHost || playerCount < 2);
     });
 
     socket.on('authSuccess', ({ username, rating }) => {

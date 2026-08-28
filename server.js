@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 3000;
 const rooms = new Map();
 const matchmakingQueues = { ranked: [], quick: [] };
 const friendIds = new Map();
+const sessions = new Map();
 const ratings = new Map();
 const bannedUntil = new Map();
 const accounts = new Map();
@@ -175,6 +176,40 @@ function rotateFriendId(socket) {
   socket.emit('friendId', friendId);
 }
 
+function restoreSession(socket, friendId) {
+  const session = sessions.get(friendId);
+  const room = session?.roomId && rooms.get(session.roomId);
+  if (!session || !room || session.expiresAt < Date.now()) return false;
+  room.players.delete(session.socketId);
+  room.players.add(socket.id);
+  if (room.hostId === session.socketId) room.hostId = socket.id;
+  socket.data.friendId = friendId;
+  socket.data.username = session.username;
+  socket.data.roomId = session.roomId;
+  socket.join(session.roomId);
+  sessions.set(friendId, { ...session, socketId: socket.id, expiresAt: Date.now() + 10 * 60 * 1000 });
+  friendIds.set(friendId, socket.id);
+  socket.emit('sessionRestored', {
+    friendId,
+    roomId: session.roomId,
+    mode: room.mode,
+    started: room.started,
+    difficulty: room.difficulty,
+    players: roomPlayers(room),
+    hostId: room.hostId,
+    playerCount: room.players.size,
+    maxPlayers: PRIVATE_ROOM_LIMIT,
+  });
+  if (room.started) {
+    socket.emit('raceStarted', {
+      paragraph: room.paragraph,
+      difficulty: room.difficulty,
+      players: roomPlayers(room),
+    });
+  }
+  return true;
+}
+
 function leaveRoom(socket) {
   const roomId = socket.data.roomId;
   if (!roomId) return;
@@ -206,6 +241,11 @@ io.on('connection', (socket) => {
   friendIds.set(friendId, socket.id);
   socket.data.friendId = friendId;
   socket.emit('friendId', friendId);
+
+  socket.on('restoreSession', ({ friendId: savedFriendId, username }) => {
+    if (restoreSession(socket, savedFriendId)) return;
+    if (typeof username === 'string' && username.trim()) socket.data.username = username.trim().slice(0, 24);
+  });
 
   socket.on('signup', ({ username, email, password }) => {
     const accountName = typeof username === 'string' ? username.trim() : '';
@@ -261,6 +301,7 @@ io.on('connection', (socket) => {
     rooms.set(roomId, room);
     socket.data.roomId = roomId;
     socket.join(roomId);
+    sessions.set(friendId, { socketId: socket.id, roomId, username: socket.data.username || 'Player', expiresAt: Date.now() + 10 * 60 * 1000 });
     socket.emit('friendRoomCreated', { friendId, difficulty: room.difficulty, playerCount: 1, maxPlayers: PRIVATE_ROOM_LIMIT });
   });
 
@@ -280,6 +321,7 @@ io.on('connection', (socket) => {
     room.players.add(socket.id);
     socket.data.roomId = roomId;
     socket.join(roomId);
+    sessions.set(socket.data.friendId, { socketId: socket.id, roomId, username: socket.data.username || 'Player', expiresAt: Date.now() + 10 * 60 * 1000 });
     const players = roomPlayers(room);
     io.to(roomId).emit('friendJoined', { players, canStart: socket.id === room.hostId, hostId: room.hostId, playerCount: room.players.size, maxPlayers: PRIVATE_ROOM_LIMIT });
   });
@@ -341,6 +383,12 @@ io.on('connection', (socket) => {
     leaveRoomIntentionally(socket);
   });
 
+  socket.on('resetFriendId', () => {
+    if (socket.data.roomId) leaveRoom(socket);
+    sessions.delete(socket.data.friendId);
+    rotateFriendId(socket);
+  });
+
   socket.on('joinRoom', (roomId, username) => {
     if (typeof roomId !== 'string' || !roomId.trim()) {
       socket.emit('errorMessage', 'A room ID is required.');
@@ -397,8 +445,15 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     removeFromQueue(socket);
-    leaveRoom(socket);
-    friendIds.delete(socket.data.friendId);
+    const room = socket.data.roomId && rooms.get(socket.data.roomId);
+    if (room?.mode === 'private') {
+      sessions.set(socket.data.friendId, { socketId: socket.id, roomId: socket.data.roomId, username: socket.data.username || 'Player', expiresAt: Date.now() + 10 * 60 * 1000 });
+      friendIds.delete(socket.data.friendId);
+      socket.leave(socket.data.roomId);
+    } else {
+      leaveRoom(socket);
+      friendIds.delete(socket.data.friendId);
+    }
   });
 });
 
