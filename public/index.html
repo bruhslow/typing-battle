@@ -607,7 +607,7 @@
     socket.on('matchFound', ({ roomId: matchedRoomId, opponent }) => {
       roomId = matchedRoomId;
       raceStatus.textContent = 'Opponent found';
-      document.querySelector('#room-label').textContent = 'MATCH / ' + roomId;
+      document.querySelector('#room-label').textContent = '';
       waitingMessage.textContent = 'Starting your race against ' + opponent.username + '...';
     });
 

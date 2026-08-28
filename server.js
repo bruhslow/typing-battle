@@ -62,7 +62,6 @@ function startRace(roomId) {
   io.to(roomId).emit('raceStarted', {
     paragraph: room.paragraph,
     difficulty: room.difficulty,
-    platform: socket.data.platform,
     players: roomPlayers(room),
   });
   return true;
