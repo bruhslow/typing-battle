@@ -374,6 +374,24 @@
       label.textContent = Math.round(percent) + '%';
     }
 
+    function resetRaceState() {
+      paragraph = '';
+      finished = false;
+      activeMatch = false;
+      typingArea.value = '';
+      typingArea.disabled = true;
+      paragraphElement.textContent = '';
+      typedFeedback.textContent = '';
+      resultsElement.textContent = '';
+      youName.textContent = 'You';
+      opponentName.textContent = 'Opponent';
+      setProgress(document.querySelector('#you-fill'), document.querySelector('#you-percent'), 0);
+      setProgress(document.querySelector('#opponent-fill'), document.querySelector('#opponent-percent'), 0);
+      waiting.classList.remove('hidden');
+      raceContent.classList.add('hidden');
+      setSearching(false);
+    }
+
     function renderParagraph(typedText) {
       const safeLength = Math.min(typedText.length, paragraph.length);
       paragraphElement.innerHTML = '<span class="typed">' + paragraph.slice(0, safeLength) + '</span>' + paragraph.slice(safeLength);
@@ -419,6 +437,7 @@
 
     document.querySelectorAll('.mode-button').forEach((button) => button.addEventListener('click', () => {
       selectedMode = button.dataset.mode;
+      if (selectedMode === 'private') resetRaceState();
       const crossPlatformButton = document.querySelector('.platform-option[data-platform="cross"]');
       crossPlatformButton.classList.toggle('hidden', selectedMode === 'ranked');
       if (selectedMode === 'ranked') {
@@ -440,6 +459,7 @@
         return;
       }
       joinMessage.textContent = '';
+      resetRaceState();
       socket.emit('joinFriendRoom', { friendId, username, platform: platformSelect.value, device: currentDevice });
     });
 
@@ -480,6 +500,7 @@
         usernameInput.focus();
         return;
       }
+      resetRaceState();
       socket.emit('createFriendRoom', { username, difficulty: difficultySelect.value, platform: platformSelect.value, device: currentDevice });
     });
 
@@ -577,6 +598,7 @@
     });
 
     socket.on('friendRoomCreated', ({ friendId, playerCount, maxPlayers }) => {
+      resetRaceState();
       isHost = true;
       selectedMode = 'private';
       showScreen(raceScreen);
@@ -604,6 +626,7 @@
     });
 
     socket.on('matchmaking', ({ mode, platform, rating }) => {
+      resetRaceState();
       selectedMode = mode;
       selectedPlatform = platform || selectedPlatform;
       platformSelect.value = selectedPlatform;
@@ -693,6 +716,7 @@
 
     socket.on('playerLeft', ({ playerCount, maxPlayers }) => {
       const wasPrivateRoom = selectedMode === 'private';
+      resetRaceState();
       raceStatus.textContent = 'Waiting for a rival';
       waiting.classList.remove('hidden');
       raceContent.classList.add('hidden');
