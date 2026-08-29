@@ -4,6 +4,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const express = require('express');
 const { Server } = require('socket.io');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const server = http.createServer(app);
@@ -11,6 +12,82 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'data', 'accounts.json');
+
+// Email Transporter Configuration (SMTP or Gmail or Dev Console Fallback)
+let mailTransporter = null;
+if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+  mailTransporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT, 10) || 587,
+    secure: parseInt(process.env.SMTP_PORT, 10) === 465,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+  console.log(`Configured SMTP mail transporter (${process.env.SMTP_HOST}).`);
+} else if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASS) {
+  mailTransporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASS,
+    },
+  });
+  console.log(`Configured Gmail mail transporter (${process.env.GMAIL_USER}).`);
+} else {
+  console.log(`ℹ️ No SMTP env variables found. Email OTP codes will print to terminal console in Development Mode.`);
+}
+
+// In-memory Pending OTPs: Map<email, { otp, expiresAt, lastSentAt, attempts, username, country } >
+const pendingOtps = new Map();
+
+function generateOtp() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+async function sendOtpEmail(email, otp, username = 'Typist') {
+  const mailOptions = {
+    from: process.env.EMAIL_FROM || '"Typendo Security" <no-reply@typendo.com>',
+    to: email,
+    subject: `🔐 Your Typendo Login Code: ${otp}`,
+    text: `Hello ${username},\n\nYour 6-digit Typendo login verification code is: ${otp}\n\nThis code will expire in 10 minutes. Only use this code if you requested to log in or register on Typendo.\n\n— Typendo Typing Battle Arena`,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 28px; background: #0c1017; border-radius: 12px; color: #f0f6fc; border: 1px solid #30363d;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h1 style="color: #2ea043; font-size: 24px; margin: 0; letter-spacing: 0.05em;">⚡ TYPENDO</h1>
+          <p style="color: #8b949e; font-size: 13px; margin: 4px 0 0;">Real-Time Multiplayer Typing Arena</p>
+        </div>
+        <div style="background: #161b22; border-radius: 8px; padding: 22px; border: 1px solid #30363d; text-align: center;">
+          <p style="font-size: 14px; color: #c9d1d9; margin-top: 0;">Use this one-time verification code to log in to your account:</p>
+          <div style="font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: 800; letter-spacing: 0.25em; color: #58a6ff; padding: 14px; background: #0d1117; border-radius: 8px; margin: 16px 0; border: 1px dashed #388bfd;">
+            ${otp}
+          </div>
+          <p style="font-size: 12px; color: #8b949e; margin-bottom: 0;">⏱️ Valid for <strong>10 minutes</strong>. Do not share this code with anyone.</p>
+        </div>
+        <p style="font-size: 11px; color: #6e7681; text-align: center; margin-top: 20px;">If you did not request this login code, you can safely ignore this email.</p>
+      </div>
+    `,
+  };
+
+  console.log(`\n======================================================`);
+  console.log(`📩 [TYPENDO EMAIL OTP DISPATCH]`);
+  console.log(`Target Email: ${email}`);
+  console.log(`6-Digit Code: >>> ${otp} <<< (Valid 10 min)`);
+  console.log(`======================================================\n`);
+
+  if (mailTransporter) {
+    try {
+      await mailTransporter.sendMail(mailOptions);
+      console.log(`✔ Email delivered to ${email} via SMTP.`);
+      return true;
+    } catch (err) {
+      console.error(`❌ SMTP delivery error to ${email}:`, err.message);
+      return false;
+    }
+  }
+  return true;
+}
 
 const rooms = new Map();
 const readyMatches = new Map();
@@ -745,6 +822,141 @@ io.on('connection', (socket) => {
     }
     if (restoreSession(socket, savedFriendId)) return;
     if (typeof username === 'string' && username.trim()) socket.data.username = username.trim().slice(0, 24);
+  });
+
+  // ══════════════════════════════════════════════════════
+  // EMAIL OTP AUTHENTICATION HANDLERS
+  // ══════════════════════════════════════════════════════
+  socket.on('requestOtp', async ({ email, username, country }) => {
+    const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      socket.emit('authError', 'Please enter a valid email address.');
+      return;
+    }
+
+    const existingAccount = [...accounts.values()].find((a) => a.email.toLowerCase() === cleanEmail);
+    let chosenUsername = existingAccount ? existingAccount.username : (typeof username === 'string' ? username.trim() : '');
+    const chosenCountry = existingAccount ? existingAccount.country : (typeof country === 'string' && country.trim() ? country.trim().slice(0, 5).toUpperCase() : 'IND');
+
+    if (!existingAccount) {
+      if (!chosenUsername) {
+        chosenUsername = 'Player_' + Math.floor(100 + Math.random() * 900);
+      }
+      if (!/^[a-zA-Z0-9_ ]{3,24}$/.test(chosenUsername)) {
+        socket.emit('authError', 'Player name must be 3-24 letters or numbers.');
+        return;
+      }
+      const desiredKey = chosenUsername.toLowerCase();
+      if (accounts.has(desiredKey)) {
+        socket.emit('authError', 'That player name is already registered. Please pick another name.');
+        return;
+      }
+    }
+
+    const now = Date.now();
+    const existingOtp = pendingOtps.get(cleanEmail);
+    if (existingOtp && now - existingOtp.lastSentAt < 60000) {
+      const waitSec = Math.ceil((60000 - (now - existingOtp.lastSentAt)) / 1000);
+      socket.emit('authError', `Please wait ${waitSec}s before requesting a new code.`);
+      return;
+    }
+
+    const otp = generateOtp();
+    pendingOtps.set(cleanEmail, {
+      otp,
+      expiresAt: now + 10 * 60 * 1000,
+      lastSentAt: now,
+      attempts: 5,
+      username: chosenUsername,
+      country: chosenCountry,
+    });
+
+    await sendOtpEmail(cleanEmail, otp, chosenUsername);
+
+    socket.emit('otpSent', {
+      success: true,
+      email: cleanEmail,
+      isNewUser: !existingAccount,
+      username: chosenUsername,
+      cooldownSec: 60,
+      devMode: !mailTransporter,
+      devOtp: !mailTransporter ? otp : undefined,
+      message: mailTransporter ? `6-digit login code sent to ${cleanEmail}` : `Code sent! (Dev Mode: check server console or code ${otp})`,
+    });
+  });
+
+  socket.on('verifyOtp', ({ email, code, username, country }) => {
+    const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    const cleanCode = typeof code === 'string' ? code.trim() : '';
+
+    if (!cleanEmail || !cleanCode) {
+      socket.emit('authError', 'Please enter your email and the 6-digit verification code.');
+      return;
+    }
+
+    const record = pendingOtps.get(cleanEmail);
+    if (!record || Date.now() > record.expiresAt) {
+      socket.emit('authError', 'Verification code has expired or is invalid. Please request a new code.');
+      return;
+    }
+
+    if (record.attempts <= 0) {
+      pendingOtps.delete(cleanEmail);
+      socket.emit('authError', 'Too many invalid attempts. Please request a new code.');
+      return;
+    }
+
+    if (record.otp !== cleanCode) {
+      record.attempts--;
+      if (record.attempts <= 0) {
+        pendingOtps.delete(cleanEmail);
+        socket.emit('authError', 'Too many invalid attempts. Please request a new code.');
+      } else {
+        socket.emit('authError', `Incorrect code. ${record.attempts} attempts remaining.`);
+      }
+      return;
+    }
+
+    // OTP Verified successfully!
+    pendingOtps.delete(cleanEmail);
+
+    let account = [...accounts.values()].find((a) => a.email.toLowerCase() === cleanEmail);
+    let accountKey = account ? account.username.toLowerCase() : '';
+
+    if (!account) {
+      const finalUsername = (typeof username === 'string' && username.trim()) || record.username || ('Player_' + Math.floor(100 + Math.random() * 900));
+      const finalCountry = (typeof country === 'string' && country.trim()) || record.country || 'IND';
+      accountKey = finalUsername.toLowerCase();
+      
+      account = {
+        username: finalUsername,
+        email: cleanEmail,
+        country: finalCountry,
+        rating: 1000,
+        createdAt: Date.now(),
+        duelHistory: [],
+        eloHistory: [],
+      };
+      accounts.set(accountKey, account);
+      saveAccounts();
+      broadcastLeaderboard();
+    }
+
+    socket.data.accountKey = accountKey;
+    socket.data.username = account.username;
+    socket.data.country = account.country || 'IND';
+    rotateFriendId(socket);
+
+    socket.emit('authSuccess', {
+      username: account.username,
+      email: account.email,
+      country: account.country || 'IND',
+      rating: account.rating || 1000,
+      accountKey,
+      createdAt: account.createdAt || Date.now(),
+      duelHistory: account.duelHistory || [],
+      eloHistory: account.eloHistory || [],
+    });
   });
 
   socket.on('signup', ({ username, email, password, country }) => {
