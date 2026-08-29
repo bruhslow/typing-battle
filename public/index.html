@@ -5476,20 +5476,7 @@
     </div>
   </div>
 
-  <!-- QUICK COUNTRY PICKER MODAL -->
-  <div class="modal-overlay hidden" id="country-picker-modal">
-    <div class="profile-modal-content" style="max-width: 440px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <h3 style="font-size: 17px; font-weight: 800;">🌍 Select Your Country</h3>
-        <button class="btn-secondary" id="close-country-modal" type="button" style="padding: 4px 10px;">✕</button>
-      </div>
-      <input id="country-search-input" class="profile-field-input" placeholder="Search country or code (e.g. IND, USA)..." style="margin-bottom: 10px; width: 100%;">
-      <div class="country-picker-grid" id="country-picker-grid">
-        <!-- populated with countries via JS -->
-      </div>
-    </div>
-  </div>
-  </div>
+
 
   <div class="toast hidden" id="toast" role="status" aria-live="polite">
     <div class="toast-dot"></div>
@@ -6166,53 +6153,7 @@
       updateCountryUI(userCountry);
     }
 
-    function renderCountryPickerGrid(filter = '') {
-      if (!countryPickerGrid) return;
-      const term = filter.trim().toLowerCase();
-      const filtered = COUNTRIES.filter((c) => 
-        !term || c.name.toLowerCase().includes(term) || c.code.toLowerCase().includes(term) || (c.aliases && c.aliases.some((a) => a.includes(term)))
-      );
-      if (filtered.length === 0) {
-        countryPickerGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--text-muted);">No matching country found</div>';
-        return;
-      }
-      countryPickerGrid.innerHTML = filtered.map((c) => `
-        <button class="country-picker-item ${c.code === userCountry ? 'active' : ''}" type="button" data-code="${c.code}">
-          <span class="item-flag">${c.flag}</span>
-          <span class="item-name">${escapeHtml(c.name)}</span>
-          <span class="item-code">${c.code}</span>
-        </button>
-      `).join('');
-
-      countryPickerGrid.querySelectorAll('.country-picker-item').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const code = btn.dataset.code;
-          updateCountryUI(code);
-          countryPickerModal.classList.add('hidden');
-          socket.emit('setCountry', code);
-          showToast(`Country set to ${getCountry(code).flag} ${getCountry(code).name} (${code})`);
-        });
-      });
-    }
-
     populateCountrySelects();
-
-    // Country Picker Modal Disabled (No Popups)
-    if (headerCountryBtn) {
-      headerCountryBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-      });
-    }
-
-    if (closeCountryModalBtn) {
-      closeCountryModalBtn.addEventListener('click', () => countryPickerModal.classList.add('hidden'));
-    }
-
-    if (countrySearchInput) {
-      countrySearchInput.addEventListener('input', () => {
-        renderCountryPickerGrid(countrySearchInput.value);
-      });
-    }
 
     window.quickAddFriend = function(targetUsername) {
       if (!loggedIn) {
