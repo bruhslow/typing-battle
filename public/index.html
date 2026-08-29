@@ -5054,14 +5054,14 @@
       </div>
     </footer>
   <!-- UNIFIED MULTI-METHOD AUTH MODAL -->
-  <div class="modal-overlay hidden" id="unified-auth-modal">
+  <div class="modal-overlay hidden" id="unified-auth-modal" onclick="if(event.target===this) this.classList.add('hidden')">
     <div class="unified-auth-card">
       <div class="auth-modal-header">
         <div class="auth-modal-title">
           <h3 id="auth-modal-heading">Account Access</h3>
           <p id="auth-modal-sub">Log in or create a new account with Google, Nickname, or @username.</p>
         </div>
-        <button class="btn-secondary" id="close-auth-modal-btn" type="button" style="padding: 4px 8px;">✕</button>
+        <button class="btn-secondary" id="close-auth-modal-btn" type="button" style="padding: 4px 8px;" onclick="document.querySelector('#unified-auth-modal').classList.add('hidden')">✕</button>
       </div>
 
       <!-- Google Single Sign-On (Gmail) via Clerk -->
@@ -5119,7 +5119,7 @@
   </div>
 
   <!-- SETUP USERNAME & PASSWORD ONBOARDING MODAL -->
-  <div class="modal-overlay hidden" id="setup-credentials-modal">
+  <div class="modal-overlay hidden" id="setup-credentials-modal" onclick="if(event.target===this) this.classList.add('hidden')">
     <div class="unified-auth-card" style="max-width: 440px;">
       <div class="auth-modal-header">
         <div class="auth-modal-title">
@@ -5129,7 +5129,7 @@
             Set your username and password so you can log in directly from any device without email!
           </p>
         </div>
-        <button class="btn-secondary" id="close-setup-modal-btn" type="button" style="padding: 4px 8px;">✕</button>
+        <button class="btn-secondary" id="close-setup-modal-btn" type="button" style="padding: 4px 8px;" onclick="document.querySelector('#setup-credentials-modal').classList.add('hidden')">✕</button>
       </div>
 
       <form class="auth-form-fields" id="setup-credentials-form">
@@ -5154,11 +5154,11 @@
   </div>
 
   <!-- USER PROFILE / ACCOUNT MANAGEMENT MODAL -->
-  <div class="modal-overlay hidden" id="profile-modal">
+  <div class="modal-overlay hidden" id="profile-modal" onclick="if(event.target===this) this.classList.add('hidden')">
     <div class="profile-modal-content">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h3 style="font-size: 18px; font-weight: 800;">👤 Player Profile & Settings</h3>
-        <button class="btn-secondary" id="close-profile-modal" type="button" style="padding: 4px 10px;">✕</button>
+        <button class="btn-secondary" id="close-profile-modal" type="button" style="padding: 4px 10px;" onclick="document.querySelector('#profile-modal').classList.add('hidden')">✕</button>
       </div>
 
       <!-- Overview Header -->
@@ -5299,11 +5299,11 @@
 
 
   <!-- DIVISION TIERS BREAKDOWN MODAL -->
-  <div class="modal-overlay hidden" id="tier-info-modal">
+  <div class="modal-overlay hidden" id="tier-info-modal" onclick="if(event.target===this) this.classList.add('hidden')">
     <div class="tier-modal-content">
       <div class="tier-modal-head">
         <h3 style="font-size: 18px; font-weight: 800;">🏆 Competitive Division Tiers</h3>
-        <button class="btn-secondary" id="close-tier-modal" type="button" style="padding: 4px 10px;">✕</button>
+        <button class="btn-secondary" id="close-tier-modal" type="button" style="padding: 4px 10px;" onclick="document.querySelector('#tier-info-modal').classList.add('hidden')">✕</button>
       </div>
 
       <!-- Current Player Rank Banner -->
@@ -5398,11 +5398,11 @@
   </div>
 
   <!-- CREATE ROOM CUSTOMIZATION MODAL -->
-  <div class="modal-overlay hidden" id="create-room-modal">
+  <div class="modal-overlay hidden" id="create-room-modal" onclick="if(event.target===this) this.classList.add('hidden')">
     <div class="create-modal-content">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h3 style="font-size: 18px; font-weight: 800;">Create Custom Lobby</h3>
-        <button class="btn-secondary" id="close-create-modal" type="button" style="padding: 4px 10px;">✕</button>
+        <button class="btn-secondary" id="close-create-modal" type="button" style="padding: 4px 10px;" onclick="document.querySelector('#create-room-modal').classList.add('hidden')">✕</button>
       </div>
 
       <div>
@@ -5461,13 +5461,13 @@
   </div>
 
   <!-- PUBLIC ROOM BROWSER MODAL -->
-  <div class="modal-overlay hidden" id="browser-modal">
+  <div class="modal-overlay hidden" id="browser-modal" onclick="if(event.target===this) this.classList.add('hidden')">
     <div class="browser-modal">
       <div class="browser-head">
         <h3>Public Battle Lobbies</h3>
         <div style="display: flex; gap: 6px;">
           <button class="btn-secondary" id="refresh-browser-button" type="button">🔄 Refresh</button>
-          <button class="btn-secondary" id="close-browser-button" type="button">✕ Close</button>
+          <button class="btn-secondary" id="close-browser-button" type="button" onclick="document.querySelector('#browser-modal').classList.add('hidden')">✕ Close</button>
         </div>
       </div>
       <div class="browser-list" id="browser-list">
