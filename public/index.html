@@ -4507,11 +4507,6 @@
               <span>👑</span>
               <span>Admin</span>
             </button>
-            <button class="account-btn is-logged-in hidden" id="account-button" type="button" style="display: none !important;" title="View Profile & Stats">
-              <span id="account-btn-icon">👤</span>
-              <span id="account-btn-text">Player</span>
-              <span class="admin-crown-badge hidden" id="header-admin-badge">👑 ADMIN</span>
-            </button>
           </div>
 
           <!-- Sound Effects Mute Toggle (Top Rightmost Corner) -->
@@ -6339,7 +6334,6 @@
       if (isLoggedIn) {
         if (loggedOutGroup) loggedOutGroup.classList.add('hidden');
         if (loggedInGroup) loggedInGroup.classList.remove('hidden');
-        if (accountBtnText) accountBtnText.textContent = nickname;
       } else {
         if (loggedOutGroup) loggedOutGroup.classList.remove('hidden');
         if (loggedInGroup) loggedInGroup.classList.add('hidden');
