@@ -8533,10 +8533,16 @@
 
       // Close auth modal and clear inputs
       if (unifiedAuthModal) unifiedAuthModal.classList.add('hidden');
-      if (setupCredentialsModal) setupCredentialsModal.classList.add('hidden');
       if (authLoginPass) authLoginPass.value = '';
       if (authSignupPass) authSignupPass.value = '';
       if (authModalMsg) authModalMsg.textContent = '';
+
+      // Prompt mandatory onboarding setup popup if registered without password yet
+      if (!hasPassword && !sessionStorage.getItem('typendoSetupDismissed')) {
+        openSetupCredentialsModal(username || displayNickname, userCountry);
+      } else {
+        if (setupCredentialsModal) setupCredentialsModal.classList.add('hidden');
+      }
 
       renderDuelHistory();
       renderEloHistory(rating);
