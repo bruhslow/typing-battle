@@ -211,12 +211,14 @@ const paragraphs = {
 
 const CLERK_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || process.env.CLERK_PUBLISHABLE_KEY || 'pk_test_c3dlZXQtbW90aC03NjMwLmNsZXJrLmFjY291bnRzLmRldiQ';
 const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY || 'sk_test_0eGnnOm1hVz9BiwX1f6wdCarx5Y8VM0yHfvrWI99k0';
+const CLERK_FRONTEND_API = process.env.CLERK_FRONTEND_API || 'https://sweet-moth-7630.clerk.accounts.dev';
 
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/config', (req, res) => {
   res.json({
     clerkPublishableKey: CLERK_PUBLISHABLE_KEY,
+    clerkFrontendApi: CLERK_FRONTEND_API,
   });
 });
 
