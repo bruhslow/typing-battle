@@ -1,4 +1,4 @@
-# ⚡ Type Sprint
+# ⚡ Typendo
 
 > A real-time two-player typing race game. Join a room, wait for your rival, and type the same paragraph to the finish line.
 
@@ -6,9 +6,9 @@
 
 ---
 
-## What is Type Sprint?
+## What is Typendo?
 
-Type Sprint is a full-stack multiplayer web app where two players compete to type the same paragraph as fast as possible — live, in real time. No accounts. No downloads. Just share a room code and race.
+Typendo is a full-stack multiplayer web app where two players compete to type the same paragraph as fast as possible — live, in real time. No accounts. No downloads. Just share a room code and race.
 
 ---
 
@@ -99,7 +99,7 @@ Render detects the push, runs `npm install`, and restarts the server automatical
 
 ## Built By
 
-**Giridharan** — built in one night for a college hackathon.
+**Giridharan N S & Shivani** — built in one night for a college hackathon.
 
 ---
 
