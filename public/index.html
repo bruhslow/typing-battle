@@ -4422,19 +4422,19 @@
         <span>Continue with Google (Gmail)</span>
       </button>
 
-      <div class="auth-divider-line">or continue with username / email</div>
+      <div class="auth-divider-line">or continue with username & password (no email required)</div>
 
       <!-- Log In / Sign Up Tab Switcher -->
       <div class="auth-tab-row">
         <button class="auth-tab-btn active" id="auth-tab-login" type="button">🔑 Log In</button>
-        <button class="auth-tab-btn" id="auth-tab-signup" type="button">✨ Sign Up</button>
+        <button class="auth-tab-btn" id="auth-tab-signup" type="button">✨ Sign Up (New Player)</button>
       </div>
 
       <!-- Log In Form -->
       <form class="auth-form-fields" id="auth-login-form">
         <div class="auth-field-group">
-          <label for="auth-login-ident">Username or Email Address</label>
-          <input class="auth-input-elem" id="auth-login-ident" placeholder="Enter username or email" autocomplete="username" required>
+          <label for="auth-login-ident">Username or Email</label>
+          <input class="auth-input-elem" id="auth-login-ident" placeholder="Your username or email" autocomplete="username" required>
         </div>
         <div class="auth-field-group">
           <label for="auth-login-pass">Password</label>
@@ -4445,19 +4445,22 @@
 
       <!-- Sign Up Form -->
       <form class="auth-form-fields hidden" id="auth-signup-form">
-        <div class="auth-field-group">
-          <label for="auth-signup-user">Username</label>
-          <input class="auth-input-elem" id="auth-signup-user" placeholder="Choose a username" autocomplete="username" required>
+        <div style="font-size: 11.5px; color: var(--text-dim); margin-bottom: 4px;">
+          ⚡ No email or Gmail required — simply choose a username and password to create your account!
         </div>
         <div class="auth-field-group">
-          <label for="auth-signup-mail">Email Address (Optional / Recovery)</label>
-          <input class="auth-input-elem" id="auth-signup-mail" type="email" placeholder="name@example.com" autocomplete="email">
+          <label for="auth-signup-user">Username</label>
+          <input class="auth-input-elem" id="auth-signup-user" placeholder="Choose a player name (3-20 chars)" autocomplete="username" required>
         </div>
         <div class="auth-field-group">
           <label for="auth-signup-pass">Password</label>
-          <input class="auth-input-elem" id="auth-signup-pass" type="password" placeholder="Min 6 characters" autocomplete="new-password" required>
+          <input class="auth-input-elem" id="auth-signup-pass" type="password" placeholder="Choose a password (min 6 chars)" autocomplete="new-password" required>
         </div>
-        <button class="auth-submit-btn" id="auth-signup-submit" type="submit">Create Account</button>
+        <div class="auth-field-group">
+          <label for="auth-signup-mail">Email Address (Optional / Recovery)</label>
+          <input class="auth-input-elem" id="auth-signup-mail" type="email" placeholder="Optional: name@example.com" autocomplete="email">
+        </div>
+        <button class="auth-submit-btn" id="auth-signup-submit" type="submit">Create Account & Play</button>
       </form>
 
       <!-- Message Banner -->
