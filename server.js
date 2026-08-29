@@ -57,6 +57,7 @@ function getGlobalLeaderboard() {
 
     list.push({
       username: acc.username,
+      country: acc.country || 'IND',
       rating: acc.rating || 1000,
       pb,
       wins,
@@ -138,9 +139,11 @@ function removeFromQueue(socket) {
 function playerInfo(player, fallbackId, fallbackData) {
   if (player) {
     const isRankedAccount = Boolean(player.data?.accountKey && accounts.has(player.data.accountKey));
+    const accCountry = player.data?.accountKey && accounts.get(player.data.accountKey)?.country;
     return {
       id: player.id,
       username: player.data?.username || 'Player',
+      country: player.data?.country || accCountry || 'IND',
       platform: player.data?.device || player.data?.platform || 'pc',
       rating: getRating(player.id),
       isRanked: isRankedAccount,
@@ -149,6 +152,7 @@ function playerInfo(player, fallbackId, fallbackData) {
   return {
     id: fallbackId || 'disconnected',
     username: fallbackData?.username || 'Player',
+    country: fallbackData?.country || 'IND',
     platform: fallbackData?.platform || 'pc',
     rating: fallbackId ? getRating(fallbackId) : 1000,
     isRanked: false,
@@ -284,6 +288,7 @@ function finishRace(roomId, force = false, reason = '') {
         elapsedMs: 999999,
         dnf: true,
         username: socket?.data?.username || 'Player',
+        country: socket?.data?.country || 'IND',
       });
     }
   });
@@ -333,6 +338,8 @@ function finishRace(roomId, force = false, reason = '') {
         wpm: res.wpm || 0,
         errors: res.errors || 0,
         opponent: otherPlayer?.username || 'Opponent',
+        opponentCountry: otherPlayer?.country || 'IND',
+        country: res.country || acc.country || 'IND',
         timestamp: Date.now(),
       });
       if (acc.duelHistory.length > 50) acc.duelHistory.pop();
@@ -342,6 +349,7 @@ function finishRace(roomId, force = false, reason = '') {
           delta: res.ratingChange,
           rating: res.rating,
           opponent: otherPlayer?.username || 'Rival',
+          opponentCountry: otherPlayer?.country || 'IND',
           timestamp: Date.now(),
         });
         if (acc.eloHistory.length > 50) acc.eloHistory.pop();
@@ -570,6 +578,7 @@ function getPublicRoomsList() {
         roomCode: room.friendCode || id.replace('room-', ''),
         roomName: room.roomName || 'Custom Lobby',
         hostName: hostSocket?.data?.username || 'Host',
+        hostCountry: hostSocket?.data?.country || 'IND',
         playerCount: room.players.size,
         maxPlayers: room.maxPlayers || PRIVATE_ROOM_LIMIT,
         difficulty: room.difficulty,
@@ -716,14 +725,17 @@ io.on('connection', (socket) => {
     socket.emit('leaderboardUpdate', getGlobalLeaderboard());
   });
 
-  socket.on('restoreSession', ({ friendId: savedFriendId, username, accountKey }) => {
+  socket.on('restoreSession', ({ friendId: savedFriendId, username, accountKey, country }) => {
+    if (country && typeof country === 'string') socket.data.country = country.trim().slice(0, 5).toUpperCase();
     if (accountKey && accounts.has(accountKey)) {
       const acc = accounts.get(accountKey);
       socket.data.accountKey = accountKey;
       socket.data.username = acc.username;
+      socket.data.country = acc.country || socket.data.country || 'IND';
       socket.emit('authSuccess', {
         username: acc.username,
         email: acc.email,
+        country: acc.country || 'IND',
         rating: acc.rating,
         accountKey,
         createdAt: acc.createdAt || Date.now(),
@@ -735,10 +747,11 @@ io.on('connection', (socket) => {
     if (typeof username === 'string' && username.trim()) socket.data.username = username.trim().slice(0, 24);
   });
 
-  socket.on('signup', ({ username, email, password }) => {
+  socket.on('signup', ({ username, email, password, country }) => {
     const accountName = typeof username === 'string' ? username.trim() : '';
     const accountKey = accountName.toLowerCase();
     const accountEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    const accountCountry = typeof country === 'string' && country.trim() ? country.trim().slice(0, 5).toUpperCase() : 'IND';
     if (!/^[a-zA-Z0-9_ ]{3,24}$/.test(accountName) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(accountEmail) || typeof password !== 'string' || password.length < 6) {
       socket.emit('authError', 'Use a valid email, username (3-24 characters), and password (6+ characters).');
       return;
@@ -751,6 +764,7 @@ io.on('connection', (socket) => {
     const newAccount = {
       username: accountName,
       email: accountEmail,
+      country: accountCountry,
       ...credentials,
       rating: 1000,
       createdAt: Date.now(),
@@ -762,9 +776,11 @@ io.on('connection', (socket) => {
 
     socket.data.accountKey = accountKey;
     socket.data.username = accountName;
+    socket.data.country = accountCountry;
     socket.emit('authSuccess', {
       username: accountName,
       email: accountEmail,
+      country: accountCountry,
       rating: 1000,
       accountKey,
       createdAt: newAccount.createdAt,
@@ -792,10 +808,12 @@ io.on('connection', (socket) => {
     const accountKey = account.username.toLowerCase();
     socket.data.accountKey = accountKey;
     socket.data.username = account.username;
+    socket.data.country = account.country || 'IND';
     rotateFriendId(socket);
     socket.emit('authSuccess', {
       username: account.username,
       email: account.email,
+      country: account.country || 'IND',
       rating: account.rating,
       accountKey,
       createdAt: account.createdAt || Date.now(),
@@ -804,8 +822,8 @@ io.on('connection', (socket) => {
     });
   });
 
-  // Profile update handler: change display name and/or password
-  socket.on('updateProfile', ({ newUsername, currentPassword, newPassword }) => {
+  // Profile update handler: change display name, country and/or password
+  socket.on('updateProfile', ({ newUsername, newCountry, currentPassword, newPassword }) => {
     const accountKey = socket.data.accountKey;
     if (!accountKey || !accounts.has(accountKey)) {
       socket.emit('profileError', 'You must be logged in to update your profile.');
@@ -813,6 +831,11 @@ io.on('connection', (socket) => {
     }
 
     const account = accounts.get(accountKey);
+
+    if (newCountry && typeof newCountry === 'string') {
+      account.country = newCountry.trim().slice(0, 5).toUpperCase();
+      socket.data.country = account.country;
+    }
 
     if (newUsername && typeof newUsername === 'string') {
       const cleanName = newUsername.trim();
@@ -853,6 +876,7 @@ io.on('connection', (socket) => {
     socket.emit('profileUpdated', {
       username: account.username,
       email: account.email,
+      country: account.country || 'IND',
       rating: account.rating,
       accountKey: socket.data.accountKey,
     });
@@ -860,18 +884,43 @@ io.on('connection', (socket) => {
     broadcastLeaderboard();
   });
 
+  socket.on('setCountry', (country) => {
+    if (typeof country === 'string' && country.trim()) {
+      const code = country.trim().slice(0, 5).toUpperCase();
+      socket.data.country = code;
+      if (socket.data.accountKey && accounts.has(socket.data.accountKey)) {
+        accounts.get(socket.data.accountKey).country = code;
+        saveAccounts();
+        broadcastLeaderboard();
+      }
+      socket.emit('countryUpdated', code);
+    }
+  });
+
   socket.on('logout', () => {
     delete socket.data.accountKey;
     socket.emit('loggedOut');
   });
 
-  socket.on('setUsername', (username) => {
-    if (typeof username === 'string' && username.trim()) {
-      socket.data.username = username.trim().slice(0, 24);
-      socket.emit('usernameUpdated', socket.data.username);
-      const session = socket.data.friendId && sessions.get(socket.data.friendId);
-      if (session) sessions.set(socket.data.friendId, { ...session, username: socket.data.username });
+  socket.on('setUsername', (data) => {
+    let name = '';
+    let country = '';
+    if (typeof data === 'object' && data !== null) {
+      name = data.username;
+      country = data.country;
+    } else if (typeof data === 'string') {
+      name = data;
     }
+    if (typeof name === 'string' && name.trim()) {
+      socket.data.username = name.trim().slice(0, 24);
+      socket.emit('usernameUpdated', socket.data.username);
+    }
+    if (typeof country === 'string' && country.trim()) {
+      socket.data.country = country.trim().slice(0, 5).toUpperCase();
+      socket.emit('countryUpdated', socket.data.country);
+    }
+    const session = socket.data.friendId && sessions.get(socket.data.friendId);
+    if (session) sessions.set(socket.data.friendId, { ...session, username: socket.data.username, country: socket.data.country });
   });
 
   socket.on('playerReady', ({ roomId }) => {
@@ -896,8 +945,9 @@ io.on('connection', (socket) => {
     socket.emit('publicRoomsList', getPublicRoomsList());
   });
 
-  socket.on('createCustomRoom', ({ username, roomName, isPublic = false, difficulty = 'medium', typingMode = 'standard', platform = 'pc', device = 'pc' }) => {
+  socket.on('createCustomRoom', ({ username, country, roomName, isPublic = false, difficulty = 'medium', typingMode = 'standard', platform = 'pc', device = 'pc' }) => {
     if (typeof username === 'string' && username.trim()) socket.data.username = username.trim().slice(0, 24);
+    if (typeof country === 'string' && country.trim()) socket.data.country = country.trim().slice(0, 5).toUpperCase();
     leaveRoom(socket);
     removeFromQueue(socket);
     socket.data.platform = ['pc', 'phone'].includes(platform) ? platform : 'pc';
@@ -929,6 +979,7 @@ io.on('connection', (socket) => {
       socketId: socket.id,
       roomId,
       username: socket.data.username || 'Player',
+      country: socket.data.country || 'IND',
       platform: socket.data.platform,
       expiresAt: Date.now() + 10 * 60 * 1000,
     });
@@ -949,7 +1000,7 @@ io.on('connection', (socket) => {
     broadcastServerStats();
   });
 
-  socket.on('joinCustomRoom', ({ friendId: hostFriendId, roomId: targetRoomId, username, platform = 'pc', device = 'pc' }) => {
+  socket.on('joinCustomRoom', ({ friendId: hostFriendId, roomId: targetRoomId, username, country, platform = 'pc', device = 'pc' }) => {
     let room;
     let finalRoomId;
 
@@ -970,6 +1021,7 @@ io.on('connection', (socket) => {
     }
 
     if (typeof username === 'string' && username.trim()) socket.data.username = username.trim().slice(0, 24);
+    if (typeof country === 'string' && country.trim()) socket.data.country = country.trim().slice(0, 5).toUpperCase();
     socket.data.platform = ['pc', 'phone'].includes(platform) ? platform : 'pc';
     socket.data.device = ['pc', 'phone'].includes(device) ? device : 'pc';
     
@@ -983,6 +1035,7 @@ io.on('connection', (socket) => {
       socketId: socket.id,
       roomId: finalRoomId,
       username: socket.data.username || 'Player',
+      country: socket.data.country || 'IND',
       platform: socket.data.platform,
       expiresAt: Date.now() + 10 * 60 * 1000,
     });
@@ -990,6 +1043,7 @@ io.on('connection', (socket) => {
     const playersList = roomPlayers(room);
     io.to(finalRoomId).emit('playerJoinedRoom', {
       username: socket.data.username || 'Player',
+      country: socket.data.country || 'IND',
       players: playersList,
       canStart: socket.id === room.hostId,
       hostId: room.hostId,
@@ -1030,7 +1084,7 @@ io.on('connection', (socket) => {
     startRace(roomId, 5000);
   });
 
-  socket.on('findMatch', ({ username, mode = 'quick', platform = 'pc', device = 'pc' }) => {
+  socket.on('findMatch', ({ username, country, mode = 'quick', platform = 'pc', device = 'pc' }) => {
     if (typeof username !== 'string' || !username.trim()) {
       socket.emit('errorMessage', 'Choose a username first.');
       return;
@@ -1051,6 +1105,7 @@ io.on('connection', (socket) => {
     leaveRoom(socket);
     removeFromQueue(socket);
     socket.data.username = username.trim().slice(0, 24);
+    if (typeof country === 'string' && country.trim()) socket.data.country = country.trim().slice(0, 5).toUpperCase();
     socket.data.platform = platform;
     socket.data.device = device;
     socket.data.queuedAt = Date.now();
@@ -1096,6 +1151,7 @@ io.on('connection', (socket) => {
     socket.to(roomId).emit('playerCursorUpdate', {
       playerId: socket.id,
       username: socket.data.username || 'Player',
+      country: socket.data.country || 'IND',
       progress: Math.max(0, Math.min(100, progress || 0)),
       charIndex: Math.max(0, charIndex || 0),
       wordIndex: Math.max(0, wordIndex || 0),
@@ -1119,6 +1175,7 @@ io.on('connection', (socket) => {
       elapsedMs,
       flagged: isSuspicious,
       username: socket.data.username || 'Player',
+      country: socket.data.country || 'IND',
     });
     
     finishRace(roomId);

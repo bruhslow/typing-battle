@@ -277,6 +277,143 @@
       color: #fff;
     }
 
+    /* Country Flag & Code Badges */
+    .country-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 1px 5px;
+      border-radius: 5px;
+      background: rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--border-subtle);
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--text-main);
+      vertical-align: middle;
+      white-space: nowrap;
+      line-height: 1.2;
+      flex-shrink: 0;
+    }
+
+    .country-badge .country-flag {
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .country-badge .country-abbr {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    .country-badge.badge-sm {
+      padding: 0 4px;
+      font-size: 9px;
+      gap: 2px;
+    }
+    .country-badge.badge-sm .country-flag { font-size: 11px; }
+    .country-badge.badge-sm .country-abbr { font-size: 8px; }
+
+    .country-badge.badge-highlight {
+      background: var(--primary-subtle);
+      border-color: rgba(29, 90, 63, 0.25);
+    }
+    .country-badge.badge-highlight .country-abbr {
+      color: var(--primary);
+    }
+
+    .profile-country-btn {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 3px 6px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-main);
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .profile-country-btn:hover {
+      background: #fff;
+      border-color: var(--primary);
+      transform: scale(1.05);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .profile-country-btn .country-abbr {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-dim);
+    }
+
+    .account-country-select {
+      width: 100%;
+      padding: 9px 10px;
+      margin-bottom: 8px;
+      border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--surface);
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .country-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+      gap: 6px;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 4px 2px;
+    }
+
+    .country-picker-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+
+    .country-picker-item:hover, .country-picker-item.active {
+      background: var(--primary-subtle);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .country-picker-item .item-flag { font-size: 16px; }
+    .country-picker-item .item-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+    .country-picker-item .item-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-left: auto;
+      font-weight: 800;
+    }
+
     /* Code Pill */
     .code-pill {
       display: flex;
@@ -2100,8 +2237,9 @@
 
     /* RESPONSIVE */
     @media (max-width: 980px) {
-      .top-stats-strip { grid-template-columns: repeat(3, 1fr); }
-      .stat-strip-card:nth-child(4), .stat-strip-card:nth-child(5) { display: none; }
+      .top-stats-strip { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .stat-strip-card:nth-child(4) { grid-column: span 1; }
+      .stat-strip-card:nth-child(5) { grid-column: span 2; }
     }
 
     @media (max-width: 880px) {
@@ -2113,14 +2251,16 @@
       .viewport-screen { gap: 12px; }
       .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; }
       .stat-strip-card { padding: 8px 10px; }
+      .stat-strip-card:nth-child(5) { grid-column: span 2; }
       header { padding: 8px 14px; border-radius: var(--radius-lg); gap: 8px; margin-bottom: 4px; }
       .brand { font-size: 17px; gap: 8px; }
       .brand-svg-mark { width: 32px; height: 32px; border-radius: 9px; }
       .header-tools { gap: 6px; }
-      .profile-box { padding: 3px 8px 3px 4px; gap: 6px; }
+      .profile-box { padding: 3px 8px 3px 4px; gap: 5px; }
       .profile-avatar { width: 24px; height: 24px; font-size: 10px; }
-      .profile-input { width: 76px; font-size: 12px; }
+      .profile-input { width: 70px; font-size: 12px; }
       .profile-elo-tag { font-size: 10px; padding: 2px 5px; }
+      .profile-country-btn { padding: 2px 5px; font-size: 10px; }
       .code-pill { padding: 4px 8px; font-size: 10px; gap: 4px; }
       .account-btn { padding: 6px 12px; font-size: 11px; }
       .home-grid { grid-template-columns: 1fr; gap: 12px; }
@@ -2162,10 +2302,14 @@
       .shell { padding: 8px 8px 14px; }
       header { flex-direction: column; align-items: stretch; border-radius: var(--radius-md); padding: 10px 12px; gap: 8px; }
       .brand { justify-content: center; }
-      .header-tools { justify-content: center; }
+      .header-tools { justify-content: center; flex-wrap: wrap; }
       .profile-box { flex: 1; justify-content: space-between; }
-      .profile-input { width: 100%; min-width: 50px; }
-      .top-stats-strip { grid-template-columns: 1fr 1fr; }
+      .profile-input { width: 100%; min-width: 45px; }
+      .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      .stat-strip-card { padding: 7px 8px; gap: 6px; }
+      .stat-icon-wrap { width: 28px; height: 28px; font-size: 13px; }
+      .stat-info-wrap small { font-size: 8px; }
+      .stat-info-wrap strong { font-size: 11px; }
       .toast { left: 10px; right: 10px; bottom: 10px; justify-content: center; }
     }
   </style>
@@ -2194,8 +2338,12 @@
             <button id="reset-code" type="button" title="Get a new room code">↻</button>
           </div>
 
-          <!-- PROMINENT USERNAME PILL -->
-          <div class="profile-box" title="Type to change your player name">
+          <!-- PROMINENT USERNAME PILL WITH COUNTRY BADGE -->
+          <div class="profile-box" title="Your player profile & country">
+            <button class="profile-country-btn" id="header-country-btn" type="button" title="Click to change your country">
+              <span id="header-flag">🇮🇳</span>
+              <span id="header-country-code" class="country-abbr">IND</span>
+            </button>
             <div class="profile-avatar" id="header-avatar">P</div>
             <div class="profile-field-wrap">
               <span class="profile-field-label">PLAYER NAME</span>
@@ -2217,6 +2365,9 @@
               </div>
               <input id="account-identifier" maxlength="32" placeholder="Username or Email" autocomplete="username">
               <input class="hidden" id="account-email" type="email" placeholder="Email address" autocomplete="email">
+              <select class="account-country-select hidden" id="account-country" aria-label="Select Country">
+                <!-- populated by JS -->
+              </select>
               <input id="account-password" type="password" placeholder="Password (6+ chars)" autocomplete="current-password">
               <button class="account-submit" id="auth-submit-button" type="button">Log In</button>
               <p class="account-msg" id="account-message" aria-live="polite"></p>
@@ -2613,6 +2764,17 @@
         </div>
       </div>
 
+      <!-- Edit Nationality / Country -->
+      <div class="profile-edit-section">
+        <h4>Nationality / Country Flag</h4>
+        <div class="profile-edit-row">
+          <select class="profile-field-input" id="profile-edit-country-select" style="font-weight: 700; cursor: pointer;">
+            <!-- populated by JS -->
+          </select>
+          <button class="btn-secondary" id="save-country-btn" type="button">Update Country</button>
+        </div>
+      </div>
+
       <!-- Change Password -->
       <div class="profile-edit-section">
         <h4>Security & Password</h4>
@@ -2810,6 +2972,20 @@
     </div>
   </div>
 
+  <!-- QUICK COUNTRY PICKER MODAL -->
+  <div class="modal-overlay hidden" id="country-picker-modal">
+    <div class="profile-modal-content" style="max-width: 440px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="font-size: 17px; font-weight: 800;">🌍 Select Your Country</h3>
+        <button class="btn-secondary" id="close-country-modal" type="button" style="padding: 4px 10px;">✕</button>
+      </div>
+      <input id="country-search-input" class="profile-field-input" placeholder="Search country or code (e.g. IND, USA)..." style="margin-bottom: 10px; width: 100%;">
+      <div class="country-picker-grid" id="country-picker-grid">
+        <!-- populated with countries via JS -->
+      </div>
+    </div>
+  </div>
+
   <div class="toast hidden" id="toast" role="status" aria-live="polite">
     <div class="toast-dot"></div>
     <span id="toast-text">Notification</span>
@@ -2819,6 +2995,134 @@
   <script>
     const socket = io();
 
+    // ══════════════════════════════════════════════════════
+    // GLOBAL COUNTRY CATALOG & DETECTION HELPERS
+    // ══════════════════════════════════════════════════════
+    const COUNTRIES = [
+      { code: 'IND', flag: '🇮🇳', name: 'India', aliases: ['in', 'india'] },
+      { code: 'USA', flag: '🇺🇸', name: 'United States', aliases: ['us', 'usa', 'america', 'united states'] },
+      { code: 'GBR', flag: '🇬🇧', name: 'United Kingdom', aliases: ['gb', 'uk', 'britain', 'england', 'united kingdom'] },
+      { code: 'DEU', flag: '🇩🇪', name: 'Germany', aliases: ['de', 'ger', 'germany', 'deutschland'] },
+      { code: 'JPN', flag: '🇯🇵', name: 'Japan', aliases: ['jp', 'jpn', 'japan'] },
+      { code: 'CAN', flag: '🇨🇦', name: 'Canada', aliases: ['ca', 'can', 'canada'] },
+      { code: 'AUS', flag: '🇦🇺', name: 'Australia', aliases: ['au', 'aus', 'australia'] },
+      { code: 'FRA', flag: '🇫🇷', name: 'France', aliases: ['fr', 'fra', 'france'] },
+      { code: 'BRA', flag: '🇧🇷', name: 'Brazil', aliases: ['br', 'bra', 'brazil', 'brasil'] },
+      { code: 'SGP', flag: '🇸🇬', name: 'Singapore', aliases: ['sg', 'sgp', 'singapore'] },
+      { code: 'ARE', flag: '🇦🇪', name: 'United Arab Emirates', aliases: ['ae', 'are', 'uae', 'dubai'] },
+      { code: 'KOR', flag: '🇰🇷', name: 'South Korea', aliases: ['kr', 'kor', 'korea', 'south korea'] },
+      { code: 'NLD', flag: '🇳🇱', name: 'Netherlands', aliases: ['nl', 'nld', 'holland', 'netherlands'] },
+      { code: 'ESP', flag: '🇪🇸', name: 'Spain', aliases: ['es', 'esp', 'spain', 'espana'] },
+      { code: 'ITA', flag: '🇮🇹', name: 'Italy', aliases: ['it', 'ita', 'italy', 'italia'] },
+      { code: 'MEX', flag: '🇲🇽', name: 'Mexico', aliases: ['mx', 'mex', 'mexico'] },
+      { code: 'IDN', flag: '🇮🇩', name: 'Indonesia', aliases: ['id', 'idn', 'indonesia'] },
+      { code: 'PHL', flag: '🇵🇭', name: 'Philippines', aliases: ['ph', 'phl', 'philippines'] },
+      { code: 'PAK', flag: '🇵🇰', name: 'Pakistan', aliases: ['pk', 'pak', 'pakistan'] },
+      { code: 'BGD', flag: '🇧🇩', name: 'Bangladesh', aliases: ['bd', 'bgd', 'bangladesh'] },
+      { code: 'VNM', flag: '🇻🇳', name: 'Vietnam', aliases: ['vn', 'vnm', 'vietnam'] },
+      { code: 'TUR', flag: '🇹🇷', name: 'Turkey', aliases: ['tr', 'tur', 'turkey'] },
+      { code: 'SWE', flag: '🇸🇪', name: 'Sweden', aliases: ['se', 'swe', 'sweden'] },
+      { code: 'NOR', flag: '🇳🇴', name: 'Norway', aliases: ['no', 'nor', 'norway'] },
+      { code: 'POL', flag: '🇵🇱', name: 'Poland', aliases: ['pl', 'pol', 'poland'] },
+      { code: 'CHE', flag: '🇨🇭', name: 'Switzerland', aliases: ['ch', 'che', 'swiss', 'switzerland'] },
+      { code: 'NZL', flag: '🇳🇿', name: 'New Zealand', aliases: ['nz', 'nzl', 'new zealand'] },
+      { code: 'ZAF', flag: '🇿🇦', name: 'South Africa', aliases: ['za', 'zaf', 'south africa'] },
+      { code: 'ARG', flag: '🇦🇷', name: 'Argentina', aliases: ['ar', 'arg', 'argentina'] },
+      { code: 'EGY', flag: '🇪🇬', name: 'Egypt', aliases: ['eg', 'egy', 'egypt'] },
+      { code: 'SAU', flag: '🇸🇦', name: 'Saudi Arabia', aliases: ['sa', 'sau', 'saudi arabia'] },
+      { code: 'RUS', flag: '🇷🇺', name: 'Russia', aliases: ['ru', 'rus', 'russia'] },
+      { code: 'CHN', flag: '🇨🇳', name: 'China', aliases: ['cn', 'chn', 'china'] },
+      { code: 'MYS', flag: '🇲🇾', name: 'Malaysia', aliases: ['my', 'mys', 'malaysia'] },
+      { code: 'THA', flag: '🇹🇭', name: 'Thailand', aliases: ['th', 'tha', 'thailand'] },
+      { code: 'NGA', flag: '🇳🇬', name: 'Nigeria', aliases: ['ng', 'nga', 'nigeria'] },
+      { code: 'KEN', flag: '🇰🇪', name: 'Kenya', aliases: ['ke', 'ken', 'kenya'] },
+      { code: 'COL', flag: '🇨🇴', name: 'Colombia', aliases: ['co', 'col', 'colombia'] },
+      { code: 'CHL', flag: '🇨🇱', name: 'Chile', aliases: ['cl', 'chl', 'chile'] },
+      { code: 'PER', flag: '🇵🇪', name: 'Peru', aliases: ['pe', 'per', 'peru'] },
+      { code: 'PRT', flag: '🇵🇹', name: 'Portugal', aliases: ['pt', 'prt', 'portugal'] },
+      { code: 'GRC', flag: '🇬🇷', name: 'Greece', aliases: ['gr', 'grc', 'greece'] },
+      { code: 'IRL', flag: '🇮🇪', name: 'Ireland', aliases: ['ie', 'irl', 'ireland'] },
+      { code: 'DNK', flag: '🇩🇰', name: 'Denmark', aliases: ['dk', 'dnk', 'denmark'] },
+      { code: 'FIN', flag: '🇫🇮', name: 'Finland', aliases: ['fi', 'fin', 'finland'] },
+      { code: 'BEL', flag: '🇧🇪', name: 'Belgium', aliases: ['be', 'bel', 'belgium'] },
+      { code: 'AUT', flag: '🇦🇹', name: 'Austria', aliases: ['at', 'aut', 'austria'] },
+      { code: 'UKR', flag: '🇺🇦', name: 'Ukraine', aliases: ['ua', 'ukr', 'ukraine'] },
+      { code: 'ISR', flag: '🇮🇱', name: 'Israel', aliases: ['il', 'isr', 'israel'] },
+      { code: 'ROU', flag: '🇷🇴', name: 'Romania', aliases: ['ro', 'rou', 'romania'] },
+      { code: 'CZE', flag: '🇨🇿', name: 'Czech Republic', aliases: ['cz', 'cze', 'czech'] },
+      { code: 'HUN', flag: '🇭🇺', name: 'Hungary', aliases: ['hu', 'hun', 'hungary'] },
+      { code: 'QAT', flag: '🇶🇦', name: 'Qatar', aliases: ['qa', 'qat', 'qatar'] },
+      { code: 'KWT', flag: '🇰🇼', name: 'Kuwait', aliases: ['kw', 'kwt', 'kuwait'] },
+      { code: 'LKA', flag: '🇱🇰', name: 'Sri Lanka', aliases: ['lk', 'lka', 'sri lanka'] },
+      { code: 'NPL', flag: '🇳🇵', name: 'Nepal', aliases: ['np', 'npl', 'nepal'] },
+      { code: 'TWN', flag: '🇹🇼', name: 'Taiwan', aliases: ['tw', 'twn', 'taiwan'] },
+      { code: 'HKG', flag: '🇭🇰', name: 'Hong Kong', aliases: ['hk', 'hkg', 'hong kong'] },
+    ];
+
+    function getCountry(codeOrName) {
+      if (!codeOrName) return { code: 'IND', flag: '🇮🇳', name: 'India' };
+      if (typeof codeOrName === 'object' && codeOrName.code && codeOrName.flag) return codeOrName;
+      const str = String(codeOrName).trim().toUpperCase();
+      const exact = COUNTRIES.find((c) => c.code === str);
+      if (exact) return exact;
+      const lower = str.toLowerCase();
+      const byAlias = COUNTRIES.find((c) => c.aliases && (c.aliases.includes(lower) || c.name.toLowerCase() === lower));
+      if (byAlias) return byAlias;
+      if (str.length === 2) {
+        const by2 = COUNTRIES.find((c) => c.aliases && c.aliases[0] === str.toLowerCase());
+        if (by2) return by2;
+      }
+      return { code: str.slice(0, 3), flag: '🌐', name: str };
+    }
+
+    function detectUserCountry() {
+      try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        const tzLower = tz.toLowerCase();
+        if (tzLower.includes('kolkata') || tzLower.includes('calcutta') || tzLower.includes('india')) return 'IND';
+        if (tzLower.includes('new_york') || tzLower.includes('chicago') || tzLower.includes('los_angeles') || tzLower.includes('denver') || tzLower.includes('america')) return 'USA';
+        if (tzLower.includes('london')) return 'GBR';
+        if (tzLower.includes('berlin') || tzLower.includes('frankfurt')) return 'DEU';
+        if (tzLower.includes('tokyo')) return 'JPN';
+        if (tzLower.includes('toronto') || tzLower.includes('vancouver') || tzLower.includes('montreal')) return 'CAN';
+        if (tzLower.includes('sydney') || tzLower.includes('melbourne') || tzLower.includes('brisbane')) return 'AUS';
+        if (tzLower.includes('paris')) return 'FRA';
+        if (tzLower.includes('sao_paulo')) return 'BRA';
+        if (tzLower.includes('singapore')) return 'SGP';
+        if (tzLower.includes('dubai')) return 'ARE';
+        if (tzLower.includes('seoul')) return 'KOR';
+        if (tzLower.includes('amsterdam')) return 'NLD';
+        if (tzLower.includes('madrid')) return 'ESP';
+        if (tzLower.includes('rome')) return 'ITA';
+        if (tzLower.includes('karachi')) return 'PAK';
+        if (tzLower.includes('dhaka')) return 'BGD';
+        if (tzLower.includes('jakarta')) return 'IDN';
+        if (tzLower.includes('manila')) return 'PHL';
+        if (tzLower.includes('bangkok')) return 'THA';
+        if (tzLower.includes('kuala_lumpur')) return 'MYS';
+        if (tzLower.includes('istanbul')) return 'TUR';
+        if (tzLower.includes('moscow')) return 'RUS';
+        if (tzLower.includes('shanghai') || tzLower.includes('beijing')) return 'CHN';
+        
+        const lang = (navigator.language || navigator.userLanguage || '').toUpperCase();
+        if (lang.includes('IN')) return 'IND';
+        if (lang.includes('US')) return 'USA';
+        if (lang.includes('GB')) return 'GBR';
+        if (lang.includes('DE')) return 'DEU';
+        if (lang.includes('JP')) return 'JPN';
+        if (lang.includes('CA')) return 'CAN';
+        if (lang.includes('AU')) return 'AUS';
+        if (lang.includes('FR')) return 'FRA';
+        if (lang.includes('BR')) return 'BRA';
+      } catch (e) {}
+      return 'IND';
+    }
+
+    function renderCountryBadge(countryCode, extraClass = '') {
+      const c = getCountry(countryCode);
+      return `<span class="country-badge ${extraClass}" title="${escapeHtml(c.name)}"><span class="country-flag">${c.flag}</span> <span class="country-abbr">${c.code}</span></span>`;
+    }
+
     // Elements
     const joinScreen = document.querySelector('#join-screen');
     const raceScreen = document.querySelector('#race-screen');
@@ -2827,10 +3131,14 @@
     const createRoomModal = document.querySelector('#create-room-modal');
     const tierInfoModal = document.querySelector('#tier-info-modal');
     const profileModal = document.querySelector('#profile-modal');
+    const countryPickerModal = document.querySelector('#country-picker-modal');
     const joinMessage = document.querySelector('#join-message');
     const usernameInput = document.querySelector('#username-input');
     const headerAvatar = document.querySelector('#header-avatar');
     const headerElo = document.querySelector('#header-elo');
+    const headerCountryBtn = document.querySelector('#header-country-btn');
+    const headerFlag = document.querySelector('#header-flag');
+    const headerCountryCode = document.querySelector('#header-country-code');
     const friendInput = document.querySelector('#friend-input');
     const typingArea = document.querySelector('#typing-area');
     const raceDisplay = document.querySelector('#race-display');
@@ -2860,6 +3168,7 @@
     const accountPanel = document.querySelector('#account-panel');
     const accountIdentifier = document.querySelector('#account-identifier');
     const accountEmail = document.querySelector('#account-email');
+    const accountCountry = document.querySelector('#account-country');
     const accountPassword = document.querySelector('#account-password');
     const accountMessage = document.querySelector('#account-message');
     const authSubmitButton = document.querySelector('#auth-submit-button');
@@ -2878,11 +3187,18 @@
     const modalStatAcc = document.querySelector('#modal-stat-acc');
     const profileEditNameInput = document.querySelector('#profile-edit-name-input');
     const saveUsernameBtn = document.querySelector('#save-username-btn');
+    const profileEditCountrySelect = document.querySelector('#profile-edit-country-select');
+    const saveCountryBtn = document.querySelector('#save-country-btn');
     const profileCurrPass = document.querySelector('#profile-curr-pass');
     const profileNewPass = document.querySelector('#profile-new-pass');
     const savePasswordBtn = document.querySelector('#save-password-btn');
     const profileModalMsg = document.querySelector('#profile-modal-msg');
     const profileLogoutBtn = document.querySelector('#profile-logout-btn');
+
+    // Country Picker Modal Elements
+    const closeCountryModalBtn = document.querySelector('#close-country-modal');
+    const countrySearchInput = document.querySelector('#country-search-input');
+    const countryPickerGrid = document.querySelector('#country-picker-grid');
 
     // Ready Check & Race Metrics
     const readyOverlay = document.querySelector('#ready-overlay');
@@ -2970,20 +3286,95 @@
     let countdownInterval;
     const searchPhrases = ['Scanning for quick rivals...', 'Warming up the arena...', 'Tuning battle engines...', 'Opponent is stepping up...'];
 
-    // Init username & avatar
+    // Init username, country & avatar
     const savedFriendId = localStorage.getItem('typendoFriendId');
     const savedUsername = localStorage.getItem('typendoUsername') || 'Player_' + Math.floor(100 + Math.random() * 900);
     const savedAccountKey = localStorage.getItem('typendoAccountKey');
+    let userCountry = localStorage.getItem('typendoCountry') || detectUserCountry();
     
     usernameInput.value = savedUsername;
     headerAvatar.textContent = savedUsername.slice(0, 1).toUpperCase();
     rankedDeviceNotice.textContent = currentDevice === 'phone' ? 'Mobile vs Mobile (Fair ELO competition)' : 'Desktop vs Desktop (Fair ELO competition)';
 
+    function updateCountryUI(code) {
+      const c = getCountry(code);
+      userCountry = c.code;
+      localStorage.setItem('typendoCountry', userCountry);
+      if (headerFlag) headerFlag.textContent = c.flag;
+      if (headerCountryCode) headerCountryCode.textContent = c.code;
+      if (headerCountryBtn) headerCountryBtn.title = `Country: ${c.name} (${c.code}) - Click to change`;
+      if (accountCountry) accountCountry.value = c.code;
+      if (profileEditCountrySelect) profileEditCountrySelect.value = c.code;
+      if (modalProfileUsername && userProfile) {
+        modalProfileUsername.innerHTML = `${renderCountryBadge(userCountry)} ${escapeHtml(userProfile.username)}`;
+      }
+      renderCountryPickerGrid();
+    }
+
+    // Populate Country Select dropdowns
+    function populateCountrySelects() {
+      const optionsHtml = COUNTRIES.map((c) => `<option value="${c.code}">${c.flag} ${c.name} (${c.code})</option>`).join('');
+      if (accountCountry) accountCountry.innerHTML = optionsHtml;
+      if (profileEditCountrySelect) profileEditCountrySelect.innerHTML = optionsHtml;
+      updateCountryUI(userCountry);
+    }
+
+    function renderCountryPickerGrid(filter = '') {
+      if (!countryPickerGrid) return;
+      const term = filter.trim().toLowerCase();
+      const filtered = COUNTRIES.filter((c) => 
+        !term || c.name.toLowerCase().includes(term) || c.code.toLowerCase().includes(term) || (c.aliases && c.aliases.some((a) => a.includes(term)))
+      );
+      if (filtered.length === 0) {
+        countryPickerGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--text-muted);">No matching country found</div>';
+        return;
+      }
+      countryPickerGrid.innerHTML = filtered.map((c) => `
+        <button class="country-picker-item ${c.code === userCountry ? 'active' : ''}" type="button" data-code="${c.code}">
+          <span class="item-flag">${c.flag}</span>
+          <span class="item-name">${escapeHtml(c.name)}</span>
+          <span class="item-code">${c.code}</span>
+        </button>
+      `).join('');
+
+      countryPickerGrid.querySelectorAll('.country-picker-item').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const code = btn.dataset.code;
+          updateCountryUI(code);
+          countryPickerModal.classList.add('hidden');
+          socket.emit('setCountry', code);
+          showToast(`Country set to ${getCountry(code).flag} ${getCountry(code).name} (${code})`);
+        });
+      });
+    }
+
+    populateCountrySelects();
+
+    // Country Picker Modal Trigger
+    if (headerCountryBtn) {
+      headerCountryBtn.addEventListener('click', () => {
+        if (countrySearchInput) countrySearchInput.value = '';
+        renderCountryPickerGrid();
+        countryPickerModal.classList.remove('hidden');
+        if (countrySearchInput) setTimeout(() => countrySearchInput.focus(), 50);
+      });
+    }
+
+    if (closeCountryModalBtn) {
+      closeCountryModalBtn.addEventListener('click', () => countryPickerModal.classList.add('hidden'));
+    }
+
+    if (countrySearchInput) {
+      countrySearchInput.addEventListener('input', () => {
+        renderCountryPickerGrid(countrySearchInput.value);
+      });
+    }
+
     usernameInput.addEventListener('input', () => {
       const name = usernameInput.value.trim() || 'Player';
       headerAvatar.textContent = name.slice(0, 1).toUpperCase();
       localStorage.setItem('typendoUsername', name);
-      socket.emit('setUsername', name);
+      socket.emit('setUsername', { username: name, country: userCountry });
     });
 
     function showScreen(screen) {
@@ -3030,6 +3421,7 @@
       tabLogin.classList.add('active');
       tabSignup.classList.remove('active');
       accountEmail.classList.add('hidden');
+      accountCountry.classList.add('hidden');
       accountIdentifier.placeholder = 'Username or Email';
       authSubmitButton.textContent = 'Log In';
       accountMessage.textContent = '';
@@ -3040,6 +3432,8 @@
       tabSignup.classList.add('active');
       tabLogin.classList.remove('active');
       accountEmail.classList.remove('hidden');
+      accountCountry.classList.remove('hidden');
+      accountCountry.value = userCountry;
       accountIdentifier.placeholder = 'Username (3-24 chars)';
       authSubmitButton.textContent = 'Create Account';
       accountMessage.textContent = '';
@@ -3063,7 +3457,13 @@
       if (authMode === 'login') {
         socket.emit('login', { identifier: accountIdentifier.value.trim(), password: accountPassword.value });
       } else {
-        socket.emit('signup', { username: accountIdentifier.value.trim(), email: accountEmail.value.trim(), password: accountPassword.value });
+        const countryCode = accountCountry.value || userCountry;
+        socket.emit('signup', { 
+          username: accountIdentifier.value.trim(), 
+          email: accountEmail.value.trim(), 
+          password: accountPassword.value, 
+          country: countryCode 
+        });
       }
     });
 
@@ -3071,10 +3471,11 @@
     function openProfileModal() {
       if (!userProfile) return;
       modalProfileAvatar.textContent = userProfile.username.slice(0, 1).toUpperCase();
-      modalProfileUsername.textContent = userProfile.username;
+      modalProfileUsername.innerHTML = `${renderCountryBadge(userProfile.country || userCountry)} ${escapeHtml(userProfile.username)}`;
       modalProfileEmail.textContent = userProfile.email || 'Registered Player';
       modalProfileElo.textContent = `${userProfile.rating || 1000} ELO`;
       profileEditNameInput.value = userProfile.username;
+      profileEditCountrySelect.value = getCountry(userProfile.country || userCountry).code;
       profileCurrPass.value = '';
       profileNewPass.value = '';
       profileModalMsg.textContent = '';
@@ -3087,8 +3488,16 @@
     saveUsernameBtn.addEventListener('click', () => {
       const newUsername = profileEditNameInput.value.trim();
       if (!newUsername) return;
-      profileModalMsg.textContent = 'Updating...';
+      profileModalMsg.textContent = 'Updating username...';
       socket.emit('updateProfile', { newUsername });
+    });
+
+    saveCountryBtn.addEventListener('click', () => {
+      const newCountry = profileEditCountrySelect.value;
+      if (!newCountry) return;
+      profileModalMsg.textContent = 'Updating country...';
+      updateCountryUI(newCountry);
+      socket.emit('updateProfile', { newCountry });
     });
 
     savePasswordBtn.addEventListener('click', () => {
@@ -3116,10 +3525,16 @@
       showToast('Logged out.');
     });
 
-    socket.on('profileUpdated', ({ username, email, rating, accountKey }) => {
+    socket.on('profileUpdated', ({ username, email, country, rating, accountKey }) => {
+      if (country) {
+        userCountry = getCountry(country).code;
+        localStorage.setItem('typendoCountry', userCountry);
+        updateCountryUI(userCountry);
+      }
       if (userProfile) {
         userProfile.username = username;
         if (email) userProfile.email = email;
+        if (country) userProfile.country = userCountry;
         if (rating) userProfile.rating = rating;
       }
       usernameInput.value = username;
@@ -3303,10 +3718,11 @@
         const oppData = opponentCursors.get(player.id) || { wordIndex: 0 };
         const wordEl = document.querySelector(`#word-span-${oppData.wordIndex}`);
         if (wordEl) {
+          const c = getCountry(player.country);
           const pill = document.createElement('div');
           pill.className = 'cursor-pill';
           pill.style.background = player.color?.hex || '#c85a32';
-          pill.textContent = player.username.slice(0, 8);
+          pill.innerHTML = `<span style="font-size: 9px; margin-right: 2px;">${c.flag}</span> ${escapeHtml(player.username.slice(0, 8))}`;
           wordEl.appendChild(pill);
         }
       });
@@ -3321,8 +3737,13 @@
         return `
           <div class="sidebar-player-card">
             <div class="sidebar-player-header">
-              <span><strong style="color: ${color};">●</strong> ${escapeHtml(p.username)} ${isSelf ? '(You)' : ''}</span>
-              <span>${pct}% • ${wpm} WPM</span>
+              <span style="display: flex; align-items: center; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <strong style="color: ${color};">●</strong>
+                ${renderCountryBadge(p.country, 'badge-sm')}
+                <strong>${escapeHtml(p.username)}</strong>
+                ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(You)</span>' : ''}
+              </span>
+              <span style="font-size: 11px; white-space: nowrap;">${pct}% • ${wpm} WPM</span>
             </div>
             <div class="sidebar-progress-track">
               <div class="sidebar-progress-fill" style="width: ${pct}%; background: ${color};"></div>
@@ -3452,8 +3873,10 @@
         <div class="room-card">
           <div>
             <div style="font-weight: 800; font-size: 14px; margin-bottom: 4px;">${escapeHtml(r.roomName)}</div>
-            <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-              <span class="room-tag">Host: ${escapeHtml(r.hostName)}</span>
+            <div style="display: flex; gap: 4px; flex-wrap: wrap; align-items: center;">
+              <span class="room-tag" style="display: inline-flex; align-items: center; gap: 4px;">
+                Host: ${renderCountryBadge(r.hostCountry, 'badge-sm')} ${escapeHtml(r.hostName)}
+              </span>
               <span class="room-tag">${r.difficulty}</span>
               <span class="room-tag">${r.typingMode.replace('_', ' ')}</span>
             </div>
@@ -3470,7 +3893,7 @@
       const username = usernameInput.value.trim() || 'Player';
       browserModal.classList.add('hidden');
       resetRaceState();
-      socket.emit('joinCustomRoom', { roomId, username, platform: selectedPlatform, device: currentDevice });
+      socket.emit('joinCustomRoom', { roomId, username, country: userCountry, platform: selectedPlatform, device: currentDevice });
     };
 
     // Open Custom Room Creation Modal
@@ -3509,6 +3932,7 @@
       resetRaceState();
       socket.emit('createCustomRoom', {
         username,
+        country: userCountry,
         roomName,
         isPublic: modalVis,
         difficulty: modalDiff,
@@ -3547,7 +3971,7 @@
       }
       joinMessage.textContent = '';
       resetRaceState();
-      socket.emit('joinCustomRoom', { friendId, username, platform: selectedPlatform, device: currentDevice });
+      socket.emit('joinCustomRoom', { friendId, username, country: userCountry, platform: selectedPlatform, device: currentDevice });
     });
 
     randomButton.addEventListener('click', () => {
@@ -3560,6 +3984,7 @@
       joinMessage.textContent = '';
       socket.emit('findMatch', { 
         username, 
+        country: userCountry,
         mode: selectedMode, 
         platform: selectedMode === 'ranked' ? currentDevice : selectedPlatform, 
         device: currentDevice 
@@ -3745,7 +4170,9 @@
           <div class="history-card-left">
             <span class="history-badge ${item.isWin ? 'badge-win' : 'badge-loss'}">${item.isWin ? 'WIN' : 'LOSS'}</span>
             <strong>${item.wpm} WPM</strong>
-            <span style="color: var(--text-dim); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">vs ${escapeHtml(item.opponent || 'Opponent')}</span>
+            <span style="color: var(--text-dim); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 4px;">
+              vs ${renderCountryBadge(item.opponentCountry, 'badge-sm')} <strong>${escapeHtml(item.opponent || 'Opponent')}</strong>
+            </span>
           </div>
           <div class="history-card-right">
             <span>${item.errors || 0} err</span>
@@ -3768,7 +4195,9 @@
             <span style="color: var(--text-dim); font-size: 11px;">→ ${item.rating}</span>
           </div>
           <div class="history-card-right">
-            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">vs ${escapeHtml(item.opponent || 'Rival')}</span>
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 4px;">
+              vs ${renderCountryBadge(item.opponentCountry, 'badge-sm')} <strong>${escapeHtml(item.opponent || 'Rival')}</strong>
+            </span>
             <span style="font-size: 10px; color: var(--text-dim);">${formatTimeAgo(item.timestamp)}</span>
           </div>
         </div>
@@ -3797,8 +4226,12 @@
             <div class="top-typist-left">
               <span class="rank-number">${rankBadge}</span>
               <div>
-                <strong>${escapeHtml(player.username)}</strong> ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(YOU)</span>' : ''}
-                <div style="font-size: 10px; color: var(--text-dim);">${player.wins || 0}W • ${player.matches || 0} duels</div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  ${renderCountryBadge(player.country, isSelf ? 'badge-highlight' : '')}
+                  <strong>${escapeHtml(player.username)}</strong>
+                  ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(YOU)</span>' : ''}
+                </div>
+                <div style="font-size: 10px; color: var(--text-dim); margin-top: 1px;">${player.wins || 0}W • ${player.matches || 0} duels</div>
               </div>
             </div>
             <div style="text-align: right;">
@@ -3825,6 +4258,11 @@
       renderGlobalLeaderboard(leaderboard);
     });
 
+    // Country Update Listener
+    socket.on('countryUpdated', (code) => {
+      updateCountryUI(code);
+    });
+
     // SOCKET LISTENERS
     socket.on('friendId', (friendId) => {
       friendIdElement.textContent = friendId;
@@ -3836,14 +4274,20 @@
         friendId: savedFriendId,
         username: savedUsername,
         accountKey: savedAccountKey,
+        country: userCountry,
       });
       socket.emit('getLeaderboard');
     });
 
     // Handle Authentication & Auto-load User Data & History
-    socket.on('authSuccess', ({ username, email, rating, accountKey, duelHistory: serverDuels, eloHistory: serverElos, createdAt }) => {
+    socket.on('authSuccess', ({ username, email, country, rating, accountKey, duelHistory: serverDuels, eloHistory: serverElos, createdAt }) => {
       loggedIn = true;
-      userProfile = { username, email, rating, accountKey, createdAt };
+      if (country) {
+        userCountry = getCountry(country).code;
+        localStorage.setItem('typendoCountry', userCountry);
+        updateCountryUI(userCountry);
+      }
+      userProfile = { username, email, country: userCountry, rating, accountKey, createdAt };
       usernameInput.value = username;
       headerAvatar.textContent = username.slice(0, 1).toUpperCase();
       headerElo.textContent = rating + ' ELO';
@@ -3903,7 +4347,13 @@
       readyButton.classList.remove('is-ready');
 
       if (readyOpponentName && readyOpponentStatus) {
-        readyOpponentName.textContent = `${opponent.username} (${(opponent.platform || 'pc').toUpperCase()})`;
+        readyOpponentName.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 16px;">
+            ${renderCountryBadge(opponent.country)}
+            <strong>${escapeHtml(opponent.username)}</strong>
+            <span style="font-size: 12px; color: var(--text-dim);">(${(opponent.platform || 'pc').toUpperCase()})</span>
+          </div>
+        `;
         
         if (mode === 'ranked') {
           readyOpponentStatus.innerHTML = `<span style="color: var(--primary); font-weight: 800; font-size: 13px;">🏆 ${opponent.rating || 1000} ELO</span>`;
@@ -3911,7 +4361,7 @@
           if (opponent.isRanked) {
             readyOpponentStatus.innerHTML = `<span style="color: var(--primary); font-weight: 700; font-size: 12px;">✔ Registered Player</span>`;
           } else {
-            readyOpponentStatus.innerHTML = `<span style="color: var(--text-muted); font-size: 12px;">Guest Player</span>`;
+            readyOpponentStatus.innerHTML = `<span style="color: var(--text-muted); font-size: 12px;">Guest Typist</span>`;
           }
         }
       }
@@ -3955,7 +4405,7 @@
       showToast(`Lobby created. Code: ${friendId}`);
     });
 
-    socket.on('playerJoinedRoom', ({ username, players, canStart, hostId, playerCount, maxPlayers, roomName, isPublic, difficulty, typingMode }) => {
+    socket.on('playerJoinedRoom', ({ username, country, players, canStart, hostId, playerCount, maxPlayers, roomName, isPublic, difficulty, typingMode }) => {
       isHost = socket.id === hostId;
       activePlayers = players;
       roomConfigDiff = difficulty;
@@ -3972,7 +4422,8 @@
       startRoomButton.classList.toggle('hidden', !isHost || playerCount < 2);
 
       renderLobbyMembers(players, hostId);
-      showToast(`${username} joined the lobby (${playerCount}/${maxPlayers})`);
+      const c = getCountry(country);
+      showToast(`${c.flag} ${username} joined the lobby (${playerCount}/${maxPlayers})`);
     });
 
     function renderLobbyMembers(players, hostId) {
@@ -3984,7 +4435,10 @@
           <div class="lobby-player-card">
             <div class="player-chip-avatar" style="background: ${color};">${escapeHtml(p.username.slice(0, 2).toUpperCase())}</div>
             <div class="player-chip-info">
-              <strong>${escapeHtml(p.username)}</strong>
+              <div style="display: flex; align-items: center; gap: 5px;">
+                ${renderCountryBadge(p.country, 'badge-sm')}
+                <strong>${escapeHtml(p.username)}</strong>
+              </div>
               <small>${isPlayerHost ? '👑 HOST • ' : ''}${statusTag} • ${(p.platform || 'pc').toUpperCase()}</small>
             </div>
           </div>
@@ -4056,12 +4510,13 @@
       countdownInterval = setInterval(updateCountdown, 100);
     });
 
-    socket.on('playerCursorUpdate', ({ playerId, username, progress, charIndex, wordIndex, wpm }) => {
+    socket.on('playerCursorUpdate', ({ playerId, username, country, progress, charIndex, wordIndex, wpm }) => {
       opponentCursors.set(playerId, { charIndex, wordIndex });
       const p = activePlayers.find((item) => item.id === playerId);
       if (p) {
         p.progress = progress;
         p.wpm = wpm;
+        if (country) p.country = country;
       }
       updateLiveCursors();
       renderSidebarProgress();
@@ -4090,6 +4545,8 @@
           wpm: selfResult.wpm || 0,
           errors: selfResult.errors || 0,
           opponent: opponentResult?.username || 'Opponent',
+          opponentCountry: opponentResult?.country || 'IND',
+          country: userCountry,
           timestamp: Date.now(),
         };
         duelHistory.unshift(historyEntry);
@@ -4105,6 +4562,7 @@
           delta: selfResult.ratingChange,
           rating: selfResult.rating || (1000 + selfResult.ratingChange),
           opponent: opponentResult?.username || 'Rival',
+          opponentCountry: opponentResult?.country || 'IND',
           timestamp: Date.now(),
         };
         eloHistory.unshift(eloEntry);
@@ -4133,7 +4591,12 @@
         return `
           <div class="result-row ${idx === 0 ? 'winner-row' : ''}">
             <span style="font-weight: 800; color: ${color};">#${idx + 1}</span>
-            <span><strong>${escapeHtml(res.username)}</strong> ${isSelf ? '(You)' : ''} ${res.flagged ? '⚠️ (Flagged)' : ''}</span>
+            <span style="display: flex; align-items: center; gap: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              ${renderCountryBadge(res.country, 'badge-sm')}
+              <strong>${escapeHtml(res.username)}</strong>
+              ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(You)</span>' : ''}
+              ${res.flagged ? '⚠️ (Flagged)' : ''}
+            </span>
             <span>${res.dnf ? 'DNF' : res.wpm + ' WPM'}</span>
             <span>${res.errors || 0} err</span>
             <span>${res.ratingChange ? (res.ratingChange > 0 ? '+' : '') + res.ratingChange + ' ELO' : ''}</span>
@@ -4155,7 +4618,17 @@
       winnerScreenEl.classList.remove('lost');
       document.querySelector('#winner-title').textContent = 'You Win!';
       document.querySelector('#winner-subtitle').textContent = message || 'All other players left the room.';
-      resultsElement.innerHTML = `<div class="result-row winner-row"><span>#1</span><span><strong>${escapeHtml(usernameInput.value || 'You')}</strong></span><span>Winner</span><span>0 err</span></div>`;
+      resultsElement.innerHTML = `
+        <div class="result-row winner-row">
+          <span>#1</span>
+          <span style="display: flex; align-items: center; gap: 5px;">
+            ${renderCountryBadge(userCountry, 'badge-sm')}
+            <strong>${escapeHtml(usernameInput.value || 'You')}</strong>
+          </span>
+          <span>Winner</span>
+          <span>0 err</span>
+        </div>
+      `;
       
       const historyEntry = {
         mode: 'custom',
@@ -4163,6 +4636,8 @@
         wpm: parseInt(activeSpeedBadge.textContent) || 0,
         errors: errorCount || 0,
         opponent: 'Players',
+        opponentCountry: 'IND',
+        country: userCountry,
         timestamp: Date.now(),
       };
       duelHistory.unshift(historyEntry);
