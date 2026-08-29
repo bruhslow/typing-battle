@@ -721,6 +721,17 @@ function finishRace(roomId, force = false, reason = '') {
       const isWinner = res.id === winnerId;
       const otherPlayer = results.find((r) => r.id !== res.id);
 
+      acc.matches = (acc.matches || 0) + 1;
+      if (isWinner) {
+        acc.wins = (acc.wins || 0) + 1;
+        acc.winstreak = (acc.winstreak || 0) + 1;
+      } else {
+        acc.winstreak = 0;
+      }
+      if (res.wpm && res.wpm > (acc.pb || 0)) {
+        acc.pb = res.wpm;
+      }
+
       acc.duelHistory.unshift({
         mode: room.mode || 'quick',
         isWin: isWinner,
