@@ -136,6 +136,49 @@ try {
   console.error('Error reading accounts file:', e);
 }
 
+// ══════════════════════════════════════════════════════
+// ADMIN PRIVILEGES & ROLE MANAGEMENT
+// ══════════════════════════════════════════════════════
+const ADMIN_EMAILS = [
+  'typendootp@gmail.com',
+  'giridharandev@gmail.com',
+];
+
+const ADMIN_USERNAMES = [
+  'admin',
+  'giridharan',
+  'typendo',
+  'typendootp',
+];
+
+function isAccountAdmin(acc) {
+  if (!acc) return false;
+  const email = (acc.email || '').toLowerCase().trim();
+  const username = (acc.username || '').toLowerCase().trim();
+  if (ADMIN_EMAILS.includes(email)) return true;
+  if (ADMIN_USERNAMES.includes(username)) return true;
+  if (acc.role === 'admin' || acc.isAdmin === true) return true;
+  return false;
+}
+
+function formatAccountResponse(acc, accountKey) {
+  const isAdmin = isAccountAdmin(acc);
+  return {
+    clerkId: acc.clerkId || '',
+    username: acc.username,
+    email: acc.email,
+    country: acc.country || 'IND',
+    imageUrl: acc.imageUrl || '',
+    rating: acc.rating || 1000,
+    role: isAdmin ? 'admin' : (acc.role || 'user'),
+    isAdmin,
+    accountKey: accountKey || acc.username.toLowerCase(),
+    createdAt: acc.createdAt || Date.now(),
+    duelHistory: acc.duelHistory || [],
+    eloHistory: acc.eloHistory || [],
+  };
+}
+
 function saveAccounts() {
   try {
     const obj = Object.fromEntries(accounts);
@@ -152,11 +195,14 @@ function getGlobalLeaderboard() {
     const pb = duelHistory.length > 0 ? Math.max(...duelHistory.map((d) => d.wpm || 0)) : 0;
     const wins = duelHistory.filter((d) => d.isWin).length;
     const matches = duelHistory.length;
+    const isAdmin = isAccountAdmin(acc);
 
     list.push({
       username: acc.username,
       country: acc.country || 'IND',
       rating: acc.rating || 1000,
+      role: isAdmin ? 'admin' : 'user',
+      isAdmin,
       pb,
       wins,
       matches,
@@ -1018,18 +1064,7 @@ io.on('connection', (socket) => {
     socket.data.country = account.country || 'IND';
     rotateFriendId(socket);
 
-    socket.emit('authSuccess', {
-      clerkId: account.clerkId,
-      username: account.username,
-      email: account.email,
-      country: account.country || 'IND',
-      imageUrl: account.imageUrl || '',
-      rating: account.rating || 1000,
-      accountKey,
-      createdAt: account.createdAt || Date.now(),
-      duelHistory: account.duelHistory || [],
-      eloHistory: account.eloHistory || [],
-    });
+    socket.emit('authSuccess', formatAccountResponse(account, accountKey));
   });
 
   socket.on('clerkSignOut', () => {
@@ -1084,16 +1119,7 @@ io.on('connection', (socket) => {
     socket.data.country = newAccount.country;
     rotateFriendId(socket);
 
-    socket.emit('authSuccess', {
-      username: newAccount.username,
-      email: newAccount.email,
-      country: newAccount.country,
-      rating: 1000,
-      accountKey,
-      createdAt: newAccount.createdAt,
-      duelHistory: [],
-      eloHistory: [],
-    });
+    socket.emit('authSuccess', formatAccountResponse(newAccount, accountKey));
   });
 
   // ══════════════════════════════════════════════════════
@@ -1216,16 +1242,7 @@ io.on('connection', (socket) => {
     socket.data.country = newAccount.country;
     rotateFriendId(socket);
 
-    socket.emit('authSuccess', {
-      username: newAccount.username,
-      email: newAccount.email,
-      country: newAccount.country,
-      rating: 1000,
-      accountKey,
-      createdAt: newAccount.createdAt,
-      duelHistory: [],
-      eloHistory: [],
-    });
+    socket.emit('authSuccess', formatAccountResponse(newAccount, accountKey));
   });
 
   socket.on('verifyOtp', ({ email, code }) => {
@@ -1289,16 +1306,7 @@ io.on('connection', (socket) => {
     socket.data.country = newAccount.country;
     rotateFriendId(socket);
 
-    socket.emit('authSuccess', {
-      username: newAccount.username,
-      email: newAccount.email,
-      country: newAccount.country,
-      rating: 1000,
-      accountKey,
-      createdAt: newAccount.createdAt,
-      duelHistory: [],
-      eloHistory: [],
-    });
+    socket.emit('authSuccess', formatAccountResponse(newAccount, accountKey));
   });
 
   socket.on('login', ({ identifier, username, email, password }) => {
@@ -1325,16 +1333,7 @@ io.on('connection', (socket) => {
     socket.data.username = account.username;
     socket.data.country = account.country || 'IND';
     rotateFriendId(socket);
-    socket.emit('authSuccess', {
-      username: account.username,
-      email: account.email,
-      country: account.country || 'IND',
-      rating: account.rating,
-      accountKey,
-      createdAt: account.createdAt || Date.now(),
-      duelHistory: account.duelHistory || [],
-      eloHistory: account.eloHistory || [],
-    });
+    socket.emit('authSuccess', formatAccountResponse(account, accountKey));
   });
 
   // Profile update handler: change display name, country and/or password
@@ -1390,12 +1389,50 @@ io.on('connection', (socket) => {
     saveAccounts();
     broadcastLeaderboard();
 
-    socket.emit('profileUpdated', {
-      username: account.username,
-      email: account.email,
-      country: account.country,
-      rating: account.rating,
-      accountKey: socket.data.accountKey,
+    socket.emit('profileUpdated', formatAccountResponse(account, socket.data.accountKey));
+  });
+
+  // ══════════════════════════════════════════════════════
+  // ADMIN PANEL CONTROLS & REAL-TIME ANNOUNCEMENTS
+  // ══════════════════════════════════════════════════════
+  socket.on('adminBroadcast', ({ message }) => {
+    const acc = socket.data.accountKey ? accounts.get(socket.data.accountKey) : null;
+    if (!acc || !isAccountAdmin(acc)) {
+      socket.emit('authError', 'Access denied: Admin privileges required.');
+      return;
+    }
+    const cleanMsg = typeof message === 'string' ? message.trim() : '';
+    if (!cleanMsg) return;
+
+    io.emit('serverAnnouncement', {
+      sender: acc.username,
+      message: cleanMsg,
+      timestamp: Date.now(),
+    });
+  });
+
+  socket.on('adminGetServerMetrics', () => {
+    const acc = socket.data.accountKey ? accounts.get(socket.data.accountKey) : null;
+    if (!acc || !isAccountAdmin(acc)) {
+      socket.emit('authError', 'Access denied: Admin privileges required.');
+      return;
+    }
+    const onlineCount = io.engine.clientsCount || io.sockets.sockets.size;
+    const activeRooms = [...rooms.values()].map((r) => ({
+      id: r.id,
+      mode: r.mode,
+      players: r.players.map((p) => p.name),
+      started: r.started,
+      finished: r.finished,
+    }));
+    const totalUsers = accounts.size;
+
+    socket.emit('adminMetricsData', {
+      onlineCount,
+      activeRooms,
+      totalUsers,
+      uptimeSec: Math.round(process.uptime()),
+      memoryMb: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
     });
   });
 
