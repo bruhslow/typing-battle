@@ -16,8 +16,8 @@
 
 - ⚡ **Real-Time Multiplayer Duels**: Sub-millisecond WebSocket state synchronization.
 - 🏆 **Ranked 1v1 & Division Tiers**: Competitive ELO matchmaking spanning Bronze to Grandmaster.
-- 👥 **Persistent Friends System & Left-Slide Drawer**:
-  - **Left-Edge Pullout Drawer**: Dedicated task-manager style drawer with live badge notifications.
+- 👥 **Persistent Friends System & Right-Slide Drawer**:
+  - **Right-Edge Pullout Drawer**: Dedicated task-manager style drawer with live badge notifications.
   - **🟢 Online Friends Tab**: See friends currently online with one-click **⚔️ Duel** instant casual 1v1 challenges.
   - **👥 All Friends Tab**: Manage your full friends list with online/offline status dots and removal.
   - **📬 Pending Requests Tab**: Full request/accept system with separate **Received** (Accept/Decline) and **Sent** (Cancel) sections.
@@ -97,7 +97,7 @@ typendo/
 
 | Feature | Details |
 |---------|---------|
-| **Friends Drawer** | Click the floating `👥 FRIENDS` tab on the left edge of the screen to open the panel. |
+| **Friends Drawer** | Click the floating `👥 FRIENDS` tab on the right edge of the screen to open the panel. |
 | **Online Friends** | Shows friends currently connected. Click **⚔️ Duel** to immediately create a private room and send them a live pop-up invite. |
 | **All Friends** | Lists all accepted friends, sorted online first with live status indicators and ELO ratings. |
 | **Pending Requests** | Incoming requests with **Accept / Decline** buttons and outgoing requests with **Cancel** buttons. |

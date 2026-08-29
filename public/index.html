@@ -112,8 +112,9 @@
     .shell {
       position: relative;
       z-index: 1;
-      width: min(1240px, calc(100% - 48px));
-      margin: 0 auto;
+      width: min(1220px, calc(100% - 56px));
+      margin-left: max(18px, calc((100% - 1220px) / 2 - 28px));
+      margin-right: auto;
       padding: 16px 0 24px;
     }
 
@@ -4012,18 +4013,19 @@
        FRIENDS SYSTEM — FAB + DRAWER
     ══════════════════════════════════════════════════════ */
 
-    /* FAB: fixed left-edge pill */
+    /* FAB: fixed right-edge pill */
     .friends-fab {
       position: fixed;
-      left: 0;
+      right: 0;
+      left: auto;
       top: 50%;
       transform: translateY(-50%);
       z-index: 1200;
       background: var(--primary);
       color: #fff;
       border: none;
-      border-radius: 0 var(--radius-md) var(--radius-md) 0;
-      padding: 14px 10px 14px 8px;
+      border-radius: var(--radius-md) 0 0 var(--radius-md);
+      padding: 14px 8px 14px 10px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
@@ -4033,12 +4035,12 @@
       font-size: 11px;
       font-weight: 800;
       letter-spacing: 0.04em;
-      box-shadow: 2px 0 16px rgba(29,90,63,0.25);
+      box-shadow: -2px 0 16px rgba(29,90,63,0.25);
       transition: padding 0.2s ease, background 0.2s ease;
       writing-mode: vertical-rl;
       text-orientation: mixed;
     }
-    .friends-fab:hover { background: var(--primary-hover); padding-right: 14px; }
+    .friends-fab:hover { background: var(--primary-hover); padding-left: 14px; }
     .friends-fab-icon { font-size: 16px; writing-mode: horizontal-tb; }
     .friends-fab-badge {
       background: #e53e3e;
@@ -4053,7 +4055,8 @@
       display: none;
       position: absolute;
       top: 8px;
-      right: -4px;
+      left: -4px;
+      right: auto;
     }
     .friends-fab-badge.visible { display: block; }
 
@@ -4073,15 +4076,16 @@
     .friends-drawer {
       position: fixed;
       top: 0;
-      left: 0;
+      right: 0;
+      left: auto;
       bottom: 0;
       z-index: 1300;
       width: min(340px, 90vw);
       background: #fff;
       display: flex;
       flex-direction: column;
-      box-shadow: 4px 0 32px rgba(0,0,0,0.15);
-      transform: translateX(-105%);
+      box-shadow: -4px 0 32px rgba(0,0,0,0.15);
+      transform: translateX(105%);
       transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
       overflow: hidden;
     }
