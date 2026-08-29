@@ -1283,104 +1283,169 @@
       box-shadow: 0 0 0 3px var(--primary-glow);
     }
 
-    /* Results Showcase Banner */
+    /* ═══════════════════════════════════════════ */
+    /* THEMED RESULTS SHOWCASE (SPEED LAB END)     */
+    /* ═══════════════════════════════════════════ */
     .solo-result-box {
-      background: linear-gradient(135deg, rgba(226, 240, 234, 0.85) 0%, #ffffff 100%);
+      background: linear-gradient(135deg, rgba(240, 248, 244, 0.95) 0%, #ffffff 100%);
       border: 1.5px solid var(--primary-border);
-      border-radius: var(--radius-lg);
-      padding: 18px;
-      box-shadow: var(--shadow-sm);
-      animation: rise 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      border-radius: var(--radius-xl);
+      padding: 22px 20px;
+      box-shadow: 0 8px 24px rgba(29, 90, 63, 0.08);
+      animation: pop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .solo-result-head {
+    .solo-result-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 50%, #3b82f6 100%);
+    }
+
+    .solo-result-hero {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
+      text-align: center;
+      gap: 8px;
+      padding-bottom: 6px;
+    }
+
+    .solo-rank-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      border: 1.5px solid var(--primary-border);
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 12px;
       font-weight: 900;
-      font-size: 15px;
       color: var(--primary);
+      box-shadow: var(--shadow-xs);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .solo-hero-wpm-wrap {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .solo-hero-wpm-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 52px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary) 0%, #15573f 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    .solo-hero-wpm-unit {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
     .solo-pb-tag {
       background: linear-gradient(135deg, var(--secondary) 0%, #d95d12 100%);
       color: #fff;
-      padding: 4px 10px;
+      padding: 4px 12px;
       border-radius: 999px;
       font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      box-shadow: 0 2px 8px rgba(224, 114, 44, 0.3);
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      box-shadow: 0 3px 10px rgba(224, 114, 44, 0.35);
       animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .solo-result-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      text-align: center;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 640px) {
+      .solo-result-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
     }
 
     .solo-res-stat {
       background: #fff;
-      padding: 10px 8px;
+      padding: 10px 6px;
       border-radius: var(--radius-md);
       border: 1px solid var(--border-subtle);
       box-shadow: var(--shadow-xs);
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      text-align: center;
     }
 
     .solo-res-stat .res-num {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 900;
+      color: var(--text-main);
+    }
+
+    .solo-res-stat.stat-highlight .res-num {
       color: var(--primary);
     }
 
+    .solo-res-stat.stat-secondary .res-num {
+      color: var(--secondary);
+    }
+
     .solo-res-stat .res-lbl {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 800;
       color: var(--text-dim);
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
+    }
+
+    .solo-feedback-banner {
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
     .solo-result-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 14px;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .solo-retry-action-btn {
-      flex: 1;
-      height: 40px;
-      background: #fff;
-      border: 1.5px solid var(--border-strong);
-      border-radius: var(--radius-md);
-      font-family: inherit;
-      font-size: 12.5px;
-      font-weight: 800;
-      color: var(--text-main);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.2s ease;
-    }
-
-    .solo-retry-action-btn:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      transform: translateY(-1px);
-    }
-
-    .solo-duel-jump-btn {
-      flex: 1;
-      height: 40px;
+      flex: 1.2;
+      min-width: 130px;
+      height: 42px;
       background: linear-gradient(135deg, var(--primary) 0%, #2a7a5a 100%);
       border: 0;
       border-radius: var(--radius-md);
@@ -1393,20 +1458,63 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      box-shadow: 0 3px 10px rgba(29, 90, 63, 0.25);
+      box-shadow: 0 4px 12px rgba(29, 90, 63, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .solo-retry-action-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(29, 90, 63, 0.35);
+    }
+
+    .solo-copy-action-btn {
+      flex: 1;
+      min-width: 110px;
+      height: 42px;
+      background: #fff;
+      border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .solo-copy-action-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .solo-duel-jump-btn {
+      flex: 1.2;
+      min-width: 140px;
+      height: 42px;
+      background: #fff;
+      border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
       transition: all 0.2s ease;
     }
 
     .solo-duel-jump-btn:hover {
+      border-color: var(--secondary);
+      color: var(--secondary);
       transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(29, 90, 63, 0.35);
-    }
-
-    .solo-res-stat .res-lbl {
-      font-size: 9px;
-      font-weight: 800;
-      color: var(--text-dim);
-      text-transform: uppercase;
     }
 
     /* ═══════════════════════════════════════ */
@@ -3334,18 +3442,23 @@
             </div>
           </div>
 
-          <!-- Solo Results Modal / Banner -->
+          <!-- Themed Solo Results Showcase -->
           <div class="solo-result-box hidden" id="solo-result-box">
-            <div class="solo-result-head">
-              <span id="solo-result-title">🎉 Test Completed!</span>
+            <div class="solo-result-hero">
+              <div class="solo-rank-badge" id="solo-rank-badge">
+                <span id="solo-rank-icon">⚡</span>
+                <span id="solo-rank-text">Master Typist</span>
+              </div>
+              <div class="solo-hero-wpm-wrap">
+                <span class="solo-hero-wpm-num" id="solo-res-wpm">0</span>
+                <span class="solo-hero-wpm-unit">WPM</span>
+              </div>
               <span class="solo-pb-tag hidden" id="solo-pb-tag">🏆 NEW PERSONAL BEST!</span>
             </div>
+
+            <!-- 6 Key Metrics Grid -->
             <div class="solo-result-grid">
-              <div class="solo-res-stat">
-                <span class="res-num" id="solo-res-wpm">0</span>
-                <span class="res-lbl">Net WPM</span>
-              </div>
-              <div class="solo-res-stat">
+              <div class="solo-res-stat stat-highlight">
                 <span class="res-num" id="solo-res-acc">100%</span>
                 <span class="res-lbl">Accuracy</span>
               </div>
@@ -3353,17 +3466,40 @@
                 <span class="res-num" id="solo-res-raw">0</span>
                 <span class="res-lbl">Raw WPM</span>
               </div>
+              <div class="solo-res-stat stat-secondary">
+                <span class="res-num" id="solo-res-streak">🔥 0</span>
+                <span class="res-lbl">Peak Streak</span>
+              </div>
+              <div class="solo-res-stat">
+                <span class="res-num" id="solo-res-chars">0</span>
+                <span class="res-lbl">Keystrokes</span>
+              </div>
               <div class="solo-res-stat">
                 <span class="res-num" id="solo-res-err">0</span>
                 <span class="res-lbl">Errors</span>
               </div>
+              <div class="solo-res-stat">
+                <span class="res-num" id="solo-res-time">15s</span>
+                <span class="res-lbl">Duration</span>
+              </div>
             </div>
+
+            <!-- Summary Feedback Insight -->
+            <div class="solo-feedback-banner" id="solo-feedback-banner">
+              <span id="solo-feedback-text">🎯 Laser sharp accuracy with outstanding typing rhythm!</span>
+            </div>
+
+            <!-- Action Buttons -->
             <div class="solo-result-actions">
-              <button class="solo-retry-action-btn" id="solo-retry-btn" type="button">
+              <button class="solo-retry-action-btn" id="solo-retry-btn" type="button" title="Shortcut: Press Enter or Tab">
                 <span>🔁</span>
-                <span>Try Again</span>
+                <span>Next Sentence (Enter)</span>
               </button>
-              <button class="solo-duel-jump-btn" id="solo-jump-duel-btn" type="button">
+              <button class="solo-copy-action-btn" id="solo-copy-stats-btn" type="button" title="Copy score to clipboard">
+                <span>📋</span>
+                <span id="solo-copy-text">Copy Stats</span>
+              </button>
+              <button class="solo-duel-jump-btn" id="solo-jump-duel-btn" type="button" title="Jump to Ranked / Quick matchmaking">
                 <span>⚔️</span>
                 <span>Play Quick Match (30s)</span>
               </button>
@@ -4740,7 +4876,39 @@
       "Technology connects millions of minds across oceans in real time, making the world feel like a single village.",
       "Focus your vision on the upcoming words rather than looking down at the keyboard layout.",
       "Deep in the ancient library, dusty leather volumes held forgotten stories of kingdoms and starlit journeys.",
-      "Innovation begins where routine ends, inviting bold ideas to reshape how we learn and create."
+      "Innovation begins where routine ends, inviting bold ideas to reshape how we learn and create.",
+      "Lightning split the midnight sky, illuminating the rolling ocean waves with a brief flash of silver brilliance.",
+      "Every small achievement builds momentum, turning quiet dedication into undeniable triumph over time.",
+      "The spacecraft entered orbit around the distant planet, beaming high resolution photographs back to ground control.",
+      "Calm seas never produced skilled sailors, and easy challenges rarely forge extraordinary abilities.",
+      "A sudden spark of inspiration can illuminate pathways that remained hidden in total darkness for centuries.",
+      "Clean architecture in modern web systems emphasizes modular components, explicit state, and rapid user feedback.",
+      "The aroma of fresh ground coffee beans drifted through the open cafe windows on an autumn morning.",
+      "Perseverance transforms humble beginnings into legendary milestones through unwavering dedication.",
+      "In the digital era, mastering rapid keyboard communication is like wielding a superpower for modern creators.",
+      "The mountain summit greeted the climbers with panoramic views of snow-capped ridges stretching toward the horizon.",
+      "Precision always precedes velocity; master the correct technique first, and blistering speed will follow naturally.",
+      "A symphony of keystrokes echoed through the quiet room as the programmer solved the complex puzzle.",
+      "Nature designs with effortless efficiency, from the symmetry of a snowflake to the spiral of a galaxy.",
+      "True champions celebrate small daily improvements because they know that tiny gains compound into greatness.",
+      "The river flows steadily around obstacles, demonstrating that patience and adaptability overcome immense resistance.",
+      "Artificial intelligence expands human potential by automating routine tasks and amplifying creative problem solving.",
+      "Beneath the starry night sky, the campfire flickered and cast dancing golden shadows across the campsite.",
+      "A disciplined mind remains steady during high pressure challenges, executing every move with poise and grace.",
+      "Reading expansive literature broadens empathy, giving readers a window into lives beyond their immediate experience.",
+      "The engine roared to life with a deep mechanical rumble, vibrating through the sleek carbon fiber chassis.",
+      "Every keyboard switch offers distinct tactile feedback, guiding experienced typists through every keystroke.",
+      "The golden hour cast long amber rays across the sprawling wheat fields as evening gently approached.",
+      "Continuous curiosity unlocks doors that certainty keeps firmly locked against discovery.",
+      "Typing rhythm resembles musical pacing; smooth and consistent strokes outshine erratic bursts of rapid typing.",
+      "The satellite drifted silently in the vacuum of space, relaying communications across continents continuously.",
+      "Resilience is the courage to stand up once more whenever an unexpected storm knocks you off course.",
+      "An intricate clockwork mechanism ticked quietly on the wooden desk, measuring every second with unyielding precision.",
+      "Wisdom consists of knowing what to overlook and focusing all your energy on what truly creates meaningful impact.",
+      "The ancient stone castle stood proudly against the northern winds, having weathered centuries of shifting tides.",
+      "Embrace every typo as valuable diagnostic data that highlights where your muscle memory needs gentle reinforcement.",
+      "Sunlight filtered through the dense green canopy, creating dappled patterns of light on the damp forest floor.",
+      "Simplicity is the ultimate sophistication, stripping away unnecessary noise to reveal the true essence of design."
     ];
 
     const soloTestCard = document.querySelector('#solo-test-card');
@@ -4753,13 +4921,20 @@
     const soloLiveStreak = document.querySelector('#solo-live-streak');
     const soloRefreshBtn = document.querySelector('#solo-refresh-btn');
     const soloResultBox = document.querySelector('#solo-result-box');
-    const soloResultTitle = document.querySelector('#solo-result-title');
+    const soloRankBadge = document.querySelector('#solo-rank-badge');
+    const soloRankIcon = document.querySelector('#solo-rank-icon');
+    const soloRankText = document.querySelector('#solo-rank-text');
     const soloResWpm = document.querySelector('#solo-res-wpm');
     const soloResAcc = document.querySelector('#solo-res-acc');
     const soloResRaw = document.querySelector('#solo-res-raw');
+    const soloResStreak = document.querySelector('#solo-res-streak');
+    const soloResChars = document.querySelector('#solo-res-chars');
     const soloResErr = document.querySelector('#solo-res-err');
+    const soloResTime = document.querySelector('#solo-res-time');
+    const soloFeedbackText = document.querySelector('#solo-feedback-text');
     const soloPbTag = document.querySelector('#solo-pb-tag');
     const soloRetryBtn = document.querySelector('#solo-retry-btn');
+    const soloCopyStatsBtn = document.querySelector('#solo-copy-stats-btn');
     const soloJumpDuelBtn = document.querySelector('#solo-jump-duel-btn');
     const soloTimerPills = document.querySelectorAll('.solo-timer-pill');
 
@@ -4769,14 +4944,26 @@
     let soloTimerInterval = null;
     let soloFinished = false;
     let soloCurrentStreak = 0;
+    let soloMaxStreak = 0;
+    let soloRecentQuotes = [];
+
+    function getRandomSoloSentence() {
+      const candidates = soloQuotesList.filter(q => !soloRecentQuotes.includes(q));
+      const pool = candidates.length > 0 ? candidates : soloQuotesList;
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      soloRecentQuotes.push(pick);
+      if (soloRecentQuotes.length > 10) soloRecentQuotes.shift();
+      return pick;
+    }
 
     function initSoloQuote(customQuote) {
       clearInterval(soloTimerInterval);
       soloStartTime = 0;
       soloFinished = false;
       soloCurrentStreak = 0;
+      soloMaxStreak = 0;
       
-      soloActiveQuote = customQuote || soloQuotesList[Math.floor(Math.random() * soloQuotesList.length)];
+      soloActiveQuote = customQuote || getRandomSoloSentence();
       if (soloTypeInput) {
         soloTypeInput.value = '';
         soloTypeInput.disabled = false;
@@ -4817,6 +5004,7 @@
       }
       soloQuoteDisplay.innerHTML = html;
       soloCurrentStreak = streak;
+      if (streak > soloMaxStreak) soloMaxStreak = streak;
       if (soloLiveStreak) soloLiveStreak.textContent = `🔥 ${streak} Streak`;
     }
 
@@ -4847,16 +5035,37 @@
       if (soloResWpm) soloResWpm.textContent = netWpm;
       if (soloResAcc) soloResAcc.textContent = acc + '%';
       if (soloResRaw) soloResRaw.textContent = rawWpm;
+      if (soloResStreak) soloResStreak.textContent = `🔥 ${soloMaxStreak}`;
+      if (soloResChars) soloResChars.textContent = `${correctChars}/${typed.length}`;
       if (soloResErr) soloResErr.textContent = mistakes;
+      if (soloResTime) soloResTime.textContent = `${elapsedSec}s`;
 
-      // Tier title
-      if (soloResultTitle) {
-        if (netWpm >= 110) soloResultTitle.textContent = '⚡ GODLIKE SPEED! (110+ WPM)';
-        else if (netWpm >= 85) soloResultTitle.textContent = '🚀 MASTER TYPIST! (85+ WPM)';
-        else if (netWpm >= 60) soloResultTitle.textContent = '🔥 SWIFT RACER! (60+ WPM)';
-        else if (netWpm >= 40) soloResultTitle.textContent = '🌱 SOLID PACE! (40+ WPM)';
-        else soloResultTitle.textContent = '🎯 NICE PRACTICE! Keep going!';
+      // Themed Rank & Insight Feedback
+      let rankIcon = '🎯';
+      let rankTitle = 'Aspiring Typist';
+      let feedback = '🎯 Solid effort! Keep practicing daily to build muscle memory.';
+
+      if (netWpm >= 110) {
+        rankIcon = '👑';
+        rankTitle = 'Grandmaster Typist';
+        feedback = '⚡ Godlike speed! You are in the top 0.5% of competitive typists!';
+      } else if (netWpm >= 85) {
+        rankIcon = '💎';
+        rankTitle = 'Master Speedster';
+        feedback = '🚀 Blistering velocity! Exceptional speed and tournament precision!';
+      } else if (netWpm >= 65) {
+        rankIcon = '🔥';
+        rankTitle = 'Swift Racer';
+        feedback = '🔥 Excellent flow! Your finger cadence is steady and fast!';
+      } else if (netWpm >= 45) {
+        rankIcon = '⚡';
+        rankTitle = 'Agile Typist';
+        feedback = '⚡ Great pace! Focus on staying relaxed to climb past 60 WPM!';
       }
+
+      if (soloRankIcon) soloRankIcon.textContent = rankIcon;
+      if (soloRankText) soloRankText.textContent = rankTitle;
+      if (soloFeedbackText) soloFeedbackText.textContent = feedback;
 
       // Check for Personal Best
       const savedPb = parseInt(localStorage.getItem('typendoPB') || '0', 10);
@@ -4884,11 +5093,7 @@
 
     if (soloRefreshBtn) {
       soloRefreshBtn.addEventListener('click', () => {
-        let nextQuote;
-        do {
-          nextQuote = soloQuotesList[Math.floor(Math.random() * soloQuotesList.length)];
-        } while (nextQuote === soloActiveQuote && soloQuotesList.length > 1);
-        initSoloQuote(nextQuote);
+        initSoloQuote();
         if (soloTypeInput) soloTypeInput.focus();
       });
     }
@@ -4897,6 +5102,26 @@
       soloRetryBtn.addEventListener('click', () => {
         initSoloQuote();
         if (soloTypeInput) soloTypeInput.focus();
+      });
+    }
+
+    if (soloCopyStatsBtn) {
+      soloCopyStatsBtn.addEventListener('click', () => {
+        const netWpm = soloResWpm ? soloResWpm.textContent : '0';
+        const acc = soloResAcc ? soloResAcc.textContent : '100%';
+        const rank = soloRankText ? soloRankText.textContent : 'Typist';
+        const shareText = `⚡ Typendo Speed Lab Scorecard ⚡\n🏆 Rank: ${rank}\n🚀 Speed: ${netWpm} WPM\n🎯 Accuracy: ${acc}\n⏱️ Time: ${soloDurationSec}s\nPlay now at https://typing-battle-34rr.onrender.com`;
+        
+        navigator.clipboard.writeText(shareText).then(() => {
+          showToast('📋 Scorecard copied to clipboard!');
+          const btnSpan = document.querySelector('#solo-copy-text');
+          if (btnSpan) {
+            btnSpan.textContent = 'Copied! ✔';
+            setTimeout(() => btnSpan.textContent = 'Copy Stats', 2000);
+          }
+        }).catch(() => {
+          showToast('Speed: ' + netWpm + ' WPM | Acc: ' + acc);
+        });
       });
     }
 
