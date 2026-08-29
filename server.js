@@ -34,14 +34,15 @@ if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
   });
   console.log(`Configured SMTP mail transporter (${process.env.SMTP_HOST}).`);
 } else if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASS) {
+  const cleanPass = String(process.env.GMAIL_APP_PASS).replace(/\s+/g, '');
   mailTransporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASS,
+      user: process.env.GMAIL_USER.trim(),
+      pass: cleanPass,
     },
   });
-  console.log(`Configured Gmail mail transporter (${process.env.GMAIL_USER}).`);
+  console.log(`Configured Gmail mail transporter (${process.env.GMAIL_USER.trim()}).`);
 } else {
   console.log(`ℹ️ No SMTP env variables found. Email OTP codes will print to terminal console in Development Mode.`);
 }
