@@ -11,7 +11,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
-const DATA_DIR = path.join(__dirname, 'data');
+const DATA_DIR = path.join(__dirname, '..', 'data');
 const DATA_FILE = path.join(DATA_DIR, 'accounts.json');
 
 try {
@@ -434,7 +434,7 @@ const CLERK_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || p
 const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY || 'sk_test_0eGnnOm1hVz9BiwX1f6wdCarx5Y8VM0yHfvrWI99k0';
 const CLERK_FRONTEND_API = process.env.CLERK_FRONTEND_API || 'https://sweet-moth-7630.clerk.accounts.dev';
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.get('/api/config', (req, res) => {
   res.json({
