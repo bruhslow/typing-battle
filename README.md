@@ -170,7 +170,7 @@ Typendo is built on a **3-layer full-stack architecture** combining a persistent
    socket.to(roomId).emit('opponent-progress', data) → opponent updates
 
 5. FINISH & ELO UPDATE
-   First player completes paragraph → server declares winner
+   First player completes paragraph or has typed more words correct → server declares winner
    ELO delta calculated using standard ELO formula
    Both players' ratings updated in accounts.json
    Results screen emitted to both clients simultaneously
