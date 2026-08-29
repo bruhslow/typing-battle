@@ -59,7 +59,7 @@ cd typing-battle
 npm install
 
 # Start the server
-node server.js
+node backend/main.js
 ```
 
 Open `http://localhost:3000` in multiple tabs or devices to start racing.
@@ -79,13 +79,16 @@ Open `http://localhost:3000` in multiple tabs or devices to start racing.
 
 ```
 typendo/
-├── public/
-│   └── index.html       # Frontend — UI, Friends drawer, Web Audio, client sockets
+├── backend/
+│   ├── main.js          # Core Server — Express API, Socket.io real-time engine, matchmaking, anti-cheat
+│   ├── p.json           # Dependencies, metadata, and npm startup scripts
+│   └── pl.json          # Dependency lockfile for deterministic builds
 ├── data/
-│   └── accounts.json    # Persisted user accounts, ELO ratings, friends data
-├── server.js            # Backend — Express, Socket.io, ELO, Friends system, Anti-cheat
-├── package.json         # Dependencies and scripts
-└── README.md
+│   └── accounts.json    # Persistent user profiles, ELO ratings, stats, and friend relationships
+├── public/
+│   └── index.html       # Complete Frontend SPA — UI, sound synthesis, race animations, friend drawer
+├── .gitignore           # Git ignore patterns for dependencies, logs, and sensitive data
+└── README.md            # Comprehensive project documentation and guide
 ```
 
 ---
