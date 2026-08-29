@@ -4192,8 +4192,8 @@
     randomButton.addEventListener('click', () => {
       const username = usernameInput.value.trim() || 'Player';
       if (selectedMode === 'ranked' && !loggedIn) {
-        accountMessage.textContent = 'Log in or sign up to play Ranked.';
-        accountPanel.classList.remove('hidden');
+        showToast('Please Log In or Sign Up to play Ranked.');
+        openClerkAuth('signIn');
         return;
       }
       joinMessage.textContent = '';
