@@ -1,19 +1,19 @@
 {
   "name": "typing-battle",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Multiplayer Real-time Typing Battle Game",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Giridharan N S & Shivani",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
     "express": "^5.2.1",
-    "nodemailer": "^9.0.6",
-    "socket.io": "^4.8.3",
-    "socket.io-client": "^4.8.3"
+    "nodemailer": "^6.9.16",
+    "socket.io": "^4.8.3"
   }
 }
