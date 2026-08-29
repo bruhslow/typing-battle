@@ -1100,29 +1100,44 @@
     .elo-gain { color: var(--primary); font-weight: 800; }
     .elo-loss { color: var(--rose); font-weight: 800; }
 
-    /* Leaderboard Tab List */
+    /* REAL GLOBAL LEADERBOARD ITEMS */
     .top-typist-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 7px 12px;
+      padding: 8px 12px;
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      font-size: 12px;
+      transition: all 0.15s ease;
+    }
+
+    .top-typist-item:hover {
+      box-shadow: var(--shadow-xs);
+      border-color: var(--border-strong);
+    }
+
+    .top-typist-item.my-rank-item {
+      background: var(--primary-subtle);
+      border-color: var(--primary);
     }
 
     .top-typist-left {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      min-width: 0;
     }
 
     .rank-number {
       font-weight: 800;
-      width: 16px;
+      font-size: 13px;
+      width: 22px;
       color: var(--primary);
+      text-align: center;
+      flex-shrink: 0;
     }
 
     /* ═══════════════════════════════════════ */
@@ -2363,7 +2378,7 @@
             <div class="info-tab-bar">
               <button class="info-tab-btn active" id="tab-duel-hist" type="button">⚔️ Duels</button>
               <button class="info-tab-btn" id="tab-elo-hist" type="button">📈 ELO</button>
-              <button class="info-tab-btn" id="tab-hall-fame" type="button">🏆 Top Typists</button>
+              <button class="info-tab-btn" id="tab-hall-fame" type="button">🌐 Leaderboard</button>
             </div>
 
             <!-- Tab 1: Duel History -->
@@ -2380,44 +2395,10 @@
               </div>
             </div>
 
-            <!-- Tab 3: Hall of Fame / Leaderboard -->
+            <!-- Tab 3: REAL Dynamic Global Leaderboard -->
             <div class="history-section hidden" id="pane-hall-fame">
               <div class="history-scroll-box" id="hall-fame-list">
-                <div class="top-typist-item">
-                  <div class="top-typist-left">
-                    <span class="rank-number">#1</span>
-                    <strong>VelocityMaster</strong>
-                  </div>
-                  <span style="color: var(--primary); font-weight: 800;">148 WPM • 1980 ELO</span>
-                </div>
-                <div class="top-typist-item">
-                  <div class="top-typist-left">
-                    <span class="rank-number">#2</span>
-                    <strong>KeyRunner</strong>
-                  </div>
-                  <span style="color: var(--primary); font-weight: 800;">136 WPM • 1860 ELO</span>
-                </div>
-                <div class="top-typist-item">
-                  <div class="top-typist-left">
-                    <span class="rank-number">#3</span>
-                    <strong>ApexTypist</strong>
-                  </div>
-                  <span style="color: var(--primary); font-weight: 800;">129 WPM • 1740 ELO</span>
-                </div>
-                <div class="top-typist-item">
-                  <div class="top-typist-left">
-                    <span class="rank-number">#4</span>
-                    <strong>ZenithKeys</strong>
-                  </div>
-                  <span style="color: var(--primary); font-weight: 800;">121 WPM • 1650 ELO</span>
-                </div>
-                <div class="top-typist-item">
-                  <div class="top-typist-left">
-                    <span class="rank-number">#5</span>
-                    <strong>PulseRider</strong>
-                  </div>
-                  <span style="color: var(--primary); font-weight: 800;">115 WPM • 1520 ELO</span>
-                </div>
+                <div class="history-empty">No registered players yet. Sign up and play Ranked 1v1 to claim your spot!</div>
               </div>
             </div>
           </div>
@@ -2919,6 +2900,7 @@
     const sidebarPlayersList = document.querySelector('#sidebar-players-list');
     const browserList = document.querySelector('#browser-list');
     const resultsElement = document.querySelector('#results');
+    const hallFameList = document.querySelector('#hall-fame-list');
 
     // Quick Stats Strip Elements
     const statPb = document.querySelector('#stat-pb');
@@ -2973,7 +2955,6 @@
     const currentDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ? 'phone' : 'pc';
     let selectedPlatform = localStorage.getItem('typendoPlatform') || (currentDevice === 'phone' ? 'phone' : 'pc');
 
-    // Host Config State
     let roomConfigDiff = 'medium';
     let roomConfigMode = 'standard';
     let roomConfigPublic = false;
@@ -3068,7 +3049,6 @@
     accountButton.addEventListener('click', (e) => {
       e.stopPropagation();
       if (loggedIn) {
-        // Open Profile modal
         openProfileModal();
         return;
       }
@@ -3171,7 +3151,6 @@
       deviceChoiceBox.classList.toggle('hidden', isCustom || isRanked);
       rankedFairnessBox.classList.toggle('hidden', !isRanked);
 
-      // Update Mode Perks List
       if (selectedMode === 'quick') {
         modePerksList.innerHTML = `
           <span class="mode-perk-item">⚡ <strong>Fast Matchmaking</strong></span>
@@ -3208,6 +3187,7 @@
       } else if (tabName === 'fame') {
         tabHallFame.classList.add('active');
         paneHallFame.classList.remove('hidden');
+        socket.emit('getLeaderboard');
       }
     }
 
@@ -3795,6 +3775,41 @@
       `).join('');
     }
 
+    // REAL GLOBAL LEADERBOARD RENDERER
+    function renderGlobalLeaderboard(leaderboard) {
+      if (!hallFameList) return;
+      if (!leaderboard || leaderboard.length === 0) {
+        hallFameList.innerHTML = '<div class="history-empty">No registered players on the leaderboard yet. Sign up and play Ranked 1v1 to claim #1!</div>';
+        return;
+      }
+
+      const selfName = userProfile?.username || usernameInput.value.trim();
+
+      hallFameList.innerHTML = leaderboard.map((player, index) => {
+        const isSelf = loggedIn && selfName && player.username.toLowerCase() === selfName.toLowerCase();
+        let rankBadge = `#${index + 1}`;
+        if (index === 0) rankBadge = '👑';
+        else if (index === 1) rankBadge = '🥈';
+        else if (index === 2) rankBadge = '🥉';
+
+        return `
+          <div class="top-typist-item ${isSelf ? 'my-rank-item' : ''}">
+            <div class="top-typist-left">
+              <span class="rank-number">${rankBadge}</span>
+              <div>
+                <strong>${escapeHtml(player.username)}</strong> ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(YOU)</span>' : ''}
+                <div style="font-size: 10px; color: var(--text-dim);">${player.wins || 0}W • ${player.matches || 0} duels</div>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <span style="color: var(--secondary); font-weight: 800; font-family: 'JetBrains Mono', monospace; font-size: 12px;">${player.rating || 1000} ELO</span>
+              <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">${player.pb ? player.pb + ' WPM PB' : '-- WPM'}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     renderDuelHistory();
     renderEloHistory();
     updateOverallStats();
@@ -3803,6 +3818,11 @@
     socket.on('serverStats', ({ onlineCount, activeMatches }) => {
       const typistLabel = onlineCount === 1 ? '1 Typist Online' : `${onlineCount} Typists Online`;
       statOnline.textContent = typistLabel;
+    });
+
+    // REAL LEADERBOARD LISTENER
+    socket.on('leaderboardUpdate', (leaderboard) => {
+      renderGlobalLeaderboard(leaderboard);
     });
 
     // SOCKET LISTENERS
@@ -3817,6 +3837,7 @@
         username: savedUsername,
         accountKey: savedAccountKey,
       });
+      socket.emit('getLeaderboard');
     });
 
     // Handle Authentication & Auto-load User Data & History
@@ -3848,6 +3869,7 @@
       renderDuelHistory();
       renderEloHistory(rating);
       updateOverallStats(rating);
+      socket.emit('getLeaderboard');
       showToast(`Welcome back, ${username}! (${rating} ELO)`);
     });
 
