@@ -1302,9 +1302,9 @@
     .solo-quote-display {
       font-family: 'JetBrains Mono', monospace;
       font-size: 18px;
-      line-height: 2.1;
-      height: 76px;
-      max-height: 76px;
+      line-height: 1.85;
+      height: 106px;
+      max-height: 106px;
       overflow: hidden;
       color: var(--text-dim);
       user-select: none;
@@ -2413,21 +2413,21 @@
     .race-display {
       position: relative;
       margin-bottom: 14px;
-      padding: 16px 20px;
+      padding: 14px 20px;
       background: linear-gradient(180deg, #fdfcf9 0%, #faf8f3 100%);
       border: 1.5px solid var(--border-subtle);
       border-left: 4px solid var(--primary);
       border-radius: 0 var(--radius-md) var(--radius-md) 0;
       font-family: 'JetBrains Mono', monospace;
       font-size: 18px;
-      line-height: 2.1;
+      line-height: 1.85;
       user-select: none;
       -webkit-user-select: none;
       word-break: break-word;
       white-space: pre-wrap;
       box-shadow: inset 0 2px 6px rgba(0,0,0,0.02), var(--shadow-sm);
-      height: 80px;
-      max-height: 80px;
+      height: 106px;
+      max-height: 106px;
       overflow: hidden;
       scroll-behavior: smooth;
       -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0.4) 0%, rgba(0,0,0,1) 4%, rgba(0,0,0,1) 96%, rgba(0,0,0,0.4) 100%);
@@ -6304,7 +6304,7 @@
       const currentWordEl = document.querySelector(`#solo-word-${currentWordIdx}`);
       if (currentWordEl && soloQuoteDisplay) {
         const topPos = currentWordEl.offsetTop - soloQuoteDisplay.offsetTop;
-        const targetScroll = Math.max(0, topPos - 8);
+        const targetScroll = topPos > 46 ? Math.max(0, topPos - 8) : 0;
         if (Math.abs(soloQuoteDisplay.scrollTop - targetScroll) > 6) {
           soloQuoteDisplay.scrollTop = targetScroll;
         }
@@ -6976,7 +6976,7 @@
       const activeWordEl = document.querySelector(`#word-span-${currentWordIndex}`);
       if (activeWordEl && raceDisplay) {
         const topPos = activeWordEl.offsetTop - raceDisplay.offsetTop;
-        const targetScroll = Math.max(0, topPos - 12);
+        const targetScroll = topPos > 52 ? Math.max(0, topPos - 14) : 0;
         if (Math.abs(raceDisplay.scrollTop - targetScroll) > 6) {
           raceDisplay.scrollTop = targetScroll;
         }
