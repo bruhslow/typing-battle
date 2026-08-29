@@ -721,17 +721,6 @@ function finishRace(roomId, force = false, reason = '') {
       const isWinner = res.id === winnerId;
       const otherPlayer = results.find((r) => r.id !== res.id);
 
-      acc.matches = (acc.matches || 0) + 1;
-      if (isWinner) {
-        acc.wins = (acc.wins || 0) + 1;
-        acc.winstreak = (acc.winstreak || 0) + 1;
-      } else {
-        acc.winstreak = 0;
-      }
-      if (res.wpm && res.wpm > (acc.pb || 0)) {
-        acc.pb = res.wpm;
-      }
-
       acc.duelHistory.unshift({
         mode: room.mode || 'quick',
         isWin: isWinner,
@@ -1631,7 +1620,7 @@ io.on('connection', (socket) => {
   });
 
   // Setup credentials after Google SSO or Email verification
-  socket.on('setupCredentials', ({ username, nickname, password, country }) => {
+  socket.on('setupCredentials', ({ username, password, country }) => {
     const accountKey = socket.data.accountKey;
     if (!accountKey || !accounts.has(accountKey)) {
       socket.emit('authError', 'You must be logged in to configure your credentials.');
@@ -1639,32 +1628,27 @@ io.on('connection', (socket) => {
     }
 
     const account = accounts.get(accountKey);
-    const cleanUser = typeof username === 'string' ? username.trim() : '';
-    const cleanNick = typeof nickname === 'string' ? nickname.trim() : '';
+    const cleanName = typeof username === 'string' ? username.trim() : '';
 
-    if (cleanUser) {
-      if (!/^[a-zA-Z0-9_]{3,24}$/.test(cleanUser)) {
-        socket.emit('authError', 'Username must be 3-24 characters (letters, numbers, underscores).');
+    if (cleanName) {
+      if (!/^[a-zA-Z0-9_ ]{3,24}$/.test(cleanName)) {
+        socket.emit('authError', 'Username must be 3-24 alphanumeric characters or underscores.');
         return;
       }
-      const newKey = cleanUser.toLowerCase();
+      const newKey = cleanName.toLowerCase();
       if (newKey !== accountKey && accounts.has(newKey)) {
-        socket.emit('authError', `Username "${cleanUser}" is already taken by another player.`);
+        socket.emit('authError', `Username "${cleanName}" is already taken by another player.`);
         return;
       }
       if (newKey !== accountKey) {
         accounts.delete(accountKey);
-        account.username = cleanUser;
+        account.username = cleanName;
         accounts.set(newKey, account);
         socket.data.accountKey = newKey;
       } else {
-        account.username = cleanUser;
+        account.username = cleanName;
       }
-      socket.data.username = cleanUser;
-    }
-
-    if (cleanNick) {
-      account.nickname = cleanNick.slice(0, 24);
+      socket.data.username = cleanName;
     }
 
     if (country && typeof country === 'string') {
@@ -1680,7 +1664,6 @@ io.on('connection', (socket) => {
       const credentials = hashPassword(password);
       account.salt = credentials.salt;
       account.hash = credentials.hash;
-      account.hasPassword = true;
     }
 
     saveAccounts();
