@@ -2567,55 +2567,85 @@
         flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 12px;
+        padding: 8px 12px;
         border-radius: var(--radius-lg);
-        gap: 8px;
+        gap: 8px 10px;
         margin-bottom: 4px;
+        width: 100%;
+        box-sizing: border-box;
       }
 
       .brand {
         order: 1;
-        font-size: 18px;
-        gap: 8px;
+        font-size: 16px;
+        gap: 6px;
+        flex-shrink: 0;
       }
-      .brand-svg-mark { width: 32px; height: 32px; border-radius: 9px; }
+      .brand-svg-mark { width: 28px; height: 28px; border-radius: 8px; }
+      .brand-title { font-size: 15px; }
 
       .header-tools {
         display: contents;
       }
 
+      /* Top Right Auth Pill Group on Mobile */
       #header-auth-logged-out,
       #header-auth-logged-in {
         order: 2;
         display: flex;
         align-items: center;
-        gap: 6px;
-      }
-
-      .profile-box {
-        order: 3;
-        flex: 1;
-        min-width: 0;
-        padding: 3px 8px 3px 4px;
-        gap: 6px;
-      }
-
-      .profile-avatar { width: 24px; height: 24px; font-size: 10px; }
-      .profile-field-wrap { flex: 1; min-width: 0; }
-      .profile-input { width: 100%; min-width: 35px; font-size: 12px; }
-      .profile-elo-tag { font-size: 10px; padding: 2px 6px; }
-      .profile-country-btn { padding: 2px 5px; font-size: 10px; }
-
-      #code-pill-wrap {
-        order: 4;
-        padding: 4px 8px;
-        font-size: 10px;
         gap: 4px;
+        margin-left: auto;
         flex-shrink: 0;
       }
 
-      .account-btn { padding: 6px 12px; font-size: 11px; }
-      .auth-btn-group { gap: 6px; }
+      .auth-btn-group {
+        gap: 4px;
+      }
+
+      .account-btn {
+        padding: 4px 8px;
+        font-size: 11px;
+        height: 30px;
+        border-radius: 999px;
+        gap: 4px;
+      }
+
+      .account-btn span {
+        white-space: nowrap;
+      }
+
+      /* Bottom Row: Player Profile (Left) & Room Code (Right) */
+      .profile-box {
+        order: 3;
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 3px 8px 3px 4px;
+        gap: 5px;
+        height: 32px;
+      }
+
+      .profile-field-label {
+        display: none !important; /* Remove label clutter on mobile so player name is clear */
+      }
+
+      .profile-avatar { width: 22px; height: 22px; font-size: 10px; }
+      .profile-field-wrap { flex: 1; min-width: 0; }
+      .profile-input { width: 100%; min-width: 30px; font-size: 12px; font-weight: 700; height: 24px; }
+      .profile-elo-tag { font-size: 9px; padding: 2px 5px; white-space: nowrap; }
+      .profile-country-btn { padding: 2px 4px; font-size: 10px; }
+
+      #code-pill-wrap {
+        order: 4;
+        padding: 3px 8px;
+        font-size: 10px;
+        gap: 4px;
+        flex-shrink: 0;
+        height: 32px;
+      }
+
+      #friend-id { font-size: 11px; }
+
       .home-grid { grid-template-columns: 1fr; gap: 12px; }
       .battle-deck { padding: 18px 14px; border-radius: var(--radius-lg); gap: 12px; }
       .deck-header h1 { font-size: 22px; }
@@ -2652,15 +2682,23 @@
     }
 
     @media (max-width: 420px) {
-      .shell { padding: 8px 8px 14px; }
-      header { padding: 8px 10px; gap: 7px; }
-      .brand { font-size: 16px; gap: 6px; }
-      .brand-svg-mark { width: 28px; height: 28px; border-radius: 8px; }
-      .account-btn { padding: 5px 10px; font-size: 11px; }
-      .profile-box { padding: 3px 6px 3px 3px; gap: 4px; }
-      .profile-country-btn { padding: 2px 4px; font-size: 9px; }
-      .profile-elo-tag { font-size: 9px; padding: 2px 5px; }
-      .code-pill { padding: 3px 6px; font-size: 9px; }
+      .shell { padding: 6px 6px 12px; }
+      header { padding: 7px 9px; gap: 6px 8px; }
+      .brand { font-size: 14px; gap: 5px; }
+      .brand-title { font-size: 14px; }
+      .brand-svg-mark { width: 24px; height: 24px; border-radius: 6px; }
+      
+      /* Top Right Auth Corner optimization */
+      .account-btn { padding: 3px 6px; font-size: 10px; height: 26px; }
+      .auth-btn-group { gap: 3px; }
+
+      .profile-box { padding: 2px 5px 2px 2px; gap: 3px; height: 28px; }
+      .profile-country-btn { padding: 1px 3px; font-size: 8.5px; }
+      .profile-avatar { width: 18px; height: 18px; font-size: 9px; }
+      .profile-input { font-size: 11px; }
+      .profile-elo-tag { font-size: 8.5px; padding: 1px 4px; }
+      .code-pill { padding: 2px 5px; font-size: 8.5px; height: 28px; }
+      
       .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 6px; }
       .stat-strip-card { padding: 7px 8px; gap: 6px; }
       .stat-icon-wrap { width: 28px; height: 28px; font-size: 13px; }
