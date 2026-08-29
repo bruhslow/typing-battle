@@ -345,14 +345,69 @@ const paragraphs = {
   ],
 };
 
+// ══════════════════════════════════════════════════════
+// DYNAMIC LIVE INTERNET QUOTE & SENTENCE INGESTION
+// ══════════════════════════════════════════════════════
+const onlineParagraphPool = {
+  easy: [],
+  medium: [],
+  hard: [],
+};
+
+async function fetchInternetSentences() {
+  try {
+    // 1. Fetch from DummyJSON Quotes (100 quotes from famous figures, literature, science)
+    const res = await fetch('https://dummyjson.com/quotes?limit=100');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.quotes)) {
+        for (const q of data.quotes) {
+          const text = (q.quote || '').trim().replace(/[\r\n]+/g, ' ');
+          if (!text || text.length < 30) continue;
+          const wordCount = text.split(/\s+/).length;
+          const hasPunctuation = /[;:"'\-—$#%]/.test(text);
+
+          if (wordCount < 18 && !hasPunctuation) {
+            onlineParagraphPool.easy.push(text);
+          } else if (wordCount <= 35) {
+            if (hasPunctuation || wordCount > 25) {
+              onlineParagraphPool.hard.push(text);
+            } else {
+              onlineParagraphPool.medium.push(text);
+            }
+          } else {
+            onlineParagraphPool.hard.push(text);
+          }
+        }
+      }
+    }
+  } catch (e) {
+    // Fallback safely if offline
+  }
+
+  const totalLoaded = onlineParagraphPool.easy.length + onlineParagraphPool.medium.length + onlineParagraphPool.hard.length;
+  if (totalLoaded > 0) {
+    console.log(`🌐 Live Internet Quotes Ingested: ${totalLoaded} dynamic passages added to pool (Easy: ${onlineParagraphPool.easy.length}, Med: ${onlineParagraphPool.medium.length}, Hard: ${onlineParagraphPool.hard.length})`);
+  }
+}
+
+// Fetch on startup and refresh every 30 minutes
+fetchInternetSentences();
+setInterval(fetchInternetSentences, 30 * 60 * 1000);
+
 function getRandomParagraph(difficulty = 'medium', lastParagraph = '', mode = 'standard') {
-  let list = paragraphs[difficulty] || paragraphs.medium;
+  let staticList = paragraphs[difficulty] || paragraphs.medium;
+  let onlineList = onlineParagraphPool[difficulty] || [];
+
   if (mode === 'ranked') {
     // Ranked mode uses challenging competitive passages with rich vocabulary and punctuation
-    list = Math.random() > 0.4 ? paragraphs.hard : paragraphs.medium;
+    staticList = Math.random() > 0.4 ? paragraphs.hard : paragraphs.medium;
+    onlineList = Math.random() > 0.4 ? onlineParagraphPool.hard : onlineParagraphPool.medium;
   }
-  const filtered = list.filter((p) => p !== lastParagraph);
-  const pool = filtered.length > 0 ? filtered : list;
+
+  const combined = [...staticList, ...onlineList];
+  const filtered = combined.filter((p) => p !== lastParagraph);
+  const pool = filtered.length > 0 ? filtered : combined;
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
@@ -367,6 +422,13 @@ app.get('/api/config', (req, res) => {
     clerkPublishableKey: CLERK_PUBLISHABLE_KEY,
     clerkFrontendApi: CLERK_FRONTEND_API,
   });
+});
+
+app.get('/api/random-quote', (req, res) => {
+  const diff = req.query.difficulty || 'medium';
+  const mode = req.query.mode || 'standard';
+  const quote = getRandomParagraph(diff, '', mode);
+  res.json({ quote, difficulty: diff });
 });
 
 function getRoomMaxDurationSec(room) {
