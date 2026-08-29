@@ -6197,13 +6197,10 @@
 
     populateCountrySelects();
 
-    // Country Picker Modal Trigger
+    // Country Picker Modal Disabled (No Popups)
     if (headerCountryBtn) {
-      headerCountryBtn.addEventListener('click', () => {
-        if (countrySearchInput) countrySearchInput.value = '';
-        renderCountryPickerGrid();
-        countryPickerModal.classList.remove('hidden');
-        if (countrySearchInput) setTimeout(() => countrySearchInput.focus(), 50);
+      headerCountryBtn.addEventListener('click', (e) => {
+        e.preventDefault();
       });
     }
 
@@ -7558,7 +7555,7 @@
                   <strong style="font-size: 12px; font-weight: 800; color: var(--text-main);">@${escapeHtml(handle)}</strong>
                   ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(You)</span>' : ''}
                 </div>
-                <div style="font-size: 11px; font-weight: 700; color: var(--primary); margin-left: 20px; margin-top: 1px;">
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-left: 20px; margin-top: 1px;">
                   ${escapeHtml(nickname)}
                 </div>
               </div>
@@ -8251,7 +8248,7 @@
                   ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(YOU)</span>' : ''}
                   ${addFriendBtn}
                 </div>
-                <div style="font-size: 11px; font-weight: 700; color: var(--primary); margin-top: 1px;">
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-top: 1px;">
                   ${escapeHtml(nickname)}
                 </div>
                 <div style="font-size: 10px; color: var(--text-dim); margin-top: 1px;">${player.wins || 0}W • ${player.matches || 0} duels</div>
@@ -8647,7 +8644,7 @@
                 <strong style="font-size: 13px; font-weight: 800; color: var(--text-main);">@${escapeHtml(handle)}</strong>
                 ${isPlayerHost ? '👑 HOST' : ''}
               </div>
-              <div style="font-size: 11px; font-weight: 700; color: var(--primary); margin-top: 1px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-top: 1px;">
                 ${escapeHtml(nickname)}
               </div>
               <small style="font-size: 10px; color: var(--text-dim);">${statusTag} • ${(p.platform || 'pc').toUpperCase()}</small>
