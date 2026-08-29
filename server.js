@@ -1760,28 +1760,18 @@ io.on('connection', (socket) => {
     }
     if (typeof name === 'string' && name.trim()) {
       let cleanName = name.trim().slice(0, 24);
-      const targetKey = cleanName.toLowerCase();
-      
-      // If user is already logged in with an account, update their nickname display name
+
+      // If user is logged in with an account, save their display nickname permanently to database
       if (socket.data.accountKey && accounts.has(socket.data.accountKey)) {
         const acc = accounts.get(socket.data.accountKey);
-        if (cleanName.length >= 2 && cleanName !== acc.username) {
-          acc.nickname = cleanName;
-          saveAccounts();
-          broadcastLeaderboard();
-        }
-        cleanName = acc.nickname || acc.username;
-      } else {
-        // For guests: if requested name belongs to a registered account, or another active connected guest, ensure uniqueness
-        const isRegistered = accounts.has(targetKey);
-        const otherConnected = [...io.sockets.sockets.values()].some((s) => s.id !== socket.id && s.data?.username && s.data.username.toLowerCase() === targetKey);
-        if (isRegistered || otherConnected) {
-          cleanName = `${cleanName}_${Math.floor(100 + Math.random() * 900)}`;
-        }
+        acc.nickname = cleanName;
+        saveAccounts();
+        broadcastLeaderboard();
+        cleanName = acc.nickname;
       }
 
       socket.data.username = cleanName;
-      socket.emit('usernameUpdated', socket.data.username);
+      socket.emit('usernameUpdated', cleanName);
     }
     if (typeof country === 'string' && country.trim()) {
       socket.data.country = country.trim().slice(0, 5).toUpperCase();
