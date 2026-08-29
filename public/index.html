@@ -2416,42 +2416,56 @@
             </button>
             <div class="account-panel hidden" id="account-panel">
               <div class="account-tabs">
-                <button class="account-tab active" id="tab-login" type="button">⚡ Email Login</button>
-                <button class="account-tab" id="tab-signup" type="button">✨ New Player</button>
+                <button class="account-tab active" id="tab-login" type="button">🔑 Log In</button>
+                <button class="account-tab" id="tab-signup" type="button">✨ Sign Up (OTP)</button>
               </div>
 
-              <!-- STEP 1: Enter Email & Optional New Account Name -->
-              <div id="auth-step-email">
-                <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">1. Your Email Address</div>
-                <input id="account-email" type="email" placeholder="you@example.com" autocomplete="email" required>
-                
-                <div id="signup-extra-fields" class="hidden">
-                  <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">2. Display Name</div>
-                  <input id="account-signup-name" maxlength="24" placeholder="Your Player Name" autocomplete="nickname">
-                  <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">3. Nationality</div>
+              <!-- LOGIN PANE (Username/Email + Password - No OTP needed) -->
+              <div id="auth-pane-login">
+                <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">Player Name or Email</div>
+                <input id="login-identifier" maxlength="64" placeholder="Username or Email" autocomplete="username">
+                <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">Password</div>
+                <input id="login-password" type="password" placeholder="Your Password" autocomplete="current-password">
+                <button class="account-submit" id="auth-login-btn" type="button">Log In</button>
+              </div>
+
+              <!-- SIGNUP PANE (Email OTP Verification + Password Setup) -->
+              <div id="auth-pane-signup" class="hidden">
+                <!-- Step 1: Sign up details -->
+                <div id="signup-step-form">
+                  <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">1. Email Address (for verification)</div>
+                  <input id="signup-email" type="email" placeholder="you@example.com" autocomplete="email" required>
+                  
+                  <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">2. Choose Unique Player Name</div>
+                  <input id="signup-username" maxlength="24" placeholder="Unique Player Name" autocomplete="nickname" required>
+
+                  <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">3. Password (6+ chars)</div>
+                  <input id="signup-password" type="password" placeholder="Create a password" autocomplete="new-password" required>
+
+                  <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">4. Nationality</div>
                   <select class="account-country-select" id="account-country" aria-label="Select Country" style="margin-bottom: 10px;">
                     <!-- populated by JS -->
                   </select>
+
+                  <button class="account-submit" id="auth-send-signup-otp-btn" type="button">📩 Send Verification Code</button>
                 </div>
 
-                <button class="account-submit" id="auth-send-otp-btn" type="button">📩 Send 6-Digit Code</button>
-              </div>
-
-              <!-- STEP 2: Enter 6-Digit OTP Code -->
-              <div id="auth-step-otp" class="hidden">
-                <div class="otp-target-bar">
-                  <span>Code sent to: <strong id="otp-target-email">name@example.com</strong></span>
-                  <button class="otp-edit-btn" id="otp-change-email-btn" type="button">Edit</button>
+                <!-- Step 2: 6-Digit OTP Entry -->
+                <div id="signup-step-otp" class="hidden">
+                  <div class="otp-target-bar">
+                    <span>Code sent to: <strong id="otp-target-email">name@example.com</strong></span>
+                    <button class="otp-edit-btn" id="otp-change-email-btn" type="button">Edit</button>
+                  </div>
+                  <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">Enter 6-Digit Code</div>
+                  <input id="signup-otp-input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="• • • • • •" style="letter-spacing: 0.3em; font-size: 18px; text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 800;">
+                  
+                  <button class="account-submit" id="auth-verify-signup-btn" type="button">🔐 Verify Code & Create Account</button>
+                  
+                  <div class="otp-resend-row">
+                    <button class="otp-resend-btn" id="auth-resend-signup-otp-btn" type="button" disabled>Resend Code (<span id="otp-countdown">60</span>s)</button>
+                  </div>
+                  <div id="otp-dev-notice" class="hidden" style="margin-top: 8px; padding: 6px 8px; font-size: 11px; background: var(--bg-subtle); border-radius: 6px; border: 1px dashed var(--primary); text-align: center; color: var(--primary);"></div>
                 </div>
-                <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">Enter 6-Digit Code</div>
-                <input id="account-otp-input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="• • • • • •" style="letter-spacing: 0.3em; font-size: 18px; text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 800;">
-                
-                <button class="account-submit" id="auth-verify-otp-btn" type="button">🔐 Verify & Log In</button>
-                
-                <div class="otp-resend-row">
-                  <button class="otp-resend-btn" id="auth-resend-otp-btn" type="button" disabled>Resend Code (<span id="otp-countdown">60</span>s)</button>
-                </div>
-                <div id="otp-dev-notice" class="hidden" style="margin-top: 8px; padding: 6px 8px; font-size: 11px; background: var(--bg-subtle); border-radius: 6px; border: 1px dashed var(--primary); text-align: center; color: var(--primary);"></div>
               </div>
 
               <p class="account-msg" id="account-message" aria-live="polite"></p>
@@ -3252,18 +3266,27 @@
     const accountPanel = document.querySelector('#account-panel');
     const tabLogin = document.querySelector('#tab-login');
     const tabSignup = document.querySelector('#tab-signup');
-    const authStepEmail = document.querySelector('#auth-step-email');
-    const authStepOtp = document.querySelector('#auth-step-otp');
-    const accountEmail = document.querySelector('#account-email');
-    const signupExtraFields = document.querySelector('#signup-extra-fields');
-    const accountSignupName = document.querySelector('#account-signup-name');
+    const authPaneLogin = document.querySelector('#auth-pane-login');
+    const authPaneSignup = document.querySelector('#auth-pane-signup');
+    
+    // Login Elements
+    const loginIdentifier = document.querySelector('#login-identifier');
+    const loginPassword = document.querySelector('#login-password');
+    const authLoginBtn = document.querySelector('#auth-login-btn');
+
+    // Signup Elements
+    const signupStepForm = document.querySelector('#signup-step-form');
+    const signupStepOtp = document.querySelector('#signup-step-otp');
+    const signupEmail = document.querySelector('#signup-email');
+    const signupUsername = document.querySelector('#signup-username');
+    const signupPassword = document.querySelector('#signup-password');
     const accountCountry = document.querySelector('#account-country');
-    const authSendOtpBtn = document.querySelector('#auth-send-otp-btn');
+    const authSendSignupOtpBtn = document.querySelector('#auth-send-signup-otp-btn');
     const otpTargetEmail = document.querySelector('#otp-target-email');
     const otpChangeEmailBtn = document.querySelector('#otp-change-email-btn');
-    const accountOtpInput = document.querySelector('#account-otp-input');
-    const authVerifyOtpBtn = document.querySelector('#auth-verify-otp-btn');
-    const authResendOtpBtn = document.querySelector('#auth-resend-otp-btn');
+    const signupOtpInput = document.querySelector('#signup-otp-input');
+    const authVerifySignupBtn = document.querySelector('#auth-verify-signup-btn');
+    const authResendSignupOtpBtn = document.querySelector('#auth-resend-signup-otp-btn');
     const otpCountdown = document.querySelector('#otp-countdown');
     const otpDevNotice = document.querySelector('#otp-dev-notice');
     const accountMessage = document.querySelector('#account-message');
@@ -3509,16 +3532,17 @@
     });
 
     // ══════════════════════════════════════════════════════
-    // EMAIL OTP AUTHENTICATION CLIENT LOGIC
+    // AUTHENTICATION: LOGIN (PASSWORD) & SIGNUP (EMAIL OTP)
     // ══════════════════════════════════════════════════════
     let currentAuthEmail = '';
+    let currentAuthUsername = '';
     let otpCooldownTimer = null;
     let resendSecondsRemaining = 0;
 
     function startOtpCooldown(sec = 60) {
       clearInterval(otpCooldownTimer);
       resendSecondsRemaining = sec;
-      authResendOtpBtn.disabled = true;
+      authResendSignupOtpBtn.disabled = true;
       otpCountdown.textContent = resendSecondsRemaining;
       otpCooldownTimer = setInterval(() => {
         resendSecondsRemaining--;
@@ -3526,116 +3550,148 @@
           otpCountdown.textContent = resendSecondsRemaining;
         } else {
           clearInterval(otpCooldownTimer);
-          authResendOtpBtn.disabled = false;
-          authResendOtpBtn.innerHTML = '🔄 Resend Code';
+          authResendSignupOtpBtn.disabled = false;
+          authResendSignupOtpBtn.innerHTML = '🔄 Resend Code';
         }
       }, 1000);
     }
 
-    function switchAuthMode(mode) {
+    function switchAuthTab(mode) {
       authMode = mode;
       accountMessage.textContent = '';
       if (mode === 'login') {
         tabLogin.classList.add('active');
         tabSignup.classList.remove('active');
-        signupExtraFields.classList.add('hidden');
-        authSendOtpBtn.textContent = '📩 Send Login Code';
+        authPaneLogin.classList.remove('hidden');
+        authPaneSignup.classList.add('hidden');
       } else {
         tabSignup.classList.add('active');
         tabLogin.classList.remove('active');
-        signupExtraFields.classList.remove('hidden');
-        if (!accountSignupName.value) {
-          accountSignupName.value = usernameInput.value.trim() || '';
+        authPaneSignup.classList.remove('hidden');
+        authPaneLogin.classList.add('hidden');
+        if (!signupUsername.value) {
+          signupUsername.value = usernameInput.value.trim() || '';
         }
-        authSendOtpBtn.textContent = '✨ Send Verification Code';
       }
     }
 
-    tabLogin.addEventListener('click', () => switchAuthMode('login'));
-    tabSignup.addEventListener('click', () => switchAuthMode('signup'));
+    tabLogin.addEventListener('click', () => switchAuthTab('login'));
+    tabSignup.addEventListener('click', () => switchAuthTab('signup'));
 
-    // Step 1: Send OTP Code Request
-    authSendOtpBtn.addEventListener('click', () => {
-      const email = accountEmail.value.trim();
-      const name = accountSignupName.value.trim();
+    // --- STANDARD LOGIN (Username/Email + Password) ---
+    authLoginBtn.addEventListener('click', () => {
+      const identifier = loginIdentifier.value.trim();
+      const password = loginPassword.value;
+      if (!identifier || !password) {
+        accountMessage.textContent = 'Please enter your username/email and password.';
+        accountMessage.style.color = 'var(--rose)';
+        return;
+      }
+      accountMessage.textContent = 'Logging in...';
+      accountMessage.style.color = 'var(--primary)';
+      socket.emit('login', { identifier, password });
+    });
+
+    loginIdentifier.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') loginPassword.focus();
+    });
+    loginPassword.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') authLoginBtn.click();
+    });
+
+    // --- SIGN UP STEP 1: REQUEST VERIFICATION CODE ---
+    authSendSignupOtpBtn.addEventListener('click', () => {
+      const email = signupEmail.value.trim();
+      const username = signupUsername.value.trim();
+      const password = signupPassword.value;
       const country = accountCountry.value || userCountry;
 
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         accountMessage.textContent = 'Please enter a valid email address.';
         accountMessage.style.color = 'var(--rose)';
-        accountEmail.focus();
+        signupEmail.focus();
         return;
       }
 
-      accountMessage.textContent = 'Dispatching 6-digit login code...';
-      accountMessage.style.color = 'var(--primary)';
-      authSendOtpBtn.disabled = true;
-
-      socket.emit('requestOtp', { email, username: name, country });
-    });
-
-    accountEmail.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        authSendOtpBtn.click();
-      }
-    });
-
-    // Step 2: Edit Email (Back to Step 1)
-    otpChangeEmailBtn.addEventListener('click', () => {
-      authStepOtp.classList.add('hidden');
-      authStepEmail.classList.remove('hidden');
-      accountMessage.textContent = '';
-      authSendOtpBtn.disabled = false;
-      accountEmail.focus();
-    });
-
-    // Step 2: Verify OTP
-    authVerifyOtpBtn.addEventListener('click', () => {
-      const code = accountOtpInput.value.trim();
-      if (!code || code.length < 6) {
-        accountMessage.textContent = 'Please enter the complete 6-digit code.';
+      if (!username || username.length < 3 || username.length > 24) {
+        accountMessage.textContent = 'Player name must be between 3 and 24 characters.';
         accountMessage.style.color = 'var(--rose)';
-        accountOtpInput.focus();
+        signupUsername.focus();
         return;
       }
-      accountMessage.textContent = 'Verifying code...';
+
+      if (!password || password.length < 6) {
+        accountMessage.textContent = 'Password must be at least 6 characters.';
+        accountMessage.style.color = 'var(--rose)';
+        signupPassword.focus();
+        return;
+      }
+
+      accountMessage.textContent = 'Dispatching 6-digit verification code...';
+      accountMessage.style.color = 'var(--primary)';
+      authSendSignupOtpBtn.disabled = true;
+
+      socket.emit('requestOtp', { email, username, password, country });
+    });
+
+    signupEmail.addEventListener('keydown', (e) => { if (e.key === 'Enter') signupUsername.focus(); });
+    signupUsername.addEventListener('keydown', (e) => { if (e.key === 'Enter') signupPassword.focus(); });
+    signupPassword.addEventListener('keydown', (e) => { if (e.key === 'Enter') authSendSignupOtpBtn.click(); });
+
+    // --- SIGN UP STEP 2: EDIT EMAIL ---
+    otpChangeEmailBtn.addEventListener('click', () => {
+      signupStepOtp.classList.add('hidden');
+      signupStepForm.classList.remove('hidden');
+      accountMessage.textContent = '';
+      authSendSignupOtpBtn.disabled = false;
+      signupEmail.focus();
+    });
+
+    // --- SIGN UP STEP 2: VERIFY OTP & CREATE ACCOUNT ---
+    authVerifySignupBtn.addEventListener('click', () => {
+      const code = signupOtpInput.value.trim();
+      if (!code || code.length < 6) {
+        accountMessage.textContent = 'Please enter the 6-digit code received in your email.';
+        accountMessage.style.color = 'var(--rose)';
+        signupOtpInput.focus();
+        return;
+      }
+      accountMessage.textContent = 'Verifying & activating account...';
       accountMessage.style.color = 'var(--primary)';
       socket.emit('verifyOtp', {
         email: currentAuthEmail,
         code,
-        username: accountSignupName.value.trim(),
-        country: accountCountry.value || userCountry,
       });
     });
 
-    accountOtpInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        authVerifyOtpBtn.click();
-      }
+    signupOtpInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') authVerifySignupBtn.click();
     });
 
-    // Step 2: Resend OTP
-    authResendOtpBtn.addEventListener('click', () => {
-      if (authResendOtpBtn.disabled) return;
+    // --- SIGN UP STEP 2: RESEND OTP ---
+    authResendSignupOtpBtn.addEventListener('click', () => {
+      if (authResendSignupOtpBtn.disabled) return;
       accountMessage.textContent = 'Resending verification code...';
       accountMessage.style.color = 'var(--primary)';
-      authResendOtpBtn.disabled = true;
+      authResendSignupOtpBtn.disabled = true;
       socket.emit('requestOtp', {
         email: currentAuthEmail,
-        username: accountSignupName.value.trim(),
+        username: currentAuthUsername,
+        password: signupPassword.value,
         country: accountCountry.value || userCountry,
       });
     });
 
     // Socket Event: OTP Sent Response
-    socket.on('otpSent', ({ email, isNewUser, username, cooldownSec, devMode, devOtp, message }) => {
+    socket.on('otpSent', ({ email, username, cooldownSec, devMode, devOtp, message }) => {
       currentAuthEmail = email;
-      authSendOtpBtn.disabled = false;
+      currentAuthUsername = username;
+      authSendSignupOtpBtn.disabled = false;
       otpTargetEmail.textContent = email;
-      authStepEmail.classList.add('hidden');
-      authStepOtp.classList.remove('hidden');
-      accountOtpInput.value = '';
-      setTimeout(() => accountOtpInput.focus(), 100);
+      signupStepForm.classList.add('hidden');
+      signupStepOtp.classList.remove('hidden');
+      signupOtpInput.value = '';
+      setTimeout(() => signupOtpInput.focus(), 100);
 
       if (devMode && devOtp) {
         otpDevNotice.classList.remove('hidden');
@@ -4494,10 +4550,12 @@
       accountBtnText.textContent = username;
       accountPanel.classList.add('hidden');
 
-      // Reset OTP step view for future logins
-      authStepOtp.classList.add('hidden');
-      authStepEmail.classList.remove('hidden');
-      accountOtpInput.value = '';
+      // Reset auth form states
+      if (signupStepOtp) signupStepOtp.classList.add('hidden');
+      if (signupStepForm) signupStepForm.classList.remove('hidden');
+      if (signupOtpInput) signupOtpInput.value = '';
+      if (loginPassword) loginPassword.value = '';
+      if (signupPassword) signupPassword.value = '';
       clearInterval(otpCooldownTimer);
 
       if (accountKey) localStorage.setItem('typendoAccountKey', accountKey);

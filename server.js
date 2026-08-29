@@ -821,36 +821,44 @@ io.on('connection', (socket) => {
       });
     }
     if (restoreSession(socket, savedFriendId)) return;
-    if (typeof username === 'string' && username.trim()) socket.data.username = username.trim().slice(0, 24);
+    if (typeof username === 'string' && username.trim()) socket.data.username = username.trim();
   });
 
   // ══════════════════════════════════════════════════════
-  // EMAIL OTP AUTHENTICATION HANDLERS
+  // REGISTRATION WITH EMAIL OTP & STANDARD PASSWORD LOGIN
   // ══════════════════════════════════════════════════════
-  socket.on('requestOtp', async ({ email, username, country }) => {
+  socket.on('requestOtp', async ({ email, username, password, country }) => {
     const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    const cleanUsername = typeof username === 'string' ? username.trim() : '';
+    const cleanCountry = typeof country === 'string' && country.trim() ? country.trim().slice(0, 5).toUpperCase() : 'IND';
+
     if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
       socket.emit('authError', 'Please enter a valid email address.');
       return;
     }
 
-    const existingAccount = [...accounts.values()].find((a) => a.email.toLowerCase() === cleanEmail);
-    let chosenUsername = existingAccount ? existingAccount.username : (typeof username === 'string' ? username.trim() : '');
-    const chosenCountry = existingAccount ? existingAccount.country : (typeof country === 'string' && country.trim() ? country.trim().slice(0, 5).toUpperCase() : 'IND');
+    if (!cleanUsername || !/^[a-zA-Z0-9_ ]{3,24}$/.test(cleanUsername)) {
+      socket.emit('authError', 'Player name must be 3-24 letters, numbers, or spaces.');
+      return;
+    }
 
-    if (!existingAccount) {
-      if (!chosenUsername) {
-        chosenUsername = 'Player_' + Math.floor(100 + Math.random() * 900);
-      }
-      if (!/^[a-zA-Z0-9_ ]{3,24}$/.test(chosenUsername)) {
-        socket.emit('authError', 'Player name must be 3-24 letters or numbers.');
-        return;
-      }
-      const desiredKey = chosenUsername.toLowerCase();
-      if (accounts.has(desiredKey)) {
-        socket.emit('authError', 'That player name is already registered. Please pick another name.');
-        return;
-      }
+    if (typeof password !== 'string' || password.length < 6) {
+      socket.emit('authError', 'Password must be at least 6 characters long.');
+      return;
+    }
+
+    // Check if username is already registered (case-insensitive)
+    const desiredKey = cleanUsername.toLowerCase();
+    if (accounts.has(desiredKey)) {
+      socket.emit('authError', `Username "${cleanUsername}" is already taken. Please choose a different name.`);
+      return;
+    }
+
+    // Check if email is already registered
+    const emailExists = [...accounts.values()].some((a) => a.email.toLowerCase() === cleanEmail);
+    if (emailExists) {
+      socket.emit('authError', 'This email is already registered. Please use the Log In tab.');
+      return;
     }
 
     const now = Date.now();
@@ -862,41 +870,43 @@ io.on('connection', (socket) => {
     }
 
     const otp = generateOtp();
+    const credentials = hashPassword(password);
+
     pendingOtps.set(cleanEmail, {
       otp,
       expiresAt: now + 10 * 60 * 1000,
       lastSentAt: now,
       attempts: 5,
-      username: chosenUsername,
-      country: chosenCountry,
+      username: cleanUsername,
+      credentials,
+      country: cleanCountry,
     });
 
-    await sendOtpEmail(cleanEmail, otp, chosenUsername);
+    await sendOtpEmail(cleanEmail, otp, cleanUsername);
 
     socket.emit('otpSent', {
       success: true,
       email: cleanEmail,
-      isNewUser: !existingAccount,
-      username: chosenUsername,
+      username: cleanUsername,
       cooldownSec: 60,
       devMode: !mailTransporter,
       devOtp: !mailTransporter ? otp : undefined,
-      message: mailTransporter ? `6-digit login code sent to ${cleanEmail}` : `Code sent! (Dev Mode: check server console or code ${otp})`,
+      message: mailTransporter ? `6-digit verification code sent to ${cleanEmail}` : `Verification code sent! (Dev Mode: code ${otp})`,
     });
   });
 
-  socket.on('verifyOtp', ({ email, code, username, country }) => {
+  socket.on('verifyOtp', ({ email, code }) => {
     const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
     const cleanCode = typeof code === 'string' ? code.trim() : '';
 
     if (!cleanEmail || !cleanCode) {
-      socket.emit('authError', 'Please enter your email and the 6-digit verification code.');
+      socket.emit('authError', 'Please enter the 6-digit verification code.');
       return;
     }
 
     const record = pendingOtps.get(cleanEmail);
     if (!record || Date.now() > record.expiresAt) {
-      socket.emit('authError', 'Verification code has expired or is invalid. Please request a new code.');
+      socket.emit('authError', 'Verification code has expired. Please request a new code.');
       return;
     }
 
@@ -917,90 +927,45 @@ io.on('connection', (socket) => {
       return;
     }
 
-    // OTP Verified successfully!
+    // OTP Verified! Finalize account creation
+    const accountKey = record.username.toLowerCase();
+    if (accounts.has(accountKey)) {
+      socket.emit('authError', 'That username was claimed while registering. Please choose another username.');
+      return;
+    }
+
     pendingOtps.delete(cleanEmail);
 
-    let account = [...accounts.values()].find((a) => a.email.toLowerCase() === cleanEmail);
-    let accountKey = account ? account.username.toLowerCase() : '';
-
-    if (!account) {
-      const finalUsername = (typeof username === 'string' && username.trim()) || record.username || ('Player_' + Math.floor(100 + Math.random() * 900));
-      const finalCountry = (typeof country === 'string' && country.trim()) || record.country || 'IND';
-      accountKey = finalUsername.toLowerCase();
-      
-      account = {
-        username: finalUsername,
-        email: cleanEmail,
-        country: finalCountry,
-        rating: 1000,
-        createdAt: Date.now(),
-        duelHistory: [],
-        eloHistory: [],
-      };
-      accounts.set(accountKey, account);
-      saveAccounts();
-      broadcastLeaderboard();
-    }
-
-    socket.data.accountKey = accountKey;
-    socket.data.username = account.username;
-    socket.data.country = account.country || 'IND';
-    rotateFriendId(socket);
-
-    socket.emit('authSuccess', {
-      username: account.username,
-      email: account.email,
-      country: account.country || 'IND',
-      rating: account.rating || 1000,
-      accountKey,
-      createdAt: account.createdAt || Date.now(),
-      duelHistory: account.duelHistory || [],
-      eloHistory: account.eloHistory || [],
-    });
-  });
-
-  socket.on('signup', ({ username, email, password, country }) => {
-    const accountName = typeof username === 'string' ? username.trim() : '';
-    const accountKey = accountName.toLowerCase();
-    const accountEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
-    const accountCountry = typeof country === 'string' && country.trim() ? country.trim().slice(0, 5).toUpperCase() : 'IND';
-    if (!/^[a-zA-Z0-9_ ]{3,24}$/.test(accountName) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(accountEmail) || typeof password !== 'string' || password.length < 6) {
-      socket.emit('authError', 'Use a valid email, username (3-24 characters), and password (6+ characters).');
-      return;
-    }
-    if (accounts.has(accountKey) || [...accounts.values()].some((account) => account.email === accountEmail)) {
-      socket.emit('authError', 'That username or email is already registered.');
-      return;
-    }
-    const credentials = hashPassword(password);
     const newAccount = {
-      username: accountName,
-      email: accountEmail,
-      country: accountCountry,
-      ...credentials,
+      username: record.username,
+      email: cleanEmail,
+      country: record.country || 'IND',
+      ...record.credentials,
       rating: 1000,
       createdAt: Date.now(),
       duelHistory: [],
       eloHistory: [],
     };
+
     accounts.set(accountKey, newAccount);
     saveAccounts();
+    broadcastLeaderboard();
 
     socket.data.accountKey = accountKey;
-    socket.data.username = accountName;
-    socket.data.country = accountCountry;
+    socket.data.username = newAccount.username;
+    socket.data.country = newAccount.country;
+    rotateFriendId(socket);
+
     socket.emit('authSuccess', {
-      username: accountName,
-      email: accountEmail,
-      country: accountCountry,
+      username: newAccount.username,
+      email: newAccount.email,
+      country: newAccount.country,
       rating: 1000,
       accountKey,
       createdAt: newAccount.createdAt,
       duelHistory: [],
       eloHistory: [],
     });
-
-    broadcastLeaderboard();
   });
 
   socket.on('login', ({ identifier, username, email, password }) => {
@@ -1009,11 +974,16 @@ io.on('connection', (socket) => {
       : (typeof username === 'string' && username.trim() ? username.trim() : (typeof email === 'string' ? email.trim() : ''));
     const lowerIdentifier = inputIdentifier.toLowerCase();
 
+    if (!inputIdentifier || typeof password !== 'string' || !password) {
+      socket.emit('authError', 'Please enter your username/email and password.');
+      return;
+    }
+
     let account = accounts.get(lowerIdentifier);
     if (!account) {
       account = [...accounts.values()].find((acc) => acc.email.toLowerCase() === lowerIdentifier || acc.username.toLowerCase() === lowerIdentifier);
     }
-    if (!account || typeof password !== 'string' || !passwordMatches(password, account)) {
+    if (!account || !passwordMatches(password, account)) {
       socket.emit('authError', 'Incorrect username/email or password.');
       return;
     }
@@ -1057,7 +1027,7 @@ io.on('connection', (socket) => {
       }
       const newKey = cleanName.toLowerCase();
       if (newKey !== accountKey && accounts.has(newKey)) {
-        socket.emit('profileError', 'That username is already taken.');
+        socket.emit('profileError', `Username "${cleanName}" is already taken by another player.`);
         return;
       }
 
@@ -1070,13 +1040,13 @@ io.on('connection', (socket) => {
       socket.data.username = cleanName;
     }
 
-    if (newPassword) {
-      if (typeof currentPassword !== 'string' || !passwordMatches(currentPassword, account)) {
-        socket.emit('profileError', 'Current password does not match.');
-        return;
-      }
+    if (currentPassword && newPassword) {
       if (typeof newPassword !== 'string' || newPassword.length < 6) {
         socket.emit('profileError', 'New password must be at least 6 characters.');
+        return;
+      }
+      if (!passwordMatches(currentPassword, account)) {
+        socket.emit('profileError', 'Current password is incorrect.');
         return;
       }
       const credentials = hashPassword(newPassword);
@@ -1085,15 +1055,15 @@ io.on('connection', (socket) => {
     }
 
     saveAccounts();
+    broadcastLeaderboard();
+
     socket.emit('profileUpdated', {
       username: account.username,
       email: account.email,
-      country: account.country || 'IND',
+      country: account.country,
       rating: account.rating,
       accountKey: socket.data.accountKey,
     });
-
-    broadcastLeaderboard();
   });
 
   socket.on('setCountry', (country) => {
@@ -1124,7 +1094,22 @@ io.on('connection', (socket) => {
       name = data;
     }
     if (typeof name === 'string' && name.trim()) {
-      socket.data.username = name.trim().slice(0, 24);
+      let cleanName = name.trim().slice(0, 24);
+      const targetKey = cleanName.toLowerCase();
+      
+      // If user is already logged in with an account, preserve their registered username
+      if (socket.data.accountKey && accounts.has(socket.data.accountKey)) {
+        cleanName = accounts.get(socket.data.accountKey).username;
+      } else {
+        // For guests: if requested name belongs to a registered account, or another active connected guest, ensure uniqueness
+        const isRegistered = accounts.has(targetKey);
+        const otherConnected = [...io.sockets.sockets.values()].some((s) => s.id !== socket.id && s.data?.username && s.data.username.toLowerCase() === targetKey);
+        if (isRegistered || otherConnected) {
+          cleanName = `${cleanName}_${Math.floor(100 + Math.random() * 900)}`;
+        }
+      }
+
+      socket.data.username = cleanName;
       socket.emit('usernameUpdated', socket.data.username);
     }
     if (typeof country === 'string' && country.trim()) {

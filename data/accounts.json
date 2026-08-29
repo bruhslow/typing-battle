@@ -7,5 +7,16 @@
     "createdAt": 1787972847911,
     "duelHistory": [],
     "eloHistory": []
+  },
+  "speeddemon": {
+    "username": "SpeedDemon",
+    "email": "speed@demon.org",
+    "country": "JPN",
+    "salt": "ddec5f8228a2d3478d5c98822269a17f",
+    "hash": "8abea70542dd9f3e219a48e2b8a85ed72692851209e9f8abd7e7cd7275fcd72d4b162894465b7f49216823421dc4c5fdd3245d35f6f250a26886a9f176624e49",
+    "rating": 1000,
+    "createdAt": 1787973643088,
+    "duelHistory": [],
+    "eloHistory": []
   }
 }
