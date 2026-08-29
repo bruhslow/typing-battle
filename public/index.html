@@ -5461,13 +5461,13 @@
   </div>
 
   <!-- PUBLIC ROOM BROWSER MODAL -->
-  <div class="modal-overlay hidden" id="browser-modal" onclick="if(event.target===this) this.classList.add('hidden')">
+  <div class="modal-overlay hidden" id="browser-modal" onclick="if(event.target===this){ this.style.display='none'; this.classList.add('hidden'); }">
     <div class="browser-modal">
       <div class="browser-head">
         <h3>Public Battle Lobbies</h3>
         <div style="display: flex; gap: 6px;">
           <button class="btn-secondary" id="refresh-browser-button" type="button">🔄 Refresh</button>
-          <button class="btn-secondary" id="close-browser-button" type="button" onclick="document.querySelector('#browser-modal').classList.add('hidden')">✕ Close</button>
+          <button class="btn-secondary" id="close-browser-button" type="button" onclick="document.getElementById('browser-modal').style.display='none'; document.getElementById('browser-modal').classList.add('hidden');">✕ Close</button>
         </div>
       </div>
       <div class="browser-list" id="browser-list">
@@ -7776,20 +7776,39 @@
     });
 
     // Lobby Browser
-    document.querySelector('#browse-rooms-button').addEventListener('click', () => {
-      browserModal.classList.remove('hidden');
+    let browserLoadTimer = null;
+
+    function fetchPublicRooms() {
+      if (browserList) {
+        browserList.innerHTML = '<div style="text-align: center; padding: 30px; color: var(--text-muted);">Loading active lobbies...</div>';
+      }
       socket.emit('getPublicRooms');
+      clearTimeout(browserLoadTimer);
+      browserLoadTimer = setTimeout(() => {
+        if (browserList && browserList.innerHTML.includes('Loading active lobbies...')) {
+          browserList.innerHTML = '<div style="text-align: center; padding: 30px; color: var(--text-muted);">No active lobbies found right now. Click "Create Lobby" to host one!</div>';
+        }
+      }, 2000);
+    }
+
+    document.querySelector('#browse-rooms-button').addEventListener('click', () => {
+      browserModal.style.display = 'flex';
+      browserModal.classList.remove('hidden');
+      fetchPublicRooms();
     });
 
     document.querySelector('#refresh-browser-button').addEventListener('click', () => {
-      socket.emit('getPublicRooms');
+      fetchPublicRooms();
     });
 
     document.querySelector('#close-browser-button').addEventListener('click', () => {
+      clearTimeout(browserLoadTimer);
+      browserModal.style.display = 'none';
       browserModal.classList.add('hidden');
     });
 
     socket.on('publicRoomsList', (roomsList) => {
+      clearTimeout(browserLoadTimer);
       if (!roomsList || roomsList.length === 0) {
         browserList.innerHTML = '<div style="text-align: center; padding: 30px; color: var(--text-muted);">No public lobbies active. Click "Create Lobby" to host one!</div>';
         return;
@@ -7803,7 +7822,7 @@
                 Host: ${renderCountryBadge(r.hostCountry, 'badge-sm')} ${escapeHtml(r.hostName)}
               </span>
               <span class="room-tag">${r.difficulty}</span>
-              <span class="room-tag">${r.typingMode.replace('_', ' ')}</span>
+              <span class="room-tag">${(r.typingMode || '').replace('_', ' ')}</span>
             </div>
           </div>
           <div style="font-family: 'JetBrains Mono', monospace; font-weight: 800; color: var(--primary); font-size: 12px;">
@@ -7816,6 +7835,8 @@
 
     window.joinPublicRoom = function(roomId) {
       const username = usernameInput.value.trim() || 'Player';
+      clearTimeout(browserLoadTimer);
+      browserModal.style.display = 'none';
       browserModal.classList.add('hidden');
       resetRaceState();
       socket.emit('joinCustomRoom', { roomId, username, country: userCountry, platform: selectedPlatform, device: currentDevice });
