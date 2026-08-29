@@ -1631,7 +1631,7 @@ io.on('connection', (socket) => {
   });
 
   // Setup credentials after Google SSO or Email verification
-  socket.on('setupCredentials', ({ username, password, country }) => {
+  socket.on('setupCredentials', ({ username, nickname, password, country }) => {
     const accountKey = socket.data.accountKey;
     if (!accountKey || !accounts.has(accountKey)) {
       socket.emit('authError', 'You must be logged in to configure your credentials.');
@@ -1639,27 +1639,32 @@ io.on('connection', (socket) => {
     }
 
     const account = accounts.get(accountKey);
-    const cleanName = typeof username === 'string' ? username.trim() : '';
+    const cleanUser = typeof username === 'string' ? username.trim() : '';
+    const cleanNick = typeof nickname === 'string' ? nickname.trim() : '';
 
-    if (cleanName) {
-      if (!/^[a-zA-Z0-9_ ]{3,24}$/.test(cleanName)) {
-        socket.emit('authError', 'Username must be 3-24 alphanumeric characters or underscores.');
+    if (cleanUser) {
+      if (!/^[a-zA-Z0-9_]{3,24}$/.test(cleanUser)) {
+        socket.emit('authError', 'Username must be 3-24 characters (letters, numbers, underscores).');
         return;
       }
-      const newKey = cleanName.toLowerCase();
+      const newKey = cleanUser.toLowerCase();
       if (newKey !== accountKey && accounts.has(newKey)) {
-        socket.emit('authError', `Username "${cleanName}" is already taken by another player.`);
+        socket.emit('authError', `Username "${cleanUser}" is already taken by another player.`);
         return;
       }
       if (newKey !== accountKey) {
         accounts.delete(accountKey);
-        account.username = cleanName;
+        account.username = cleanUser;
         accounts.set(newKey, account);
         socket.data.accountKey = newKey;
       } else {
-        account.username = cleanName;
+        account.username = cleanUser;
       }
-      socket.data.username = cleanName;
+      socket.data.username = cleanUser;
+    }
+
+    if (cleanNick) {
+      account.nickname = cleanNick.slice(0, 24);
     }
 
     if (country && typeof country === 'string') {
@@ -1675,6 +1680,7 @@ io.on('connection', (socket) => {
       const credentials = hashPassword(password);
       account.salt = credentials.salt;
       account.hash = credentials.hash;
+      account.hasPassword = true;
     }
 
     saveAccounts();

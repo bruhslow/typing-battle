@@ -5070,21 +5070,13 @@
         <button class="auth-submit-btn" id="auth-login-submit" type="submit">Log In to Account</button>
       </form>
 
-      <!-- New Player Register Form -->
+      <!-- New Player Register Form (Email Registration) -->
       <form class="auth-form-fields hidden" id="auth-signup-form">
         <div class="auth-field-group">
-          <label for="auth-signup-nickname">Nickname / Display Name</label>
-          <input class="auth-input-elem" id="auth-signup-nickname" placeholder="e.g. Ninja Typer (change anytime)" maxlength="24" autocomplete="nickname" required>
+          <label for="auth-signup-mail">Email Address</label>
+          <input class="auth-input-elem" id="auth-signup-mail" type="email" placeholder="e.g. player@gmail.com" autocomplete="email" required>
         </div>
-        <div class="auth-field-group">
-          <label for="auth-signup-user">Unique @username Handle</label>
-          <input class="auth-input-elem" id="auth-signup-user" placeholder="e.g. @ninja_99 (3-24 letters/numbers)" maxlength="24" autocomplete="username" required>
-        </div>
-        <div class="auth-field-group">
-          <label for="auth-signup-pass">Password</label>
-          <input class="auth-input-elem" id="auth-signup-pass" type="password" placeholder="Min 6 characters" autocomplete="new-password" required>
-        </div>
-        <button class="auth-submit-btn" id="auth-signup-submit" type="submit">✨ Register & Start Playing</button>
+        <button class="auth-submit-btn" id="auth-signup-submit" type="submit">✨ Continue with Email</button>
       </form>
 
       <!-- Message Banner -->
@@ -5092,15 +5084,15 @@
     </div>
   </div>
 
-  <!-- SETUP USERNAME & PASSWORD ONBOARDING MODAL -->
+  <!-- SETUP USERNAME, NICKNAME & PASSWORD ONBOARDING MODAL -->
   <div class="modal-overlay hidden" id="setup-credentials-modal">
     <div class="unified-auth-card" style="max-width: 440px;">
       <div class="auth-modal-header">
         <div class="auth-modal-title">
           <div style="font-size: 24px; margin-bottom: 6px;">👑</div>
-          <h3 style="font-size: 18px; font-weight: 800; color: var(--text-main);">Set Up Your Player Credentials</h3>
+          <h3 style="font-size: 18px; font-weight: 800; color: var(--text-main);">Set Up Your Player Account</h3>
           <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.4; margin-top: 4px;">
-            Set your username and password so you can log in directly from any device without email!
+            Set your @username handle, display nickname, and password to finish registration!
           </p>
         </div>
         <button class="btn-secondary" id="close-setup-modal-btn" type="button" style="padding: 4px 8px;">✕</button>
@@ -5108,12 +5100,16 @@
 
       <form class="auth-form-fields" id="setup-credentials-form">
         <div class="auth-field-group">
-          <label for="setup-username-input">Player Username</label>
-          <input class="auth-input-elem" id="setup-username-input" placeholder="Choose your player name" maxlength="24" autocomplete="username" required>
+          <label for="setup-username-input">Unique @username Handle</label>
+          <input class="auth-input-elem" id="setup-username-input" placeholder="e.g. @ninja_99 (3-24 letters/numbers)" maxlength="24" autocomplete="username" required>
+        </div>
+        <div class="auth-field-group">
+          <label for="setup-nickname-input">Display Nickname</label>
+          <input class="auth-input-elem" id="setup-nickname-input" placeholder="e.g. Ninja Typer (editable anytime)" maxlength="24" autocomplete="nickname">
         </div>
         <div class="auth-field-group">
           <label for="setup-password-input">Password (Min 6 characters)</label>
-          <input class="auth-input-elem" id="setup-password-input" type="password" placeholder="Choose a password" autocomplete="new-password" required>
+          <input class="auth-input-elem" id="setup-password-input" type="password" placeholder="Min 6 characters" autocomplete="new-password" required>
         </div>
         <div class="auth-field-group">
           <label for="setup-country-select">Country / Flag</label>
@@ -6450,6 +6446,7 @@
     const authSignupNickname = document.querySelector('#auth-signup-nickname');
     const authSignupUser = document.querySelector('#auth-signup-user');
     const authSignupPass = document.querySelector('#auth-signup-pass');
+    const authSignupMail = document.querySelector('#auth-signup-mail');
     const authModalMsg = document.querySelector('#auth-modal-msg');
     let currentAuthTab = 'login';
 
@@ -6527,48 +6524,40 @@
       });
     }
 
+    const authSignupMail = document.querySelector('#auth-signup-mail');
+
     if (authSignupForm) {
       authSignupForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const nickname = authSignupNickname ? authSignupNickname.value.trim() : '';
-        const username = authSignupUser ? authSignupUser.value.trim() : '';
-        const password = authSignupPass ? authSignupPass.value : '';
+        const email = authSignupMail ? authSignupMail.value.trim() : '';
 
-        if (!nickname || !username || !password) {
+        if (!email) {
           if (authModalMsg) {
-            authModalMsg.textContent = 'Please fill out Nickname, @username handle, and Password.';
+            authModalMsg.textContent = 'Please enter a valid email address.';
             authModalMsg.style.color = 'var(--rose)';
           }
           return;
         }
-        if (password.length < 6) {
-          if (authModalMsg) {
-            authModalMsg.textContent = 'Password must be at least 6 characters.';
-            authModalMsg.style.color = 'var(--rose)';
-          }
-          return;
-        }
-        if (authModalMsg) {
-          authModalMsg.textContent = 'Registering account...';
-          authModalMsg.style.color = 'var(--text-muted)';
-        }
-        socket.emit('registerDirect', { nickname, username, password, country: userCountry });
+
+        // Close auth modal and immediately pop up setup credentials onboarding modal!
+        if (unifiedAuthModal) unifiedAuthModal.classList.add('hidden');
+        openSetupCredentialsModal(email.split('@')[0], userCountry);
       });
     }
-
-
 
     // Setup Credentials Onboarding Modal Controller
     const setupCredentialsModal = document.querySelector('#setup-credentials-modal');
     const closeSetupModalBtn = document.querySelector('#close-setup-modal-btn');
     const setupCredentialsForm = document.querySelector('#setup-credentials-form');
     const setupUsernameInput = document.querySelector('#setup-username-input');
+    const setupNicknameInput = document.querySelector('#setup-nickname-input');
     const setupPasswordInput = document.querySelector('#setup-password-input');
     const setupCountrySelect = document.querySelector('#setup-country-select');
     const setupModalMsg = document.querySelector('#setup-modal-msg');
 
     function openSetupCredentialsModal(defaultUsername = '', defaultCountry = '') {
       if (setupUsernameInput && defaultUsername) setupUsernameInput.value = defaultUsername;
+      if (setupNicknameInput && defaultUsername) setupNicknameInput.value = defaultUsername;
       if (setupPasswordInput) setupPasswordInput.value = '';
       if (setupCountrySelect && defaultCountry) setupCountrySelect.value = getCountry(defaultCountry).code;
       if (setupModalMsg) setupModalMsg.textContent = '';
@@ -6578,7 +6567,6 @@
     if (closeSetupModalBtn) {
       closeSetupModalBtn.addEventListener('click', () => {
         if (setupCredentialsModal) setupCredentialsModal.classList.add('hidden');
-        // Suppress forever for this account so server reloads don't re-trigger it
         sessionStorage.setItem('typendoSetupDismissed', '1');
         if (userProfile?.accountKey) {
           localStorage.setItem('typendoSetupDone_' + userProfile.accountKey, '1');
@@ -6590,12 +6578,13 @@
       setupCredentialsForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const username = setupUsernameInput ? setupUsernameInput.value.trim() : '';
+        const nickname = setupNicknameInput ? setupNicknameInput.value.trim() : '';
         const password = setupPasswordInput ? setupPasswordInput.value : '';
         const country = setupCountrySelect ? setupCountrySelect.value : userCountry;
 
         if (!username) {
           if (setupModalMsg) {
-            setupModalMsg.textContent = 'Please choose a username.';
+            setupModalMsg.textContent = 'Please choose a @username handle.';
             setupModalMsg.style.color = 'var(--rose)';
           }
           return;
@@ -6613,8 +6602,7 @@
           setupModalMsg.style.color = 'var(--text-muted)';
         }
 
-        socket.emit('setupCredentials', { username, password, country });
-        // Mark setup as done permanently so it never pops again
+        socket.emit('setupCredentials', { username, nickname, password, country });
         if (userProfile?.accountKey) {
           localStorage.setItem('typendoSetupDone_' + userProfile.accountKey, '1');
         }
