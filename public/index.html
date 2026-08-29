@@ -3846,6 +3846,214 @@
       .stat-info-wrap strong { font-size: 11px; }
       .toast { left: 10px; right: 10px; bottom: 10px; justify-content: center; }
     }
+
+    /* ═══════════════════════════════════════════════════ */
+    /* FRIEND INVITE BANNER                               */
+    /* ═══════════════════════════════════════════════════ */
+    .invite-banner {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      z-index: 9999;
+      width: min(480px, calc(100vw - 32px));
+      background: #ffffff;
+      border: 1.5px solid var(--primary-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl), 0 0 0 1px rgba(255,255,255,0.8) inset;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+    }
+    .invite-banner.visible {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateX(-50%) translateY(0);
+    }
+    .invite-banner-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .invite-banner-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      background: var(--primary-subtle);
+    }
+    .invite-banner-text {
+      flex: 1;
+      min-width: 0;
+    }
+    .invite-banner-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+    .invite-banner-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .invite-banner-timer {
+      height: 3px;
+      background: var(--bg-subtle);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .invite-banner-timer-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: inherit;
+      width: 100%;
+      transition: width linear;
+    }
+    .invite-banner-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .invite-accept-btn {
+      flex: 1;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: all 0.2s ease;
+    }
+    .invite-accept-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .invite-decline-btn {
+      padding: 10px 16px;
+      background: transparent;
+      color: var(--text-muted);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .invite-decline-btn:hover { background: var(--bg-subtle); color: var(--text-main); border-color: var(--border-strong); }
+
+    /* ═══════════════════════════════════════════════════ */
+    /* CHALLENGE-A-FRIEND CARD                            */
+    /* ═══════════════════════════════════════════════════ */
+    .challenge-friend-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .challenge-friend-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-border);
+    }
+    .challenge-friend-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .challenge-friend-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary) 0%, #2a7a5a 100%);
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(29, 90, 63, 0.2);
+    }
+    .challenge-friend-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+    .challenge-friend-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+    .challenge-friend-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .challenge-code-input {
+      flex: 1;
+      background: var(--bg-subtle);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 9px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: 0.08em;
+      outline: none;
+      text-transform: uppercase;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+    .challenge-code-input::placeholder { letter-spacing: 0.04em; font-weight: 500; color: var(--text-dim); }
+    .challenge-code-input:focus {
+      background: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .challenge-send-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 9px 16px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .challenge-send-btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(29,90,63,0.25); }
+    .challenge-send-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Invite-to-Room row inside lobby panel */
+    .lobby-invite-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+    .lobby-invite-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -4047,6 +4255,29 @@
             <div>
               <button class="start-cta" id="random-button" type="button">START BATTLE</button>
               <p class="status-msg" id="join-message" aria-live="polite"></p>
+            </div>
+
+            <!-- Challenge a Friend — Direct 1v1 Casual Invite -->
+            <div class="challenge-friend-card" id="challenge-friend-section">
+              <div class="challenge-friend-head">
+                <div class="challenge-friend-icon">⚔️</div>
+                <div>
+                  <div class="challenge-friend-title">Challenge a Friend</div>
+                  <div class="challenge-friend-sub">Direct 1v1 · Casual · No ELO · Private</div>
+                </div>
+              </div>
+              <div class="challenge-friend-row">
+                <input
+                  class="challenge-code-input"
+                  id="challenge-friend-input"
+                  maxlength="8"
+                  placeholder="Friend's code (e.g. AB3X7F)"
+                  autocomplete="off"
+                  spellcheck="false"
+                >
+                <button class="challenge-send-btn" id="challenge-send-btn" type="button">🎯 Challenge</button>
+              </div>
+              <p class="status-msg" id="challenge-message" aria-live="polite" style="margin:0; font-size:12px;"></p>
             </div>
           </div>
 
@@ -4331,6 +4562,21 @@
               <div style="height: 100%; width: 40%; background: var(--primary); border-radius: inherit; animation: search-slide 1.2s infinite;"></div>
             </div>
             <div id="search-phrase" style="margin-top: 8px; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--text-muted);">Scanning for rivals...</div>
+          </div>
+
+          <!-- Invite-to-Room row: visible only when in a custom lobby -->
+          <div class="lobby-invite-row hidden" id="lobby-invite-row">
+            <span class="lobby-invite-label">📨 Invite by code:</span>
+            <input
+              class="challenge-code-input"
+              id="lobby-invite-input"
+              maxlength="8"
+              placeholder="Friend's code"
+              autocomplete="off"
+              spellcheck="false"
+              style="max-width: 160px; padding: 7px 10px; font-size: 12px;"
+            >
+            <button class="challenge-send-btn" id="lobby-invite-btn" type="button" style="padding: 7px 12px; font-size: 11px;">📨 Invite</button>
           </div>
 
           <div style="display: flex; justify-content: center; gap: 8px; margin-top: 16px; flex-wrap: wrap;">
@@ -4869,6 +5115,24 @@
   <div class="toast hidden" id="toast" role="status" aria-live="polite">
     <div class="toast-dot"></div>
     <span id="toast-text">Notification</span>
+  </div>
+
+  <!-- Friend Invite Banner (fixed top, slides down) -->
+  <div class="invite-banner" id="invite-banner" role="dialog" aria-label="Friend invite">
+    <div class="invite-banner-head">
+      <div class="invite-banner-icon" id="invite-banner-icon">⚔️</div>
+      <div class="invite-banner-text">
+        <div class="invite-banner-title" id="invite-banner-title">Challenge received!</div>
+        <div class="invite-banner-sub" id="invite-banner-sub">Someone wants to race you.</div>
+      </div>
+    </div>
+    <div class="invite-banner-timer">
+      <div class="invite-banner-timer-fill" id="invite-timer-fill"></div>
+    </div>
+    <div class="invite-banner-actions">
+      <button class="invite-accept-btn" id="invite-accept-btn" type="button">✅ Accept</button>
+      <button class="invite-decline-btn" id="invite-decline-btn" type="button">✕ Decline</button>
+    </div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -8202,6 +8466,223 @@
       resetRaceState();
       showScreen(joinScreen);
     });
+
+    // ══════════════════════════════════════════════════════
+    // FRIEND INVITE SYSTEM — CLIENT-SIDE
+    // ══════════════════════════════════════════════════════
+
+    // DOM refs
+    const inviteBanner = document.querySelector('#invite-banner');
+    const inviteBannerTitle = document.querySelector('#invite-banner-title');
+    const inviteBannerSub = document.querySelector('#invite-banner-sub');
+    const inviteBannerIcon = document.querySelector('#invite-banner-icon');
+    const inviteTimerFill = document.querySelector('#invite-timer-fill');
+    const inviteAcceptBtn = document.querySelector('#invite-accept-btn');
+    const inviteDeclineBtn = document.querySelector('#invite-decline-btn');
+    const challengeFriendInput = document.querySelector('#challenge-friend-input');
+    const challengeSendBtn = document.querySelector('#challenge-send-btn');
+    const challengeMessage = document.querySelector('#challenge-message');
+    const lobbyInviteRow = document.querySelector('#lobby-invite-row');
+    const lobbyInviteInput = document.querySelector('#lobby-invite-input');
+    const lobbyInviteBtn = document.querySelector('#lobby-invite-btn');
+
+    // Current pending invite state (for Accept/Decline wiring)
+    let pendingInvite = null;
+    let inviteAutoDismissTimer = null;
+    let inviteTimerInterval = null;
+
+    const INVITE_TIMEOUT_MS = 30000;
+
+    function showInviteBanner({ type, roomCode, roomId, roomName, fromUsername, fromFriendId }) {
+      // Clear any previous pending invite
+      dismissInviteBanner();
+
+      pendingInvite = { type, roomCode, roomId, roomName, fromUsername, fromFriendId };
+
+      // Set icon and text based on type
+      if (type === 'room') {
+        inviteBannerIcon.textContent = '🚪';
+        inviteBannerTitle.textContent = `${fromUsername} invited you to their lobby!`;
+        inviteBannerSub.textContent = `Room: "${roomName}" · Click Accept to join`;
+      } else {
+        inviteBannerIcon.textContent = '⚔️';
+        inviteBannerTitle.textContent = `${fromUsername} challenged you to a duel!`;
+        inviteBannerSub.textContent = `Casual 1v1 · No ELO · "${roomName}"`;
+      }
+
+      // Show the banner
+      inviteBanner.classList.add('visible');
+      SoundEngine.playButtonClick();
+
+      // Countdown timer bar
+      const startTime = Date.now();
+      inviteTimerFill.style.transition = 'none';
+      inviteTimerFill.style.width = '100%';
+
+      // Force reflow then animate
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          inviteTimerFill.style.transition = `width ${INVITE_TIMEOUT_MS}ms linear`;
+          inviteTimerFill.style.width = '0%';
+        });
+      });
+
+      // Auto-dismiss after timeout
+      inviteAutoDismissTimer = setTimeout(() => {
+        dismissInviteBanner();
+      }, INVITE_TIMEOUT_MS);
+    }
+
+    function dismissInviteBanner() {
+      clearTimeout(inviteAutoDismissTimer);
+      clearInterval(inviteTimerInterval);
+      inviteBanner.classList.remove('visible');
+      pendingInvite = null;
+    }
+
+    // Accept button
+    inviteAcceptBtn.addEventListener('click', () => {
+      if (!pendingInvite) return;
+      SoundEngine.playButtonClick();
+      const { roomCode, roomId } = pendingInvite;
+      const username = usernameInput.value.trim() || 'Player';
+      dismissInviteBanner();
+      resetRaceState();
+      socket.emit('joinCustomRoom', {
+        friendId: roomCode,
+        roomId,
+        username,
+        country: userCountry,
+        platform: selectedPlatform,
+        device: currentDevice,
+      });
+    });
+
+    // Decline button
+    inviteDeclineBtn.addEventListener('click', () => {
+      if (!pendingInvite) return;
+      SoundEngine.playButtonClick();
+      const { fromFriendId } = pendingInvite;
+      socket.emit('declineFriendInvite', { fromFriendId });
+      dismissInviteBanner();
+    });
+
+    // ── Challenge-a-Friend card (home screen) ──────────────────────
+    challengeSendBtn.addEventListener('click', () => {
+      SoundEngine.playButtonClick();
+      const targetCode = challengeFriendInput.value.trim().toUpperCase();
+      if (!targetCode || targetCode.length < 4) {
+        challengeMessage.textContent = 'Please enter a valid Friend Code.';
+        challengeMessage.style.color = 'var(--secondary)';
+        return;
+      }
+      challengeMessage.textContent = '';
+      challengeSendBtn.disabled = true;
+      challengeSendBtn.textContent = '⏳ Sending...';
+      socket.emit('sendFriendInvite', { targetFriendId: targetCode, type: 'casual' });
+    });
+
+    challengeFriendInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') challengeSendBtn.click();
+    });
+
+    // ── Lobby Invite-to-Room row ────────────────────────────────────
+    lobbyInviteBtn.addEventListener('click', () => {
+      SoundEngine.playButtonClick();
+      const targetCode = lobbyInviteInput.value.trim().toUpperCase();
+      if (!targetCode || targetCode.length < 4) {
+        showToast('Please enter a valid Friend Code.', true);
+        return;
+      }
+      lobbyInviteBtn.disabled = true;
+      lobbyInviteBtn.textContent = '⏳';
+      socket.emit('sendFriendInvite', { targetFriendId: targetCode, type: 'room' });
+      setTimeout(() => {
+        lobbyInviteBtn.disabled = false;
+        lobbyInviteBtn.textContent = '📨 Invite';
+      }, 3000);
+    });
+
+    lobbyInviteInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') lobbyInviteBtn.click();
+    });
+
+    // Show/hide the lobby invite row when entering/leaving a custom room
+    // Hook into existing customRoomCreated and playerJoinedRoom to show the row
+    const _origCustomRoomCreatedHandle = socket._callbacks?.['$customRoomCreated']?.[0];
+    socket.on('customRoomCreated', () => {
+      lobbyInviteRow.classList.remove('hidden');
+      lobbyInviteInput.value = '';
+    });
+
+    socket.on('playerJoinedRoom', () => {
+      // Show for all members (not just host) — everyone can invite
+      lobbyInviteRow.classList.remove('hidden');
+    });
+
+    // Hide invite row when leaving back to join screen
+    const _origResetRaceState = typeof resetRaceState === 'function' ? resetRaceState : null;
+    // Patch: also hide on cancel button click
+    document.querySelector('#cancel-button').addEventListener('click', () => {
+      lobbyInviteRow.classList.add('hidden');
+      lobbyInviteInput.value = '';
+      challengeSendBtn.disabled = false;
+      challengeSendBtn.textContent = '🎯 Challenge';
+    }, true /* capture, so it fires even if existing handler stops propagation */);
+
+    // ── Socket responses ────────────────────────────────────────────
+
+    // Incoming invite from another player
+    socket.on('friendInviteReceived', (invite) => {
+      showInviteBanner(invite);
+    });
+
+    // Our invite was successfully sent (casual challenge created us a room)
+    socket.on('casualChallengeCreated', ({ friendCode, roomId, roomName, players, playerCount, maxPlayers, toUsername }) => {
+      // Treat exactly like customRoomCreated — enter the lobby screen
+      resetRaceState();
+      currentRoomId = roomId;
+      isHost = true;
+      activePlayers = players;
+
+      showScreen(raceScreen);
+      raceStatus.textContent = roomName.toUpperCase();
+      document.querySelector('#room-label').textContent = `CODE: ${friendCode}`;
+      document.querySelector('#room-label').classList.remove('hidden');
+      document.querySelector('#code-pill-wrap').classList.remove('hidden');
+      waitingMessage.textContent = `Waiting for ${toUsername} to accept your challenge...`;
+
+      renderLobbyMembers(players, socket.id);
+      startRoomButton.classList.add('hidden');
+      hostSettingsPanel.classList.add('hidden'); // No config in 1v1 casual invite rooms
+      lobbyInviteRow.classList.add('hidden'); // Already challenged one person
+
+      showToast(`⚔️ Challenge sent to ${toUsername}! Waiting for them...`);
+
+      // Reset challenge card
+      challengeSendBtn.disabled = false;
+      challengeSendBtn.textContent = '🎯 Challenge';
+      challengeFriendInput.value = '';
+      challengeMessage.textContent = '';
+    });
+
+    // Our invite was sent (room invite type)
+    socket.on('friendInviteSent', ({ type, toUsername }) => {
+      if (type === 'room') {
+        showToast(`📨 Invite sent to ${toUsername}! Waiting for them to join...`);
+        lobbyInviteInput.value = '';
+      }
+    });
+
+    // Our challenge was declined
+    socket.on('friendInviteDeclined', ({ byUsername }) => {
+      showToast(`❌ ${byUsername} declined your challenge.`, true);
+      // If we're in an invite-created room alone, go back to home
+      if (currentRoomId && socket.data) {
+        // Let them stay in the room in case they want to invite someone else
+      }
+    });
+
   </script>
 </body>
 </html>

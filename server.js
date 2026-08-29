@@ -2076,6 +2076,142 @@ io.on('connection', (socket) => {
     finishRace(roomId);
   });
 
+  // ══════════════════════════════════════════════════════
+  // FRIEND INVITE SYSTEM
+  // ══════════════════════════════════════════════════════
+
+  // sendFriendInvite: type='room' (invite to existing custom room) or type='casual' (direct 1v1 challenge)
+  socket.on('sendFriendInvite', ({ targetFriendId, type }) => {
+    if (!targetFriendId || typeof targetFriendId !== 'string') {
+      socket.emit('errorMessage', 'Please enter a valid Friend Code.');
+      return;
+    }
+
+    const normalizedCode = targetFriendId.trim().toUpperCase();
+    const targetSocketId = friendIds.get(normalizedCode);
+    const targetSocket = targetSocketId && io.sockets.sockets.get(targetSocketId);
+
+    if (!targetSocket || targetSocket.id === socket.id) {
+      socket.emit('errorMessage', `Friend code "${normalizedCode}" is not online right now. Make sure they have Typendo open.`);
+      return;
+    }
+
+    // Target must not already be in an active (started) room
+    const targetRoom = targetSocket.data?.roomId && rooms.get(targetSocket.data.roomId);
+    if (targetRoom && targetRoom.started && !targetRoom.finished) {
+      socket.emit('errorMessage', `${targetSocket.data?.username || 'That player'} is currently in an active race. Try again when they finish.`);
+      return;
+    }
+
+    const fromUsername = socket.data?.username || 'A player';
+
+    if (type === 'room') {
+      // Invite to existing custom room — sender must be in a custom room
+      const senderRoom = socket.data?.roomId && rooms.get(socket.data.roomId);
+      if (!senderRoom || senderRoom.mode !== 'custom' || senderRoom.started) {
+        socket.emit('errorMessage', 'You must be in an open custom lobby to invite a friend to it.');
+        return;
+      }
+      if (senderRoom.players.size >= (senderRoom.maxPlayers || PRIVATE_ROOM_LIMIT)) {
+        socket.emit('errorMessage', 'Your room is full.');
+        return;
+      }
+
+      targetSocket.emit('friendInviteReceived', {
+        type: 'room',
+        roomCode: senderRoom.friendCode || socket.data.roomId.replace('room-', ''),
+        roomId: socket.data.roomId,
+        roomName: senderRoom.roomName || `${fromUsername}'s Room`,
+        fromUsername,
+        fromFriendId: socket.data.friendId,
+      });
+
+      socket.emit('friendInviteSent', {
+        type: 'room',
+        toUsername: targetSocket.data?.username || normalizedCode,
+        toFriendId: normalizedCode,
+      });
+
+    } else if (type === 'casual') {
+      // Direct 1v1 casual challenge — create a temporary private room for the inviter
+      leaveRoom(socket);
+      removeFromQueue(socket);
+
+      const friendCode = createFriendId();
+      const roomId = `room-${friendCode}`;
+      const roomName = `${fromUsername} vs ${targetSocket.data?.username || 'Friend'}`;
+
+      const room = {
+        paragraph: null,
+        players: new Set([socket.id]),
+        finished: false,
+        started: false,
+        hostId: socket.id,
+        friendCode,
+        roomName,
+        isPublic: false,
+        difficulty: 'medium',
+        typingMode: 'standard',
+        mode: 'custom',
+        maxPlayers: 2, // 1v1 only
+        isCasualInvite: true,
+      };
+      rooms.set(roomId, room);
+      socket.data.roomId = roomId;
+      socket.join(roomId);
+
+      sessions.set(socket.data.friendId, {
+        socketId: socket.id,
+        roomId,
+        username: socket.data.username || 'Player',
+        country: socket.data.country || 'IND',
+        platform: socket.data.platform || 'pc',
+        expiresAt: Date.now() + 10 * 60 * 1000,
+      });
+
+      // Tell the sender they're now in a waiting room
+      const playersList = roomPlayers(room);
+      socket.emit('casualChallengeCreated', {
+        friendCode,
+        roomId,
+        roomName,
+        players: playersList,
+        playerCount: 1,
+        maxPlayers: 2,
+        toUsername: targetSocket.data?.username || normalizedCode,
+        toFriendId: normalizedCode,
+      });
+
+      // Notify the target
+      targetSocket.emit('friendInviteReceived', {
+        type: 'casual',
+        roomCode: friendCode,
+        roomId,
+        roomName,
+        fromUsername,
+        fromFriendId: socket.data.friendId,
+      });
+
+      broadcastServerStats();
+
+    } else {
+      socket.emit('errorMessage', 'Invalid invite type.');
+    }
+  });
+
+  // declineFriendInvite: invitee declines, notify the inviter
+  socket.on('declineFriendInvite', ({ fromFriendId }) => {
+    if (!fromFriendId || typeof fromFriendId !== 'string') return;
+    const normalizedCode = fromFriendId.trim().toUpperCase();
+    const fromSocketId = friendIds.get(normalizedCode);
+    const fromSocket = fromSocketId && io.sockets.sockets.get(fromSocketId);
+    if (fromSocket) {
+      fromSocket.emit('friendInviteDeclined', {
+        byUsername: socket.data?.username || 'Your friend',
+      });
+    }
+  });
+
   socket.on('disconnect', () => {
     removeFromQueue(socket);
     const room = socket.data?.roomId && rooms.get(socket.data.roomId);
