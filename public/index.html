@@ -5225,6 +5225,95 @@
         } catch (e) {}
       }
 
+      function playSelectSound() {
+        if (isMuted) return;
+        try {
+          initCtx();
+          if (!audioCtx) return;
+          const now = audioCtx.currentTime;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(780, now + 0.04);
+
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        } catch (e) {}
+      }
+
+      function playButtonClick() {
+        if (isMuted) return;
+        try {
+          initCtx();
+          if (!audioCtx) return;
+          const now = audioCtx.currentTime;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(160, now + 0.06);
+
+          gain.gain.setValueAtTime(0.16, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.06);
+        } catch (e) {}
+      }
+
+      function playMatchFound() {
+        if (isMuted) return;
+        try {
+          initCtx();
+          if (!audioCtx) return;
+          const now = audioCtx.currentTime;
+          const chords = [587.33, 739.99, 880.00, 1174.66];
+          chords.forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + i * 0.06);
+            gain.gain.setValueAtTime(0.18, now + i * 0.06);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.35);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + i * 0.06);
+            osc.stop(now + i * 0.06 + 0.35);
+          });
+        } catch (e) {}
+      }
+
+      function playTimerTick() {
+        if (isMuted) return;
+        try {
+          initCtx();
+          if (!audioCtx) return;
+          const now = audioCtx.currentTime;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        } catch (e) {}
+      }
+
       function toggleMute() {
         isMuted = !isMuted;
         localStorage.setItem('typendoMuted', String(isMuted));
@@ -5242,6 +5331,10 @@
         playStreakChime,
         playVictorySound,
         playDefeatSound,
+        playSelectSound,
+        playButtonClick,
+        playMatchFound,
+        playTimerTick,
         toggleMute,
         getMuted,
         initCtx,
@@ -5748,6 +5841,7 @@
     document.querySelectorAll('#quick-diff-choice-box .quick-diff-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.quickdiff === selectedQuickDiff);
       btn.addEventListener('click', () => {
+        SoundEngine.playSelectSound();
         selectedQuickDiff = btn.dataset.quickdiff || 'easy';
         document.querySelectorAll('#quick-diff-choice-box .quick-diff-btn').forEach((b) => b.classList.toggle('active', b === btn));
         updateQuickPerks();
@@ -5756,6 +5850,7 @@
 
     // Mode Selector Switch
     document.querySelectorAll('.mode-card').forEach((card) => card.addEventListener('click', () => {
+      SoundEngine.playSelectSound();
       selectedMode = card.dataset.mode;
       document.querySelectorAll('.mode-card').forEach((item) => item.classList.toggle('active', item === card));
       
@@ -5789,6 +5884,7 @@
 
     // Right Sidebar Tab Switcher
     function switchInfoTab(tabName) {
+      SoundEngine.playSelectSound();
       [tabDuelHist, tabEloHist, tabHallFame].forEach(t => t.classList.remove('active'));
       [paneDuelHist, paneEloHist, paneHallFame].forEach(p => p.classList.add('hidden'));
 
@@ -5811,67 +5907,50 @@
 
     // Division Tier Modal Open/Close Listeners
     function openTierModal() {
+      SoundEngine.playSelectSound();
       tierInfoModal.classList.remove('hidden');
     }
 
     statTierCard.addEventListener('click', openTierModal);
     headerElo.addEventListener('click', openTierModal);
-    closeTierModalBtn.addEventListener('click', () => tierInfoModal.classList.add('hidden'));
+    closeTierModalBtn.addEventListener('click', () => {
+      SoundEngine.playButtonClick();
+      tierInfoModal.classList.add('hidden');
+    });
 
-    // ═══════════════════════════════════════════
-    // SOLO "TEST YOURSELF" SPEED LAB ENGINE
-    // ═══════════════════════════════════════════
-    const soloQuotesList = [
-      "The quick brown fox jumps over the lazy dog on a bright sunny afternoon.",
-      "A good idea often starts as a small question. With practice and persistence, it grows into something incredible.",
-      "Clear skies and a gentle breeze made it a pleasant day for a walk in the quiet hillside park.",
-      "Practice every day to build speed, accuracy, and effortless muscle memory at your mechanical keyboard.",
-      "Fast fingers dance across the keys while typing every single letter with razor sharp precision.",
-      "Keep your focus sharp and your hands relaxed to achieve your personal best typing speed record.",
-      "Writing elegant software requires both creative imagination and disciplined algorithmic logic.",
-      "Curiosity is the engine of human progress, driving explorers to venture far beyond the unknown horizon.",
-      "The morning sun broke through the misty clouds, warming the frozen winter landscape slowly.",
-      "To succeed in any competitive field, consistency and deliberate focus are far more valuable than raw talent.",
-      "Great typists maintain a steady rhythmic flow, anticipating the next word before their fingers finish the current one.",
-      "Mastery is not an accident; it is the natural consequence of daily focused training and perseverance.",
-      "A tranquil forest stream carved its winding path through mossy granite stones and tall cedar trees.",
-      "Technology connects millions of minds across oceans in real time, making the world feel like a single village.",
-      "Focus your vision on the upcoming words rather than looking down at the keyboard layout.",
-      "Deep in the ancient library, dusty leather volumes held forgotten stories of kingdoms and starlit journeys.",
-      "Innovation begins where routine ends, inviting bold ideas to reshape how we learn and create.",
-      "Lightning split the midnight sky, illuminating the rolling ocean waves with a brief flash of silver brilliance.",
-      "Every small achievement builds momentum, turning quiet dedication into undeniable triumph over time.",
-      "The spacecraft entered orbit around the distant planet, beaming high resolution photographs back to ground control.",
-      "Calm seas never produced skilled sailors, and easy challenges rarely forge extraordinary abilities.",
-      "A sudden spark of inspiration can illuminate pathways that remained hidden in total darkness for centuries.",
-      "Clean architecture in modern web systems emphasizes modular components, explicit state, and rapid user feedback.",
-      "The aroma of fresh ground coffee beans drifted through the open cafe windows on an autumn morning.",
-      "Perseverance transforms humble beginnings into legendary milestones through unwavering dedication.",
-      "In the digital era, mastering rapid keyboard communication is like wielding a superpower for modern creators.",
-      "The mountain summit greeted the climbers with panoramic views of snow-capped ridges stretching toward the horizon.",
-      "Precision always precedes velocity; master the correct technique first, and blistering speed will follow naturally.",
-      "A symphony of keystrokes echoed through the quiet room as the programmer solved the complex puzzle.",
-      "Nature designs with effortless efficiency, from the symmetry of a snowflake to the spiral of a galaxy.",
-      "True champions celebrate small daily improvements because they know that tiny gains compound into greatness.",
-      "The river flows steadily around obstacles, demonstrating that patience and adaptability overcome immense resistance.",
-      "Artificial intelligence expands human potential by automating routine tasks and amplifying creative problem solving.",
-      "Beneath the starry night sky, the campfire flickered and cast dancing golden shadows across the campsite.",
-      "A disciplined mind remains steady during high pressure challenges, executing every move with poise and grace.",
-      "Reading expansive literature broadens empathy, giving readers a window into lives beyond their immediate experience.",
-      "The engine roared to life with a deep mechanical rumble, vibrating through the sleek carbon fiber chassis.",
-      "Every keyboard switch offers distinct tactile feedback, guiding experienced typists through every keystroke.",
-      "The golden hour cast long amber rays across the sprawling wheat fields as evening gently approached.",
-      "Continuous curiosity unlocks doors that certainty keeps firmly locked against discovery.",
-      "Typing rhythm resembles musical pacing; smooth and consistent strokes outshine erratic bursts of rapid typing.",
-      "The satellite drifted silently in the vacuum of space, relaying communications across continents continuously.",
-      "Resilience is the courage to stand up once more whenever an unexpected storm knocks you off course.",
-      "An intricate clockwork mechanism ticked quietly on the wooden desk, measuring every second with unyielding precision.",
-      "Wisdom consists of knowing what to overlook and focusing all your energy on what truly creates meaningful impact.",
-      "The ancient stone castle stood proudly against the northern winds, having weathered centuries of shifting tides.",
-      "Embrace every typo as valuable diagnostic data that highlights where your muscle memory needs gentle reinforcement.",
-      "Sunlight filtered through the dense green canopy, creating dappled patterns of light on the damp forest floor.",
-      "Simplicity is the ultimate sophistication, stripping away unnecessary noise to reveal the true essence of design."
+    // ═════════════════════════════════════════════════════════
+    // SOLO "TEST YOURSELF" SPEED LAB ENGINE (ENDLESS WORD STREAM)
+    // ═════════════════════════════════════════════════════════
+    const SOLO_WORD_BANK = [
+      "the", "be", "of", "and", "a", "to", "in", "he", "have", "it", "that", "for", "they", "with", "as", "not",
+      "on", "she", "at", "by", "this", "we", "you", "do", "but", "from", "or", "which", "one", "would", "all", "will",
+      "there", "say", "who", "make", "when", "can", "more", "if", "no", "man", "out", "other", "so", "what", "time",
+      "up", "go", "about", "than", "into", "could", "state", "only", "new", "year", "some", "take", "come", "these",
+      "know", "see", "use", "get", "like", "then", "first", "any", "work", "now", "may", "such", "give", "over", "think",
+      "most", "even", "find", "day", "also", "after", "way", "many", "must", "look", "before", "great", "back", "through",
+      "long", "where", "much", "should", "well", "people", "down", "own", "just", "because", "good", "each", "those",
+      "feel", "seem", "how", "high", "too", "place", "little", "world", "very", "still", "nation", "hand", "old", "life",
+      "tell", "write", "become", "here", "show", "house", "both", "between", "need", "mean", "call", "develop", "under",
+      "last", "right", "move", "thing", "general", "school", "never", "same", "another", "begin", "while", "number", "part",
+      "turn", "real", "leave", "might", "want", "point", "form", "off", "child", "few", "small", "since", "against",
+      "ask", "late", "home", "interest", "large", "person", "end", "open", "public", "follow", "during", "present", "without",
+      "again", "hold", "govern", "around", "possible", "head", "consider", "word", "program", "problem", "however", "lead",
+      "system", "set", "order", "eye", "plan", "run", "keep", "face", "fact", "group", "play", "stand", "increase", "early",
+      "course", "change", "help", "line", "city", "speed", "focus", "space", "power", "light", "voice", "ready", "sound",
+      "music", "river", "train", "drive", "build", "future", "clear", "nature", "spark", "stone", "water", "cloud", "night",
+      "motion", "silver", "dream", "energy", "rhythm", "effort", "action", "create", "puzzle", "forest", "shield", "dragon",
+      "rocket", "flight", "glider", "planet", "galaxy", "starlight", "matrix", "vision", "circuit", "engine", "battle",
+      "swift", "champion", "cadence", "tactile", "switch", "tempo", "dynamic", "sparkle", "velocity", "stream", "precision"
     ];
+
+    function generateSoloWordBatch(count = 50) {
+      const words = [];
+      for (let i = 0; i < count; i++) {
+        const rand = SOLO_WORD_BANK[Math.floor(Math.random() * SOLO_WORD_BANK.length)];
+        words.push(rand);
+      }
+      return words;
+    }
 
     const soloTestCard = document.querySelector('#solo-test-card');
     const soloStageContainer = document.querySelector('#solo-stage-container');
@@ -5901,31 +5980,24 @@
     const soloTimerPills = document.querySelectorAll('.solo-timer-pill');
 
     let soloDurationSec = 15;
+    let soloWordsStream = [];
     let soloActiveQuote = '';
     let soloStartTime = 0;
     let soloTimerInterval = null;
     let soloFinished = false;
     let soloCurrentStreak = 0;
     let soloMaxStreak = 0;
-    let soloRecentQuotes = [];
 
-    function getRandomSoloSentence() {
-      const candidates = soloQuotesList.filter(q => !soloRecentQuotes.includes(q));
-      const pool = candidates.length > 0 ? candidates : soloQuotesList;
-      const pick = pool[Math.floor(Math.random() * pool.length)];
-      soloRecentQuotes.push(pick);
-      if (soloRecentQuotes.length > 10) soloRecentQuotes.shift();
-      return pick;
-    }
-
-    function initSoloQuote(customQuote) {
+    function initSoloQuote() {
       clearInterval(soloTimerInterval);
       soloStartTime = 0;
       soloFinished = false;
       soloCurrentStreak = 0;
       soloMaxStreak = 0;
       
-      soloActiveQuote = customQuote || getRandomSoloSentence();
+      soloWordsStream = generateSoloWordBatch(60);
+      soloActiveQuote = soloWordsStream.join(' ');
+
       if (soloTypeInput) {
         soloTypeInput.value = '';
         soloTypeInput.disabled = false;
@@ -5936,6 +6008,7 @@
       if (soloLiveTime) soloLiveTime.textContent = soloDurationSec + 's';
       if (soloLiveStreak) soloLiveStreak.textContent = '🔥 0 Streak';
       if (soloStageContainer) soloStageContainer.classList.remove('is-active');
+      if (soloQuoteDisplay) soloQuoteDisplay.scrollTop = 0;
 
       renderSoloQuoteVisual('');
     }
@@ -6013,6 +6086,15 @@
       soloCurrentStreak = streak;
       if (streak > soloMaxStreak) soloMaxStreak = streak;
       if (soloLiveStreak) soloLiveStreak.textContent = `🔥 ${streak} Streak`;
+
+      // Auto scroll active word line smoothly
+      const currentWordEl = document.querySelector(`#solo-word-${currentWordIdx}`);
+      if (currentWordEl && soloQuoteDisplay) {
+        const topPos = currentWordEl.offsetTop - soloQuoteDisplay.offsetTop;
+        if (topPos > soloQuoteDisplay.scrollTop + 80 || topPos < soloQuoteDisplay.scrollTop) {
+          soloQuoteDisplay.scrollTop = Math.max(0, topPos - 20);
+        }
+      }
     }
 
     function finishSoloTest() {
@@ -6092,6 +6174,7 @@
     if (soloTimerPills) {
       soloTimerPills.forEach((pill) => {
         pill.addEventListener('click', () => {
+          SoundEngine.playSelectSound();
           soloDurationSec = parseInt(pill.dataset.duration || '15', 10);
           soloTimerPills.forEach((p) => p.classList.toggle('active', p === pill));
           initSoloQuote();
@@ -6101,6 +6184,7 @@
 
     if (soloRefreshBtn) {
       soloRefreshBtn.addEventListener('click', () => {
+        SoundEngine.playButtonClick();
         initSoloQuote();
         if (soloTypeInput) soloTypeInput.focus();
       });
@@ -6108,6 +6192,7 @@
 
     if (soloRetryBtn) {
       soloRetryBtn.addEventListener('click', () => {
+        SoundEngine.playButtonClick();
         initSoloQuote();
         if (soloTypeInput) soloTypeInput.focus();
       });
@@ -6115,6 +6200,7 @@
 
     if (soloCopyStatsBtn) {
       soloCopyStatsBtn.addEventListener('click', () => {
+        SoundEngine.playButtonClick();
         const netWpm = soloResWpm ? soloResWpm.textContent : '0';
         const acc = soloResAcc ? soloResAcc.textContent : '100%';
         const rank = soloRankText ? soloRankText.textContent : 'Typist';
@@ -6135,6 +6221,7 @@
 
     if (soloJumpDuelBtn) {
       soloJumpDuelBtn.addEventListener('click', () => {
+        SoundEngine.playButtonClick();
         window.scrollTo({ top: 0, behavior: 'smooth' });
         const quickCard = document.querySelector('.mode-card[data-mode="quick"]');
         if (quickCard) quickCard.click();
@@ -6159,6 +6246,7 @@
       soloTypeInput.addEventListener('keydown', (e) => {
         if (soloFinished && (e.key === 'Enter' || e.key === 'Tab')) {
           e.preventDefault();
+          SoundEngine.playButtonClick();
           initSoloQuote();
           soloTypeInput.focus();
           return;
@@ -6196,13 +6284,6 @@
             showToast('Complete the current word correctly before pressing Space!', true);
             return;
           }
-
-          // If last word is complete and space pressed, finish test
-          if (currentWordIdx === targetWords.length - 1 && currentWord === expectedWord) {
-            e.preventDefault();
-            finishSoloTest();
-            return;
-          }
         }
       });
 
@@ -6211,6 +6292,7 @@
         const val = soloTypeInput.value;
         const targetWords = soloActiveQuote.split(' ');
         const typedWords = val.split(' ');
+        const currentWordIdx = Math.min(targetWords.length - 1, Math.max(0, typedWords.length - 1));
 
         // Start timer on first keystroke
         if (!soloStartTime && val.length > 0) {
@@ -6222,6 +6304,11 @@
             remSeconds--;
             if (soloLiveTime) soloLiveTime.textContent = Math.max(0, remSeconds) + 's';
             
+            // Audio tick for final 5 seconds
+            if (remSeconds <= 5 && remSeconds > 0) {
+              SoundEngine.playTimerTick();
+            }
+
             // Live WPM update
             const elapsedMin = Math.max(0.01, (Date.now() - soloStartTime) / 60000);
             let correct = 0;
@@ -6234,17 +6321,20 @@
             if (soloLiveAcc) soloLiveAcc.textContent = `${curAcc}%`;
 
             if (remSeconds <= 0) {
+              clearInterval(soloTimerInterval);
               finishSoloTest();
             }
           }, 1000);
         }
 
-        renderSoloQuoteVisual(val);
-
-        // Check if finished entire quote correctly
-        if (val.trim() === soloActiveQuote.trim() || (typedWords.length === targetWords.length && typedWords[typedWords.length - 1] === targetWords[targetWords.length - 1])) {
-          finishSoloTest();
+        // Dynamically append more words as the player types towards the end
+        if (currentWordIdx >= soloWordsStream.length - 15) {
+          const newBatch = generateSoloWordBatch(30);
+          soloWordsStream.push(...newBatch);
+          soloActiveQuote = soloWordsStream.join(' ');
         }
+
+        renderSoloQuoteVisual(val);
       });
     }
 
@@ -6736,6 +6826,7 @@
     function setupPillGroup(containerId, activeAttr, callback) {
       document.querySelectorAll(`#${containerId} .visual-pill-btn`).forEach((btn) => {
         btn.addEventListener('click', () => {
+          SoundEngine.playSelectSound();
           document.querySelectorAll(`#${containerId} .visual-pill-btn`).forEach((b) => b.classList.remove('active'));
           btn.classList.add('active');
           callback(btn.dataset[activeAttr]);
@@ -6752,6 +6843,7 @@
     setupPillGroup('modal-vis-pills', 'vis', (val) => modalVis = val === 'true');
 
     document.querySelector('#confirm-create-room-btn').addEventListener('click', () => {
+      SoundEngine.playButtonClick();
       const username = usernameInput.value.trim() || 'Player';
       const roomName = document.querySelector('#create-room-name').value.trim() || `${username}'s Arena`;
       createRoomModal.classList.add('hidden');
@@ -6788,6 +6880,7 @@
     }
 
     document.querySelector('#join-button').addEventListener('click', () => {
+      SoundEngine.playButtonClick();
       const friendId = friendInput.value.trim().toUpperCase();
       const username = usernameInput.value.trim() || 'Player';
       if (!friendId) {
@@ -6801,6 +6894,7 @@
     });
 
     randomButton.addEventListener('click', () => {
+      SoundEngine.playButtonClick();
       const username = usernameInput.value.trim() || 'Player';
       if (selectedMode === 'ranked' && !loggedIn) {
         showToast('Please Log In or Sign Up to play Ranked.', true);
@@ -6827,9 +6921,13 @@
       });
     }
 
-    startRoomButton.addEventListener('click', () => socket.emit('startRoom'));
+    startRoomButton.addEventListener('click', () => {
+      SoundEngine.playButtonClick();
+      socket.emit('startRoom');
+    });
 
     document.querySelector('#cancel-button').addEventListener('click', () => {
+      SoundEngine.playButtonClick();
       socket.emit('cancelMatch');
       socket.emit('leaveRoom');
       resetRaceState();
@@ -6837,12 +6935,14 @@
     });
 
     resetCodeButton.addEventListener('click', () => {
+      SoundEngine.playButtonClick();
       socket.emit('resetFriendId');
       localStorage.removeItem('typendoFriendId');
       showToast('New room code generated.');
     });
 
     readyButton.addEventListener('click', () => {
+      SoundEngine.playButtonClick();
       readyButton.textContent = 'READY! WAITING...';
       readyButton.classList.add('is-ready');
       socket.emit('playerReady', { roomId: currentRoomId });
@@ -7315,6 +7415,7 @@
     });
 
     socket.on('matchReadyCheck', ({ roomId, opponent, mode, timeoutSec }) => {
+      SoundEngine.playMatchFound();
       currentRoomId = roomId;
       setSearching(false);
       readyOverlay.classList.remove('hidden');
