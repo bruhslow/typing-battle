@@ -890,16 +890,19 @@ io.on('connection', (socket) => {
       country: cleanCountry,
     });
 
-    await sendOtpEmail(cleanEmail, otp, cleanUsername);
+    const isSent = await sendOtpEmail(cleanEmail, otp, cleanUsername);
+
+    if (mailTransporter && !isSent) {
+      socket.emit('authError', 'Failed to dispatch verification email. Please verify the email address.');
+      return;
+    }
 
     socket.emit('otpSent', {
       success: true,
       email: cleanEmail,
       username: cleanUsername,
       cooldownSec: 60,
-      devMode: !mailTransporter,
-      devOtp: !mailTransporter ? otp : undefined,
-      message: mailTransporter ? `6-digit verification code sent to ${cleanEmail}` : `Verification code sent! (Dev Mode: code ${otp})`,
+      message: `6-digit verification code sent to ${cleanEmail}`,
     });
   });
 

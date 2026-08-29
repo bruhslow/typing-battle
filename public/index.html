@@ -2464,7 +2464,6 @@
                   <div class="otp-resend-row">
                     <button class="otp-resend-btn" id="auth-resend-signup-otp-btn" type="button" disabled>Resend Code (<span id="otp-countdown">60</span>s)</button>
                   </div>
-                  <div id="otp-dev-notice" class="hidden" style="margin-top: 8px; padding: 6px 8px; font-size: 11px; background: var(--bg-subtle); border-radius: 6px; border: 1px dashed var(--primary); text-align: center; color: var(--primary);"></div>
                 </div>
               </div>
 
@@ -3683,7 +3682,7 @@
     });
 
     // Socket Event: OTP Sent Response
-    socket.on('otpSent', ({ email, username, cooldownSec, devMode, devOtp, message }) => {
+    socket.on('otpSent', ({ email, username, cooldownSec, message }) => {
       currentAuthEmail = email;
       currentAuthUsername = username;
       authSendSignupOtpBtn.disabled = false;
@@ -3693,14 +3692,7 @@
       signupOtpInput.value = '';
       setTimeout(() => signupOtpInput.focus(), 100);
 
-      if (devMode && devOtp) {
-        otpDevNotice.classList.remove('hidden');
-        otpDevNotice.innerHTML = `🛠️ <strong>Dev Mode Code:</strong> <span style="letter-spacing: 0.15em; font-weight: 800; font-size: 14px; color: var(--primary);">${devOtp}</span>`;
-      } else {
-        otpDevNotice.classList.add('hidden');
-      }
-
-      accountMessage.textContent = message || '6-digit code dispatched to your email.';
+      accountMessage.textContent = message || '6-digit verification code dispatched to your email.';
       accountMessage.style.color = 'var(--primary)';
       startOtpCooldown(cooldownSec || 60);
       showToast(`Verification code sent to ${email}`);
