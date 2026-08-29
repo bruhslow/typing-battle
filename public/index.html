@@ -3697,49 +3697,49 @@
     }
 
     @media (max-width: 768px) {
-      .shell { width: 100%; max-width: 100%; margin-left: auto; margin-right: auto; padding: 10px 12px 16px; text-align: center; }
+      .shell { width: 100%; max-width: 100%; margin: 0 auto; padding: 10px 12px 16px; text-align: center; }
       .viewport-screen { gap: 12px; align-items: center; }
 
-      .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; justify-content: center; }
+      .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; justify-content: center; width: 100%; }
       .stat-strip-card { padding: 8px 10px; justify-content: center; text-align: center; }
       .stat-strip-card:nth-child(5) { grid-column: span 2; }
 
-      /* ── Mobile Header: balanced center layout ── */
+      /* ── Mobile Header: centered stack ── */
       header {
         display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         padding: 10px 12px;
         border-radius: var(--radius-lg);
-        gap: 10px;
-        margin-bottom: 6px;
+        gap: 8px;
+        margin: 0 auto 6px;
         width: 100%;
         box-sizing: border-box;
+        text-align: center;
       }
 
       /* Logo: centered on mobile */
       .brand {
         flex-shrink: 0;
-        font-size: 16px;
+        font-size: 17px;
         gap: 6px;
-        margin-left: auto;
-        margin-right: auto;
+        margin: 0 auto;
         justify-content: center;
+        text-align: center;
       }
       .brand-svg-mark { width: 28px; height: 28px; border-radius: 8px; }
       .brand-title { font-size: 15px; }
 
-      /* Tools wrapper: centered flex row */
+      /* Tools wrapper: centered flex row on mobile */
       .header-tools {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
         align-items: center;
         justify-content: center;
         gap: 6px;
-        margin-left: auto;
-        margin-right: auto;
+        margin: 0 auto;
         flex-shrink: 1;
         min-width: 0;
         max-width: 100%;
@@ -3755,6 +3755,7 @@
         flex-shrink: 1;
         max-width: 150px;
         justify-content: center;
+        margin: 0 auto;
       }
       .profile-field-label { display: none !important; }
       .profile-avatar { width: 22px; height: 22px; font-size: 10px; flex-shrink: 0; }
@@ -3763,7 +3764,7 @@
       .profile-elo-tag { display: none; }
       .profile-country-btn { padding: 2px 4px; font-size: 10px; }
 
-      /* Room code pill: compact */
+      /* Room code pill: compact & centered */
       #code-pill-wrap {
         padding: 3px 7px;
         font-size: 10px;
@@ -3771,11 +3772,12 @@
         flex-shrink: 0;
         height: 30px;
         justify-content: center;
+        margin: 0 auto;
       }
       #friend-id { font-size: 11px; }
 
       /* Auth buttons: compact & centered */
-      .auth-btn-group { gap: 4px; flex-shrink: 0; justify-content: center; }
+      .auth-btn-group { gap: 4px; flex-shrink: 0; justify-content: center; margin: 0 auto; }
       .account-btn {
         padding: 4px 8px;
         font-size: 11px;
@@ -3794,6 +3796,7 @@
         justify-content: center;
         gap: 4px;
         flex-shrink: 0;
+        margin: 0 auto;
       }
 
       .sound-toggle-btn {
@@ -3804,12 +3807,13 @@
         gap: 3px;
         border-radius: var(--radius-sm);
         justify-content: center;
+        margin: 0 auto;
       }
       .sound-btn-label { display: none; }
 
       /* Main content grids & cards centered */
-      .home-grid { grid-template-columns: 1fr; gap: 12px; width: 100%; }
-      .battle-deck { padding: 18px 14px; border-radius: var(--radius-lg); gap: 12px; text-align: center; align-items: center; }
+      .home-grid { grid-template-columns: 1fr; gap: 12px; width: 100%; margin: 0 auto; }
+      .battle-deck { padding: 18px 14px; border-radius: var(--radius-lg); gap: 12px; text-align: center; align-items: center; margin: 0 auto; width: 100%; }
       .deck-header { flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; width: 100%; }
       .deck-header h1 { font-size: 22px; text-align: center; }
       .deck-header p { font-size: 12px; text-align: center; }
@@ -3818,18 +3822,18 @@
       .mode-card-badge { font-size: 17px; }
       .mode-card strong { font-size: 11px; }
       .mode-sub { font-size: 9px; }
-      .platform-row { gap: 6px; justify-content: center; width: 100%; }
+      .platform-row { gap: 6px; justify-content: center; width: 100%; margin: 0 auto; }
       .platform-btn { padding: 7px 6px; font-size: 11px; justify-content: center; }
-      .info-card { padding: 16px 14px; border-radius: var(--radius-lg); gap: 12px; text-align: center; align-items: center; }
+      .info-card { padding: 16px 14px; border-radius: var(--radius-lg); gap: 12px; text-align: center; align-items: center; margin: 0 auto; width: 100%; }
       .history-scroll-box { max-height: 180px; }
-      .arena-panel { padding: 16px 14px; border-radius: var(--radius-lg); text-align: center; align-items: center; }
+      .arena-panel { padding: 16px 14px; border-radius: var(--radius-lg); text-align: center; align-items: center; margin: 0 auto; width: 100%; }
       .arena-header { flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; }
       .arena-header h2 { font-size: 16px; text-align: center; }
-      .race-top-metrics { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; justify-items: center; }
+      .race-top-metrics { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; justify-items: center; width: 100%; }
       .metric-card { padding: 8px 10px; text-align: center; justify-content: center; }
       .metric-label { font-size: 9px; margin-bottom: 2px; }
       .metric-value { font-size: 16px; }
-      .solo-metrics-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px 12px; justify-items: center; text-align: center; }
+      .solo-metrics-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px 12px; justify-items: center; text-align: center; width: 100%; }
       .solo-metric-item { align-items: center; text-align: center; }
       .solo-metric-item strong { font-size: 16px; }
       .solo-result-actions { justify-content: center; width: 100%; }
@@ -3852,23 +3856,23 @@
     }
 
     @media (max-width: 420px) {
-      .shell { padding: 6px 8px 12px; margin-left: auto; margin-right: auto; text-align: center; }
+      .shell { padding: 6px 8px 12px; margin: 0 auto; text-align: center; }
       header { padding: 8px 6px; gap: 6px; justify-content: center; }
-      .brand { font-size: 13px; gap: 4px; margin-left: auto; margin-right: auto; }
-      .brand-title { font-size: 13px; }
-      .brand-svg-mark { width: 22px; height: 22px; border-radius: 6px; }
+      .brand { font-size: 14px; gap: 4px; margin: 0 auto; }
+      .brand-title { font-size: 14px; }
+      .brand-svg-mark { width: 24px; height: 24px; border-radius: 6px; }
 
       /* Tighten & center right-side tools on very small screens */
-      .header-tools { gap: 4px; margin-left: auto; margin-right: auto; justify-content: center; }
+      .header-tools { gap: 4px; margin: 0 auto; justify-content: center; width: 100%; }
       .account-btn { padding: 3px 6px; font-size: 10px; height: 26px; }
-      .auth-btn-group { gap: 3px; justify-content: center; }
+      .auth-btn-group { gap: 3px; justify-content: center; margin: 0 auto; }
 
-      .profile-box { padding: 2px 5px 2px 2px; gap: 3px; height: 28px; max-width: 120px; justify-content: center; }
+      .profile-box { padding: 2px 5px 2px 2px; gap: 3px; height: 28px; max-width: 120px; justify-content: center; margin: 0 auto; }
       .profile-country-btn { padding: 1px 3px; font-size: 8.5px; }
       .profile-avatar { width: 18px; height: 18px; font-size: 9px; }
       .profile-input { font-size: 11px; text-align: center; }
-      .code-pill { padding: 2px 5px; font-size: 8.5px; height: 28px; }
-      .sound-toggle-btn { padding: 3px 5px; height: 26px; font-size: 12px; }
+      .code-pill { padding: 2px 5px; font-size: 8.5px; height: 28px; margin: 0 auto; }
+      .sound-toggle-btn { padding: 3px 5px; height: 26px; font-size: 12px; margin: 0 auto; }
 
       .solo-result-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; justify-items: center; }
       .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 6px; justify-items: center; }
