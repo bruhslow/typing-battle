@@ -4107,7 +4107,7 @@
 
               <!-- Solo Typing Hidden Input -->
               <div class="solo-input-wrap">
-                <input class="solo-type-input" id="solo-type-input" placeholder="Type here..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+                <input class="solo-type-input" id="solo-type-input" placeholder="Type here..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false" inputmode="text">
               </div>
             </div>
 
@@ -4315,8 +4315,9 @@
               <div class="race-display" id="race-display" aria-label="Target text" oncopy="return false" oncut="return false" oncontextmenu="return false"></div>
               
               <textarea id="typing-area" disabled placeholder="Wait for countdown..." 
-                spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="none" inputmode="text"></textarea>
-              <button class="submit-race-btn hidden" id="submit-race-btn" type="button">
+                spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="none" inputmode="text"
+                data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"></textarea>
+              <button class="submit-race-btn hidden" id="submit-race-btn" type="button" style="display: none;">
                 ✅ SUBMIT — I'm Done!
               </button>
             </div>
@@ -6795,9 +6796,21 @@
 
       socket.emit('progress', { progress, charIndex: totalCorrectChars, wordIndex: currentWordIndex, wpm });
 
-      // Check if player completed entire text (word strict mode auto-finish)
-      if (raceTypingMode === 'word_strict' && (val === paragraph || (currentWordIndex === wordsArray.length - 1 && typedWords[currentWordIndex] === wordsArray[currentWordIndex])) && !finished) {
-        submitFinish();
+      // Auto-finish check when user reaches the end of the text
+      const isAtEnd = currentWordIndex === wordsArray.length - 1;
+      const isLastWordComplete = typedWords[currentWordIndex] === wordsArray[currentWordIndex];
+
+      if (!finished && isAtEnd) {
+        if (raceTypingMode === 'word_strict') {
+          if (isLastWordComplete || val.trim() === paragraph.trim()) {
+            submitFinish();
+          }
+        } else {
+          // Standard mode
+          if (isLastWordComplete || (typedWords[currentWordIndex] && typedWords[currentWordIndex].length >= wordsArray[currentWordIndex].length) || val.trim() === paragraph.trim()) {
+            submitFinish();
+          }
+        }
       }
     });
 

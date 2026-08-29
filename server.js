@@ -262,46 +262,26 @@ const RACER_TYPES = [
 
 const paragraphs = {
   easy: [
-    'The quick brown fox jumps over the lazy dog on a sunny afternoon.',
-    'A good idea often starts as a small question with a simple answer.',
-    'Early morning light spread across the quiet station as the train arrived.',
-    'Coding is the art of telling a computer what to do step by step.',
-    'Clear skies and a gentle breeze made it a pleasant day for a walk in the park.',
-    'Practice every day to build speed, accuracy, and confidence at the keyboard.',
-    'The cat rested on the warm wooden windowsill watching the birds fly by.',
-    'Music filled the room with cheerful energy and lifted everyone spirits.',
-    'Fresh bread straight from the oven always smells delicious and inviting.',
-    'She opened the front door and smiled as the cool morning air rushed in.',
-    'Fast fingers dance across the keys while typing every single letter.',
-    'A cup of hot tea and a good book make for a cozy evening at home.',
-    'The stars shone brightly in the clear night sky above the mountain tops.',
-    'Never be afraid to make mistakes, because that is how we learn and grow.',
-    'A gentle stream flowed peacefully through the green forest in the valley.',
-    'He found an old treasure map hidden inside the wooden chest in the attic.',
-    'The colorful flowers bloomed right after the first spring rain of the season.',
-    'Working together as a team makes every difficult challenge much easier.',
-    'The library was quiet and filled with rows of fascinating stories to explore.',
-    'Bright yellow sunflowers turned toward the warm sun throughout the afternoon.',
-    'Keep your focus sharp and your hands relaxed to achieve your highest typing speed.',
-    'The silver airplane soared high above the white fluffy clouds in the sky.',
-    'A friendly smile and kind words can brighten someone entire day.',
-    'Running along the sandy beach at sunset is always a relaxing experience.',
-    'Every journey of a thousand miles begins with a single confident step forward.',
-    'The pizza was hot and fresh from the oven with cheese melting on top.',
-    'She picked up the red ball and threw it across the green grass field.',
-    'Learning to cook new recipes can be a fun and rewarding hobby for anyone.',
-    'The dog wagged its tail happily when the children came home from school.',
-    'Clouds moved slowly across the sky as the day turned into a warm evening.',
-    'He packed his bag with snacks and water before heading out on the hiking trail.',
-    'Typing fast and with fewer mistakes takes time and daily practice to master.',
-    'The fish swam in circles inside the glass bowl on the kitchen table.',
-    'A rainbow appeared in the sky right after the short summer rain stopped.',
-    'The old wooden bridge creaked softly as they walked across the quiet river.',
-    'Playing chess teaches patience and helps improve your problem solving skills.',
-    'The train whistle echoed through the valley as it passed by the small town.',
-    'Every morning she walked to the bakery to buy a warm loaf of bread.',
-    'He painted the fence white and planted roses along the garden path.',
-    'Typing without looking at the keyboard is called touch typing and it is very useful.',
+    'The quick brown fox jumps over the lazy dog on a bright sunny afternoon. Fast fingers dance across the keys while typing every single word with smooth rhythm and effortless accuracy.',
+    'A good idea often starts as a small question with a simple answer. Practice every day to build confidence, muscle memory, and steady typing speed at your keyboard.',
+    'Clear skies and a gentle breeze made it a pleasant day for a walk in the quiet park. Birds sang from the green tree branches as sunlight warmed the walking path.',
+    'Typing without looking down at the keyboard is called touch typing. When your hands remain relaxed and your eyes stay on the screen, your speed improves naturally.',
+    'The morning sun rose slowly above the quiet hills and filled the room with golden light. She poured a warm cup of tea and prepared for a productive day ahead.',
+    'Every journey of a thousand miles begins with a single step forward. Small improvements made each day will quickly compound into remarkable achievements over time.',
+    'A gentle stream flowed peacefully through the forest valley over smooth river stones. Tall pine trees swayed softly in the wind as the afternoon turned into evening.',
+    'Learning to code is like solving a series of fun and creative puzzles. You give clear instructions to the computer and watch your ideas come to life on the screen.',
+    'The fresh aroma of baked bread drifted through the open kitchen window. Friends gathered around the wooden dining table to share a delicious meal together.',
+    'Keep your focus sharp and your shoulders relaxed during every typing race. Consistency and steady rhythm will always defeat rushed and erratic typing.',
+    'The silver airplane soared high above the fluffy white clouds in the bright blue sky. Passengers looked out the windows to see the miniature cities and winding rivers below.',
+    'Music filled the room with cheerful melodies and energized everyone for the tournament. Every competitor placed their hands on the mechanical switches and waited for the start signal.',
+    'Bright yellow sunflowers turned gracefully toward the afternoon sun in the open country field. Bees buzzed happily among the colorful blossoms throughout the warm summer day.',
+    'Working together as a team makes challenging projects much easier and more enjoyable. When everyone contributes their unique strengths, great things can be accomplished.',
+    'A calm mind helps you stay centered and accurate when the pressure rises. Take a deep breath, trust your finger placement, and let the words flow naturally.',
+    'The ancient library was peaceful and filled with rows of classic books waiting to be explored. Dusty leather covers held timeless stories of adventure and discovery.',
+    'The friendly dog wagged its tail with joy when the children returned home from school. They played together in the green backyard until the sunset painted the horizon.',
+    'Speed comes naturally once your accuracy is solid and consistent. Focus on striking the correct keys first, and fast pace will follow without extra effort.',
+    'A sudden spark of curiosity can inspire bold new discoveries that change the world. Keep exploring, asking thoughtful questions, and seeking out new knowledge every day.',
+    'The cozy cabin in the mountains was the perfect retreat after a long week of work. Firewood crackled warmly in the fireplace while snow fell gently outside.'
   ],
   medium: [
     'The morning train arrived just as the first light spread across the station windows. Travelers gathered their bags and stepped into the new day with quiet purpose.',
@@ -519,6 +499,7 @@ function startRace(roomId, countdownMs = 3500) {
   const startTime = Date.now() + countdownMs;
   room.startedAt = startTime;
   room.finishData = new Map();
+  room.latestProgress = new Map();
   room.paragraph = getRandomParagraph(room.difficulty, room.lastParagraph || '');
   room.lastParagraph = room.paragraph;
 
@@ -578,11 +559,18 @@ function finishRace(roomId, force = false, reason = '') {
   room.players.forEach((playerId) => {
     if (!room.finishData.has(playerId)) {
       const socket = io.sockets.sockets.get(playerId);
+      const latest = room.latestProgress?.get(playerId) || {};
+      const curProg = Number.isFinite(latest.progress) ? Math.max(0, Math.min(100, latest.progress)) : 0;
+      const curWpm = Number.isFinite(latest.wpm) ? Math.max(0, Math.min(300, latest.wpm)) : 0;
+      const isDnf = curProg < 5 && curWpm === 0;
+
       room.finishData.set(playerId, {
-        wpm: 0,
+        wpm: curWpm,
         errors: 0,
-        elapsedMs: 999999,
-        dnf: true,
+        elapsedMs: latest.elapsedMs || Math.max(1, Date.now() - room.startedAt),
+        progress: curProg,
+        completed: curProg >= 99,
+        dnf: isDnf,
         username: socket?.data?.username || 'Player',
         country: socket?.data?.country || 'IND',
       });
@@ -1911,14 +1899,27 @@ io.on('connection', (socket) => {
     const room = roomId && rooms.get(roomId);
     if (!room || !room.players.has(socket.id) || room.finished) return;
 
+    const cleanProg = Math.max(0, Math.min(100, progress || 0));
+    const cleanWpm = Math.max(0, Math.min(300, wpm || 0));
+
+    if (room.latestProgress) {
+      room.latestProgress.set(socket.id, {
+        progress: cleanProg,
+        charIndex: Math.max(0, charIndex || 0),
+        wordIndex: Math.max(0, wordIndex || 0),
+        wpm: cleanWpm,
+        elapsedMs: Math.max(1, Date.now() - (room.startedAt || Date.now())),
+      });
+    }
+
     socket.to(roomId).emit('playerCursorUpdate', {
       playerId: socket.id,
       username: socket.data.username || 'Player',
       country: socket.data.country || 'IND',
-      progress: Math.max(0, Math.min(100, progress || 0)),
+      progress: cleanProg,
       charIndex: Math.max(0, charIndex || 0),
       wordIndex: Math.max(0, wordIndex || 0),
-      wpm: Math.max(0, Math.min(300, wpm || 0)),
+      wpm: cleanWpm,
     });
   });
 
