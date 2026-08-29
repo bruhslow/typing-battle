@@ -187,6 +187,7 @@ function formatAccountResponse(acc, accountKey) {
     rating: typeof acc.rating === 'number' ? acc.rating : 1000,
     role: isAdmin ? 'admin' : (acc.role || 'user'),
     isAdmin,
+    hasPassword: Boolean(acc.hash && acc.salt),
     accountKey: accountKey || (acc.username ? acc.username.toLowerCase() : ''),
     createdAt: acc.createdAt || Date.now(),
     duelHistory: Array.isArray(acc.duelHistory) ? acc.duelHistory : [],
@@ -1501,6 +1502,58 @@ io.on('connection', (socket) => {
     broadcastLeaderboard();
 
     socket.emit('profileUpdated', formatAccountResponse(account, socket.data.accountKey));
+  });
+
+  // Setup credentials after Google SSO or Email verification
+  socket.on('setupCredentials', ({ username, password, country }) => {
+    const accountKey = socket.data.accountKey;
+    if (!accountKey || !accounts.has(accountKey)) {
+      socket.emit('authError', 'You must be logged in to configure your credentials.');
+      return;
+    }
+
+    const account = accounts.get(accountKey);
+    const cleanName = typeof username === 'string' ? username.trim() : '';
+
+    if (cleanName) {
+      if (!/^[a-zA-Z0-9_ ]{3,24}$/.test(cleanName)) {
+        socket.emit('authError', 'Username must be 3-24 alphanumeric characters or underscores.');
+        return;
+      }
+      const newKey = cleanName.toLowerCase();
+      if (newKey !== accountKey && accounts.has(newKey)) {
+        socket.emit('authError', `Username "${cleanName}" is already taken by another player.`);
+        return;
+      }
+      if (newKey !== accountKey) {
+        accounts.delete(accountKey);
+        account.username = cleanName;
+        accounts.set(newKey, account);
+        socket.data.accountKey = newKey;
+      } else {
+        account.username = cleanName;
+      }
+      socket.data.username = cleanName;
+    }
+
+    if (country && typeof country === 'string') {
+      account.country = country.trim().slice(0, 5).toUpperCase();
+      socket.data.country = account.country;
+    }
+
+    if (password && typeof password === 'string') {
+      if (password.length < 6) {
+        socket.emit('authError', 'Password must be at least 6 characters.');
+        return;
+      }
+      const credentials = hashPassword(password);
+      account.salt = credentials.salt;
+      account.hash = credentials.hash;
+    }
+
+    saveAccounts();
+    broadcastLeaderboard();
+    socket.emit('authSuccess', formatAccountResponse(account, socket.data.accountKey));
   });
 
   // ══════════════════════════════════════════════════════

@@ -4468,6 +4468,41 @@
     </div>
   </div>
 
+  <!-- SETUP USERNAME & PASSWORD ONBOARDING MODAL -->
+  <div class="modal-overlay hidden" id="setup-credentials-modal">
+    <div class="unified-auth-card" style="max-width: 440px;">
+      <div class="auth-modal-header">
+        <div class="auth-modal-title">
+          <div style="font-size: 24px; margin-bottom: 6px;">👑</div>
+          <h3 style="font-size: 18px; font-weight: 800; color: var(--text-main);">Set Up Your Player Credentials</h3>
+          <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.4; margin-top: 4px;">
+            Set your username and password so you can log in directly from any device without email!
+          </p>
+        </div>
+        <button class="btn-secondary" id="close-setup-modal-btn" type="button" style="padding: 4px 8px;">✕</button>
+      </div>
+
+      <form class="auth-form-fields" id="setup-credentials-form">
+        <div class="auth-field-group">
+          <label for="setup-username-input">Player Username</label>
+          <input class="auth-input-elem" id="setup-username-input" placeholder="Choose your player name" maxlength="24" autocomplete="username" required>
+        </div>
+        <div class="auth-field-group">
+          <label for="setup-password-input">Password (Min 6 characters)</label>
+          <input class="auth-input-elem" id="setup-password-input" type="password" placeholder="Choose a password" autocomplete="new-password" required>
+        </div>
+        <div class="auth-field-group">
+          <label for="setup-country-select">Country / Flag</label>
+          <select class="auth-input-elem" id="setup-country-select" style="font-weight: 700; cursor: pointer;">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+        <button class="auth-submit-btn" id="setup-submit-btn" type="submit">💾 Save Credentials & Enter Arena</button>
+      </form>
+      <div class="auth-msg-banner" id="setup-modal-msg"></div>
+    </div>
+  </div>
+
   <!-- USER PROFILE / ACCOUNT MANAGEMENT MODAL -->
   <div class="modal-overlay hidden" id="profile-modal">
     <div class="profile-modal-content">
@@ -5467,6 +5502,8 @@
     function populateCountrySelects() {
       const optionsHtml = COUNTRIES.map((c) => `<option value="${c.code}">${c.flag} ${c.name} (${c.code})</option>`).join('');
       if (profileEditCountrySelect) profileEditCountrySelect.innerHTML = optionsHtml;
+      const setupCountrySelect = document.querySelector('#setup-country-select');
+      if (setupCountrySelect) setupCountrySelect.innerHTML = optionsHtml;
       updateCountryUI(userCountry);
     }
 
@@ -5800,6 +5837,61 @@
           authModalMsg.style.color = 'var(--text-muted)';
         }
         socket.emit('registerDirect', { username, email, password, country: userCountry });
+      });
+    }
+
+    // Setup Credentials Onboarding Modal Controller
+    const setupCredentialsModal = document.querySelector('#setup-credentials-modal');
+    const closeSetupModalBtn = document.querySelector('#close-setup-modal-btn');
+    const setupCredentialsForm = document.querySelector('#setup-credentials-form');
+    const setupUsernameInput = document.querySelector('#setup-username-input');
+    const setupPasswordInput = document.querySelector('#setup-password-input');
+    const setupCountrySelect = document.querySelector('#setup-country-select');
+    const setupModalMsg = document.querySelector('#setup-modal-msg');
+
+    function openSetupCredentialsModal(defaultUsername = '', defaultCountry = '') {
+      if (setupUsernameInput && defaultUsername) setupUsernameInput.value = defaultUsername;
+      if (setupPasswordInput) setupPasswordInput.value = '';
+      if (setupCountrySelect && defaultCountry) setupCountrySelect.value = getCountry(defaultCountry).code;
+      if (setupModalMsg) setupModalMsg.textContent = '';
+      if (setupCredentialsModal) setupCredentialsModal.classList.remove('hidden');
+    }
+
+    if (closeSetupModalBtn) {
+      closeSetupModalBtn.addEventListener('click', () => {
+        if (setupCredentialsModal) setupCredentialsModal.classList.add('hidden');
+        sessionStorage.setItem('typendoSetupDismissed', 'true');
+      });
+    }
+
+    if (setupCredentialsForm) {
+      setupCredentialsForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const username = setupUsernameInput ? setupUsernameInput.value.trim() : '';
+        const password = setupPasswordInput ? setupPasswordInput.value : '';
+        const country = setupCountrySelect ? setupCountrySelect.value : userCountry;
+
+        if (!username) {
+          if (setupModalMsg) {
+            setupModalMsg.textContent = 'Please choose a username.';
+            setupModalMsg.style.color = 'var(--rose)';
+          }
+          return;
+        }
+        if (!password || password.length < 6) {
+          if (setupModalMsg) {
+            setupModalMsg.textContent = 'Password must be at least 6 characters.';
+            setupModalMsg.style.color = 'var(--rose)';
+          }
+          return;
+        }
+
+        if (setupModalMsg) {
+          setupModalMsg.textContent = 'Saving player credentials...';
+          setupModalMsg.style.color = 'var(--text-muted)';
+        }
+
+        socket.emit('setupCredentials', { username, password, country });
       });
     }
 
@@ -7511,14 +7603,14 @@
     });
 
     // Handle Authentication & Auto-load User Data & History
-    socket.on('authSuccess', ({ username, email, country, rating, accountKey, clerkId, imageUrl, duelHistory: serverDuels, eloHistory: serverElos, createdAt, isAdmin }) => {
+    socket.on('authSuccess', ({ username, email, country, rating, accountKey, clerkId, imageUrl, hasPassword, duelHistory: serverDuels, eloHistory: serverElos, createdAt, isAdmin }) => {
       loggedIn = true;
       if (country) {
         userCountry = getCountry(country).code;
         localStorage.setItem('typendoCountry', userCountry);
         updateCountryUI(userCountry);
       }
-      userProfile = { username, email, country: userCountry, rating, accountKey, clerkId, imageUrl, createdAt, isAdmin };
+      userProfile = { username, email, country: userCountry, rating, accountKey, clerkId, imageUrl, hasPassword, createdAt, isAdmin };
       usernameInput.value = username;
       if (imageUrl) {
         headerAvatar.innerHTML = `<img src="${escapeHtml(imageUrl)}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
@@ -7544,6 +7636,7 @@
 
       // Close auth modal and clear inputs
       if (unifiedAuthModal) unifiedAuthModal.classList.add('hidden');
+      if (setupCredentialsModal) setupCredentialsModal.classList.add('hidden');
       if (authLoginPass) authLoginPass.value = '';
       if (authSignupPass) authSignupPass.value = '';
       if (authModalMsg) authModalMsg.textContent = '';
@@ -7553,6 +7646,13 @@
       updateOverallStats(rating);
       socket.emit('getLeaderboard');
       showToast(`Welcome, ${username}! (${rating} ELO)`);
+
+      // If user registered with Google/Email without password yet, prompt setup credentials popup!
+      if (hasPassword === false && !sessionStorage.getItem('typendoSetupDismissed')) {
+        setTimeout(() => {
+          openSetupCredentialsModal(username, userCountry);
+        }, 400);
+      }
     });
 
     socket.on('authError', (msg) => {
