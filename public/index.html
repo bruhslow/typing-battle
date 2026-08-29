@@ -5809,7 +5809,11 @@
 
     // Init username, country & avatar
     const savedFriendId = localStorage.getItem('typendoFriendId');
-    const savedUsername = localStorage.getItem('typendoUsername') || 'Player_' + Math.floor(100 + Math.random() * 900);
+    let savedUsername = localStorage.getItem('typendoUsername');
+    if (!savedUsername || savedUsername.trim() === '') {
+      savedUsername = 'Player_' + Math.floor(100 + Math.random() * 900);
+      localStorage.setItem('typendoUsername', savedUsername);
+    }
     const savedAccountKey = localStorage.getItem('typendoAccountKey');
     let userCountry = localStorage.getItem('typendoCountry') || detectUserCountry();
     
