@@ -5204,13 +5204,26 @@
         </div>
       </div>
 
-      <!-- Change Password -->
-      <div class="profile-edit-section">
-        <h4>Security & Password</h4>
+      <!-- Setup Credentials (If No Password Set) -->
+      <div class="profile-edit-section hidden" id="profile-setup-creds-section">
+        <h4>🔑 Set Up Account Name & Password</h4>
+        <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.3;">
+          Set up your fixed @username and password so you can log in directly anytime without email!
+        </p>
+        <input class="profile-field-input" id="profile-setup-user-input" placeholder="Choose unique @username" maxlength="24" style="margin-bottom: 8px;">
+        <div class="profile-edit-row">
+          <input class="profile-field-input" id="profile-setup-pass-input" type="password" placeholder="Choose password (6+ chars)">
+          <button class="btn-secondary" id="save-setup-creds-btn" type="button" style="background: var(--primary); color: #fff; border: 0;">Set Up Credentials</button>
+        </div>
+      </div>
+
+      <!-- Update Password (If Password Already Set) -->
+      <div class="profile-edit-section hidden" id="profile-update-pass-section">
+        <h4>🔒 Update Password</h4>
         <input class="profile-field-input" id="profile-curr-pass" type="password" placeholder="Current password" style="margin-bottom: 8px;">
         <div class="profile-edit-row">
           <input class="profile-field-input" id="profile-new-pass" type="password" placeholder="New password (6+ chars)">
-          <button class="btn-secondary" id="save-password-btn" type="button">Change Password</button>
+          <button class="btn-secondary" id="save-password-btn" type="button">Update Password</button>
         </div>
       </div>
 
@@ -6677,6 +6690,20 @@
       profileCurrPass.value = '';
       profileNewPass.value = '';
       profileModalMsg.textContent = '';
+
+      const setupCredsSec = document.querySelector('#profile-setup-creds-section');
+      const updatePassSec = document.querySelector('#profile-update-pass-section');
+
+      if (userProfile.hasPassword) {
+        if (setupCredsSec) setupCredsSec.classList.add('hidden');
+        if (updatePassSec) updatePassSec.classList.remove('hidden');
+      } else {
+        if (setupCredsSec) setupCredsSec.classList.remove('hidden');
+        if (updatePassSec) updatePassSec.classList.add('hidden');
+        const setupUserInput = document.querySelector('#profile-setup-user-input');
+        if (setupUserInput) setupUserInput.value = userProfile.username || '';
+      }
+
       profileModal.classList.remove('hidden');
 
       setTimeout(() => {
@@ -6692,14 +6719,37 @@
       }, 50);
     }
 
-    closeProfileModalBtn.addEventListener('click', () => profileModal.classList.add('hidden'));
+    if (closeProfileModalBtn) {
+      closeProfileModalBtn.addEventListener('click', () => profileModal.classList.add('hidden'));
+    }
 
     if (profileEditNameInput) {
       profileEditNameInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
-          saveUsernameBtn.click();
+          if (saveUsernameBtn) saveUsernameBtn.click();
         }
+      });
+    }
+
+    // Profile Modal Edit Handlers
+    const saveSetupCredsBtn = document.querySelector('#save-setup-creds-btn');
+    if (saveSetupCredsBtn) {
+      saveSetupCredsBtn.addEventListener('click', () => {
+        const setupUserInput = document.querySelector('#profile-setup-user-input');
+        const setupPassInput = document.querySelector('#profile-setup-pass-input');
+        const username = setupUserInput ? setupUserInput.value.trim() : '';
+        const password = setupPassInput ? setupPassInput.value : '';
+
+        if (!username || !password || password.length < 6) {
+          profileModalMsg.textContent = 'Please enter a valid @username and password (min 6 chars).';
+          profileModalMsg.style.color = 'var(--rose)';
+          return;
+        }
+
+        profileModalMsg.textContent = 'Setting up account credentials...';
+        profileModalMsg.style.color = 'var(--text-muted)';
+        socket.emit('setupCredentials', { username, password, country: userCountry });
       });
     }
 
