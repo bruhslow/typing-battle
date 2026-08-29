@@ -488,10 +488,16 @@
     .account-btn:hover { background: #2c3230; transform: translateY(-1px); box-shadow: var(--shadow-md); }
 
     .account-btn.is-logged-in {
-      background: var(--primary);
-      border: 1px solid var(--primary-border);
+      background: rgba(236, 231, 217, 0.7);
+      border: 1.5px solid var(--border-subtle);
+      color: var(--text-main);
+      box-shadow: none;
     }
-    .account-btn.is-logged-in:hover { background: var(--primary-hover); }
+    .account-btn.is-logged-in:hover {
+      background: rgba(236, 231, 217, 0.95);
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
 
     .account-panel {
       position: absolute;
@@ -4501,7 +4507,7 @@
               <span>👑</span>
               <span>Admin</span>
             </button>
-            <button class="account-btn is-logged-in hidden" id="account-button" type="button" style="display: none !important;" title="View Profile & Stats">
+            <button class="account-btn is-logged-in" id="account-button" type="button" title="View Profile & Stats">
               <span id="account-btn-icon">👤</span>
               <span id="account-btn-text">Player</span>
               <span class="admin-crown-badge hidden" id="header-admin-badge">👑 ADMIN</span>
