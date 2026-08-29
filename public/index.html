@@ -5837,11 +5837,7 @@
       headerAvatar.style.cursor = 'pointer';
       headerAvatar.title = 'Click to view profile & stats';
       headerAvatar.addEventListener('click', () => {
-        if (loggedIn) {
-          profileModal.classList.remove('hidden');
-        } else {
-          openUnifiedAuthModal('login');
-        }
+        openProfileModal();
       });
     }
     rankedDeviceNotice.textContent = currentDevice === 'phone' ? 'Mobile vs Mobile (Fair ELO competition)' : 'Desktop vs Desktop (Fair ELO competition)';
@@ -6673,35 +6669,36 @@
 
     // Open Profile Modal Function
     function openProfileModal() {
-      if (!userProfile) return;
-      const displayNickname = userProfile.nickname || userProfile.username || 'Player';
-      const displayHandle = userProfile.username ? `@${userProfile.username.replace(/^@/, '')}` : '@guest';
+      const displayNickname = userProfile?.nickname || userProfile?.username || (usernameInput ? usernameInput.value : '') || 'Player';
+      const displayHandle = userProfile?.username ? `@${userProfile.username.replace(/^@/, '')}` : '@guest';
 
-      if (userProfile.imageUrl) {
+      if (userProfile?.imageUrl) {
         modalProfileAvatar.innerHTML = `<img src="${escapeHtml(userProfile.imageUrl)}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
       } else {
         modalProfileAvatar.textContent = displayNickname.slice(0, 1).toUpperCase();
       }
-      modalProfileUsername.innerHTML = `${renderCountryBadge(userProfile.country || userCountry)} <span id="profile-nick-span" title="Click to edit Nickname" style="cursor:pointer;">${escapeHtml(displayNickname)} ✏️</span>`;
+      modalProfileUsername.innerHTML = `${renderCountryBadge(userProfile?.country || userCountry)} <span id="profile-nick-span" title="Click to edit Nickname" style="cursor:pointer;">${escapeHtml(displayNickname)} ✏️</span>`;
       modalProfileEmail.textContent = displayHandle;
-      modalProfileElo.textContent = `${userProfile.rating || 1000} ELO`;
+      modalProfileElo.textContent = `${userProfile?.rating || 1000} ELO`;
       profileEditNameInput.value = displayNickname;
-      profileEditCountrySelect.value = getCountry(userProfile.country || userCountry).code;
-      profileCurrPass.value = '';
-      profileNewPass.value = '';
-      profileModalMsg.textContent = '';
+      profileEditCountrySelect.value = getCountry(userProfile?.country || userCountry).code;
+      if (profileCurrPass) profileCurrPass.value = '';
+      if (profileNewPass) profileNewPass.value = '';
+      if (profileModalMsg) profileModalMsg.textContent = '';
 
       const setupCredsSec = document.querySelector('#profile-setup-creds-section');
       const updatePassSec = document.querySelector('#profile-update-pass-section');
 
-      if (userProfile.hasPassword) {
+      const hasPassword = Boolean(userProfile?.hasPassword);
+
+      if (hasPassword) {
         if (setupCredsSec) setupCredsSec.classList.add('hidden');
         if (updatePassSec) updatePassSec.classList.remove('hidden');
       } else {
         if (setupCredsSec) setupCredsSec.classList.remove('hidden');
         if (updatePassSec) updatePassSec.classList.add('hidden');
         const setupUserInput = document.querySelector('#profile-setup-user-input');
-        if (setupUserInput) setupUserInput.value = userProfile.username || '';
+        if (setupUserInput) setupUserInput.value = userProfile?.username || '';
       }
 
       profileModal.classList.remove('hidden');
