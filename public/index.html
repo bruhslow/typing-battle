@@ -1021,62 +1021,99 @@
     /* ═══════════════════════════════════════════ */
     /* SOLO TEST YOURSELF (WPM CALCULATOR)         */
     /* ═══════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════ */
+    /* PREMIUM SOLO SPEED LAB (WPM CALCULATOR)     */
+    /* ═══════════════════════════════════════════ */
     .solo-test-card {
-      margin-top: 14px;
-      padding: 16px 18px;
+      margin-top: 18px;
+      padding: 22px 24px;
       background: var(--bg-card);
       border: 1.5px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-xs);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      transition: all 0.2s ease;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .solo-test-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 50%, #3b82f6 100%);
     }
 
     .solo-test-card:hover {
       border-color: var(--border-strong);
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow-md);
     }
 
     .solo-test-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
     .solo-test-title-group {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .solo-test-badge-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: var(--primary-subtle);
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, rgba(29, 90, 63, 0.12) 0%, rgba(224, 114, 44, 0.15) 100%);
       color: var(--primary);
       display: grid;
       place-items: center;
-      font-size: 16px;
+      font-size: 20px;
       flex-shrink: 0;
+      box-shadow: inset 0 0 0 1px var(--primary-border);
     }
 
     .solo-test-title-group h3 {
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 800;
       color: var(--text-main);
       margin: 0;
-      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .solo-lab-tag {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 7px;
+      background: var(--primary-subtle);
+      color: var(--primary);
+      border-radius: 999px;
+      border: 1px solid var(--primary-border);
     }
 
     .solo-test-title-group p {
-      font-size: 11px;
+      font-size: 11.5px;
       color: var(--text-muted);
-      margin: 2px 0 0;
+      margin: 3px 0 0;
+    }
+
+    .solo-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .solo-timer-pills {
@@ -1084,20 +1121,21 @@
       gap: 4px;
       background: var(--bg-subtle);
       padding: 3px;
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
     }
 
     .solo-timer-pill {
       background: none;
       border: 0;
-      padding: 4px 10px;
+      padding: 5px 12px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 700;
       color: var(--text-muted);
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.18s ease;
     }
 
     .solo-timer-pill.active {
@@ -1107,50 +1145,21 @@
       font-weight: 800;
     }
 
-    .solo-metrics-strip {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 8px 12px;
-      background: var(--bg-subtle);
-      border-radius: var(--radius-md);
-      font-family: 'JetBrains Mono', monospace;
-      flex-wrap: wrap;
-    }
-
-    .solo-metric-item {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .solo-metric-item small {
-      font-size: 9px;
-      font-weight: 800;
-      color: var(--text-dim);
-      letter-spacing: 0.05em;
-    }
-
-    .solo-metric-item strong {
-      font-size: 15px;
-      font-weight: 800;
-      color: var(--primary);
-    }
-
     .solo-refresh-btn {
       background: #fff;
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-sm);
-      padding: 4px 10px;
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 6px 12px;
       font-family: inherit;
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 700;
       color: var(--text-main);
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.18s ease;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
+      box-shadow: var(--shadow-xs);
     }
 
     .solo-refresh-btn:hover {
@@ -1159,103 +1168,238 @@
       transform: translateY(-1px);
     }
 
+    /* Live Telemetry HUD Bar */
+    .solo-metrics-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      padding: 10px 14px;
+      background: linear-gradient(135deg, var(--bg-subtle) 0%, rgba(255, 255, 255, 0.7) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .solo-metric-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .solo-metric-item small {
+      font-size: 9.5px;
+      font-weight: 800;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .solo-metric-item strong {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--primary);
+      line-height: 1.1;
+    }
+
+    .solo-metric-item.accent-secondary strong {
+      color: var(--secondary);
+    }
+
+    /* Monkeytype-Style Stage */
+    .solo-stage-container {
+      position: relative;
+      background: #fff;
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      cursor: text;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+      transition: all 0.2s ease;
+    }
+
+    .solo-stage-container:focus-within,
+    .solo-stage-container.is-active {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow), inset 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
     .solo-quote-display {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 14px;
-      line-height: 1.8;
-      color: var(--text-muted);
-      background: rgba(255, 255, 255, 0.95);
-      padding: 12px 14px;
-      border-radius: var(--radius-md);
-      border: 1.5px solid var(--border-subtle);
-      min-height: 64px;
+      font-size: 15.5px;
+      line-height: 2;
+      color: var(--text-dim);
       user-select: none;
       word-break: break-word;
+      min-height: 70px;
+      letter-spacing: 0.02em;
     }
 
     .solo-char-correct {
       color: var(--primary);
       font-weight: 700;
+      text-shadow: 0 0 1px var(--primary);
     }
 
     .solo-char-incorrect {
       color: #fff;
       background: var(--rose);
       border-radius: 2px;
+      padding: 0 1px;
     }
 
     .solo-char-current {
-      background: rgba(29, 90, 63, 0.18);
-      border-bottom: 2px solid var(--primary);
+      background: rgba(29, 90, 63, 0.14);
+      border-bottom: 2.5px solid var(--primary);
+      border-radius: 2px 2px 0 0;
+      animation: caretPulse 1s infinite;
+    }
+
+    @keyframes caretPulse {
+      0%, 100% { border-bottom-color: var(--primary); }
+      50% { border-bottom-color: transparent; }
+    }
+
+    .solo-input-wrap {
+      margin-top: 10px;
     }
 
     .solo-type-input {
       width: 100%;
-      padding: 10px 14px;
+      height: 42px;
+      padding: 0 14px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 14px;
       border: 1.5px solid var(--border-strong);
       border-radius: var(--radius-md);
-      background: #fff;
+      background: #fafafa;
       color: var(--text-main);
       outline: none;
-      transition: all 0.15s ease;
+      transition: all 0.2s ease;
     }
 
     .solo-type-input:focus {
+      background: #fff;
       border-color: var(--primary);
       box-shadow: 0 0 0 3px var(--primary-glow);
     }
 
+    /* Results Showcase Banner */
     .solo-result-box {
-      background: linear-gradient(135deg, rgba(226, 240, 234, 0.6) 0%, rgba(255, 255, 255, 0.95) 100%);
+      background: linear-gradient(135deg, rgba(226, 240, 234, 0.85) 0%, #ffffff 100%);
       border: 1.5px solid var(--primary-border);
-      border-radius: var(--radius-md);
-      padding: 14px;
-      animation: rise 0.25s ease-out;
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+      animation: rise 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .solo-result-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
-      font-weight: 800;
-      font-size: 13px;
+      margin-bottom: 12px;
+      font-weight: 900;
+      font-size: 15px;
       color: var(--primary);
     }
 
     .solo-pb-tag {
-      background: var(--secondary);
+      background: linear-gradient(135deg, var(--secondary) 0%, #d95d12 100%);
       color: #fff;
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
       font-weight: 800;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
+      box-shadow: 0 2px 8px rgba(224, 114, 44, 0.3);
+      animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .solo-result-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
+      gap: 10px;
       text-align: center;
     }
 
     .solo-res-stat {
       background: #fff;
-      padding: 8px 6px;
-      border-radius: var(--radius-sm);
+      padding: 10px 8px;
+      border-radius: var(--radius-md);
       border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-xs);
       display: flex;
       flex-direction: column;
+      gap: 2px;
     }
 
     .solo-res-stat .res-num {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 18px;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--primary);
+    }
+
+    .solo-res-stat .res-lbl {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .solo-result-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .solo-retry-action-btn {
+      flex: 1;
+      height: 40px;
+      background: #fff;
+      border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 12.5px;
       font-weight: 800;
       color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .solo-retry-action-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .solo-duel-jump-btn {
+      flex: 1;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary) 0%, #2a7a5a 100%);
+      border: 0;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 3px 10px rgba(29, 90, 63, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .solo-duel-jump-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(29, 90, 63, 0.35);
     }
 
     .solo-res-stat .res-lbl {
@@ -3133,54 +3277,67 @@
           </div>
         </div>
 
-        <!-- STANDALONE DEDICATED SECTION: TEST YOURSELF (SOLO WPM CALCULATOR) -->
+        <!-- STANDALONE DEDICATED SECTION: TEST YOURSELF (SOLO SPEED LAB) -->
         <div class="solo-test-card" id="solo-test-card">
           <div class="solo-test-header">
             <div class="solo-test-title-group">
-              <div class="solo-test-badge-icon">🎯</div>
+              <div class="solo-test-badge-icon">⚡</div>
               <div>
-                <h3>Test Yourself</h3>
-                <p>Solo Speed Practice & Instant WPM Calculator</p>
+                <h3>
+                  <span>Test Yourself</span>
+                  <span class="solo-lab-tag">Speed Lab</span>
+                </h3>
+                <p>Solo Speed Practice & Real-Time WPM Telemetry Calculator</p>
               </div>
             </div>
-            <div class="solo-timer-pills" role="group" aria-label="Test Duration">
-              <button class="solo-timer-pill active" data-duration="15" type="button">15s</button>
-              <button class="solo-timer-pill" data-duration="30" type="button">30s</button>
-              <button class="solo-timer-pill" data-duration="60" type="button">60s</button>
+            <div class="solo-header-actions">
+              <div class="solo-timer-pills" role="group" aria-label="Test Duration">
+                <button class="solo-timer-pill active" data-duration="15" type="button">15s</button>
+                <button class="solo-timer-pill" data-duration="30" type="button">30s</button>
+                <button class="solo-timer-pill" data-duration="60" type="button">60s</button>
+              </div>
+              <button class="solo-refresh-btn" id="solo-refresh-btn" type="button" title="Get a new practice sentence">
+                <span>🔄</span>
+                <span>New Text</span>
+              </button>
             </div>
           </div>
 
-          <!-- Live Metrics Strip during solo test -->
+          <!-- Live Telemetry HUD Strip during solo test -->
           <div class="solo-metrics-strip" id="solo-metrics-strip">
             <div class="solo-metric-item">
-              <small>WPM</small>
-              <strong id="solo-live-wpm">0</strong>
+              <small>Live Speed</small>
+              <strong id="solo-live-wpm">0 WPM</strong>
             </div>
             <div class="solo-metric-item">
-              <small>ACCURACY</small>
+              <small>Accuracy</small>
               <strong id="solo-live-acc">100%</strong>
             </div>
             <div class="solo-metric-item">
-              <small>TIME</small>
+              <small>Remaining</small>
               <strong id="solo-live-time">15s</strong>
             </div>
-            <button class="solo-refresh-btn" id="solo-refresh-btn" type="button" title="Get a new practice sentence">
-              🔄 New Text
-            </button>
+            <div class="solo-metric-item accent-secondary">
+              <small>Precision</small>
+              <strong id="solo-live-streak">🔥 0 Streak</strong>
+            </div>
           </div>
 
-          <!-- Solo Paragraph Display with character highlighting -->
-          <div class="solo-quote-display" id="solo-quote-display"></div>
+          <!-- Monkeytype-Style Stage Container -->
+          <div class="solo-stage-container" id="solo-stage-container" title="Click anywhere here to type">
+            <!-- Solo Paragraph Display with character highlighting & cursor -->
+            <div class="solo-quote-display" id="solo-quote-display"></div>
 
-          <!-- Solo Typing Textarea / Input -->
-          <div class="solo-input-wrap">
-            <input class="solo-type-input" id="solo-type-input" placeholder="Click here and start typing to calculate your WPM..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <!-- Solo Typing Input -->
+            <div class="solo-input-wrap">
+              <input class="solo-type-input" id="solo-type-input" placeholder="Click here and start typing to begin the test..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+            </div>
           </div>
 
           <!-- Solo Results Modal / Banner -->
           <div class="solo-result-box hidden" id="solo-result-box">
             <div class="solo-result-head">
-              <span>🎉 Test Completed!</span>
+              <span id="solo-result-title">🎉 Test Completed!</span>
               <span class="solo-pb-tag hidden" id="solo-pb-tag">🏆 NEW PERSONAL BEST!</span>
             </div>
             <div class="solo-result-grid">
@@ -3201,8 +3358,15 @@
                 <span class="res-lbl">Errors</span>
               </div>
             </div>
-            <div style="display: flex; gap: 8px; margin-top: 10px;">
-              <button class="btn-secondary" id="solo-retry-btn" type="button" style="flex: 1; padding: 7px 12px; font-size: 12px;">🔁 Try Again</button>
+            <div class="solo-result-actions">
+              <button class="solo-retry-action-btn" id="solo-retry-btn" type="button">
+                <span>🔁</span>
+                <span>Try Again</span>
+              </button>
+              <button class="solo-duel-jump-btn" id="solo-jump-duel-btn" type="button">
+                <span>⚔️</span>
+                <span>Play Quick Match (30s)</span>
+              </button>
             </div>
           </div>
         </div>
@@ -4557,34 +4721,46 @@
     closeTierModalBtn.addEventListener('click', () => tierInfoModal.classList.add('hidden'));
 
     // ═══════════════════════════════════════════
-    // SOLO "TEST YOURSELF" WPM SPEED ENGINE
+    // SOLO "TEST YOURSELF" SPEED LAB ENGINE
     // ═══════════════════════════════════════════
     const soloQuotesList = [
       "The quick brown fox jumps over the lazy dog on a bright sunny afternoon.",
-      "A good idea often starts as a small question. With practice and persistence, it grows.",
-      "Clear skies and a gentle breeze made it a pleasant day for a walk in the quiet park.",
-      "Practice every day to build speed, accuracy, and confidence at your mechanical keyboard.",
-      "Music filled the room with cheerful energy and lifted everyone's spirits immediately.",
-      "Fast fingers dance effortlessly across the keys while typing every single letter.",
-      "Keep your focus sharp and your hands relaxed to achieve your highest typing speed.",
-      "Writing elegant software requires both creative imagination and disciplined logic.",
-      "Curiosity is the engine of human progress, driving explorers to venture beyond the unknown."
+      "A good idea often starts as a small question. With practice and persistence, it grows into something incredible.",
+      "Clear skies and a gentle breeze made it a pleasant day for a walk in the quiet hillside park.",
+      "Practice every day to build speed, accuracy, and effortless muscle memory at your mechanical keyboard.",
+      "Fast fingers dance across the keys while typing every single letter with razor sharp precision.",
+      "Keep your focus sharp and your hands relaxed to achieve your personal best typing speed record.",
+      "Writing elegant software requires both creative imagination and disciplined algorithmic logic.",
+      "Curiosity is the engine of human progress, driving explorers to venture far beyond the unknown horizon.",
+      "The morning sun broke through the misty clouds, warming the frozen winter landscape slowly.",
+      "To succeed in any competitive field, consistency and deliberate focus are far more valuable than raw talent.",
+      "Great typists maintain a steady rhythmic flow, anticipating the next word before their fingers finish the current one.",
+      "Mastery is not an accident; it is the natural consequence of daily focused training and perseverance.",
+      "A tranquil forest stream carved its winding path through mossy granite stones and tall cedar trees.",
+      "Technology connects millions of minds across oceans in real time, making the world feel like a single village.",
+      "Focus your vision on the upcoming words rather than looking down at the keyboard layout.",
+      "Deep in the ancient library, dusty leather volumes held forgotten stories of kingdoms and starlit journeys.",
+      "Innovation begins where routine ends, inviting bold ideas to reshape how we learn and create."
     ];
 
     const soloTestCard = document.querySelector('#solo-test-card');
+    const soloStageContainer = document.querySelector('#solo-stage-container');
     const soloQuoteDisplay = document.querySelector('#solo-quote-display');
     const soloTypeInput = document.querySelector('#solo-type-input');
     const soloLiveWpm = document.querySelector('#solo-live-wpm');
     const soloLiveAcc = document.querySelector('#solo-live-acc');
     const soloLiveTime = document.querySelector('#solo-live-time');
+    const soloLiveStreak = document.querySelector('#solo-live-streak');
     const soloRefreshBtn = document.querySelector('#solo-refresh-btn');
     const soloResultBox = document.querySelector('#solo-result-box');
+    const soloResultTitle = document.querySelector('#solo-result-title');
     const soloResWpm = document.querySelector('#solo-res-wpm');
     const soloResAcc = document.querySelector('#solo-res-acc');
     const soloResRaw = document.querySelector('#solo-res-raw');
     const soloResErr = document.querySelector('#solo-res-err');
     const soloPbTag = document.querySelector('#solo-pb-tag');
     const soloRetryBtn = document.querySelector('#solo-retry-btn');
+    const soloJumpDuelBtn = document.querySelector('#solo-jump-duel-btn');
     const soloTimerPills = document.querySelectorAll('.solo-timer-pill');
 
     let soloDurationSec = 15;
@@ -4592,15 +4768,13 @@
     let soloStartTime = 0;
     let soloTimerInterval = null;
     let soloFinished = false;
-    let soloKeystrokes = 0;
-    let soloErrors = 0;
+    let soloCurrentStreak = 0;
 
     function initSoloQuote(customQuote) {
       clearInterval(soloTimerInterval);
       soloStartTime = 0;
       soloFinished = false;
-      soloKeystrokes = 0;
-      soloErrors = 0;
+      soloCurrentStreak = 0;
       
       soloActiveQuote = customQuote || soloQuotesList[Math.floor(Math.random() * soloQuotesList.length)];
       if (soloTypeInput) {
@@ -4608,9 +4782,11 @@
         soloTypeInput.disabled = false;
       }
       if (soloResultBox) soloResultBox.classList.add('hidden');
-      if (soloLiveWpm) soloLiveWpm.textContent = '0';
+      if (soloLiveWpm) soloLiveWpm.textContent = '0 WPM';
       if (soloLiveAcc) soloLiveAcc.textContent = '100%';
       if (soloLiveTime) soloLiveTime.textContent = soloDurationSec + 's';
+      if (soloLiveStreak) soloLiveStreak.textContent = '🔥 0 Streak';
+      if (soloStageContainer) soloStageContainer.classList.remove('is-active');
 
       renderSoloQuoteVisual('');
     }
@@ -4619,6 +4795,8 @@
       if (!soloQuoteDisplay) return;
       const target = soloActiveQuote;
       let html = '';
+      let streak = 0;
+      let broken = false;
       
       for (let i = 0; i < target.length; i++) {
         const targetChar = target[i];
@@ -4626,8 +4804,10 @@
           const typedChar = typed[i];
           if (typedChar === targetChar) {
             html += `<span class="solo-char-correct">${escapeHtml(targetChar)}</span>`;
+            if (!broken) streak++;
           } else {
             html += `<span class="solo-char-incorrect">${escapeHtml(targetChar)}</span>`;
+            broken = true;
           }
         } else if (i === typed.length) {
           html += `<span class="solo-char-current">${escapeHtml(targetChar)}</span>`;
@@ -4636,6 +4816,8 @@
         }
       }
       soloQuoteDisplay.innerHTML = html;
+      soloCurrentStreak = streak;
+      if (soloLiveStreak) soloLiveStreak.textContent = `🔥 ${streak} Streak`;
     }
 
     function finishSoloTest() {
@@ -4666,6 +4848,15 @@
       if (soloResAcc) soloResAcc.textContent = acc + '%';
       if (soloResRaw) soloResRaw.textContent = rawWpm;
       if (soloResErr) soloResErr.textContent = mistakes;
+
+      // Tier title
+      if (soloResultTitle) {
+        if (netWpm >= 110) soloResultTitle.textContent = '⚡ GODLIKE SPEED! (110+ WPM)';
+        else if (netWpm >= 85) soloResultTitle.textContent = '🚀 MASTER TYPIST! (85+ WPM)';
+        else if (netWpm >= 60) soloResultTitle.textContent = '🔥 SWIFT RACER! (60+ WPM)';
+        else if (netWpm >= 40) soloResultTitle.textContent = '🌱 SOLID PACE! (40+ WPM)';
+        else soloResultTitle.textContent = '🎯 NICE PRACTICE! Keep going!';
+      }
 
       // Check for Personal Best
       const savedPb = parseInt(localStorage.getItem('typendoPB') || '0', 10);
@@ -4698,6 +4889,7 @@
           nextQuote = soloQuotesList[Math.floor(Math.random() * soloQuotesList.length)];
         } while (nextQuote === soloActiveQuote && soloQuotesList.length > 1);
         initSoloQuote(nextQuote);
+        if (soloTypeInput) soloTypeInput.focus();
       });
     }
 
@@ -4708,7 +4900,37 @@
       });
     }
 
+    if (soloJumpDuelBtn) {
+      soloJumpDuelBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const quickCard = document.querySelector('.mode-card[data-mode="quick"]');
+        if (quickCard) quickCard.click();
+        if (randomButton) randomButton.click();
+      });
+    }
+
+    if (soloStageContainer) {
+      soloStageContainer.addEventListener('click', () => {
+        if (soloTypeInput && !soloTypeInput.disabled) soloTypeInput.focus();
+      });
+    }
+
     if (soloTypeInput) {
+      soloTypeInput.addEventListener('focus', () => {
+        if (soloStageContainer) soloStageContainer.classList.add('is-active');
+      });
+      soloTypeInput.addEventListener('blur', () => {
+        if (soloStageContainer) soloStageContainer.classList.remove('is-active');
+      });
+
+      soloTypeInput.addEventListener('keydown', (e) => {
+        if (soloFinished && (e.key === 'Enter' || e.key === 'Tab')) {
+          e.preventDefault();
+          initSoloQuote();
+          soloTypeInput.focus();
+        }
+      });
+
       soloTypeInput.addEventListener('input', () => {
         if (soloFinished) return;
         const val = soloTypeInput.value;
@@ -4731,8 +4953,8 @@
             }
             const curWpm = Math.max(0, Math.round((correct / 5) / elapsedMin));
             const curAcc = soloTypeInput.value.length > 0 ? Math.max(0, Math.round((correct / soloTypeInput.value.length) * 100)) : 100;
-            if (soloLiveWpm) soloLiveWpm.textContent = curWpm;
-            if (soloLiveAcc) soloLiveAcc.textContent = curAcc + '%';
+            if (soloLiveWpm) soloLiveWpm.textContent = `${curWpm} WPM`;
+            if (soloLiveAcc) soloLiveAcc.textContent = `${curAcc}%`;
 
             if (remSeconds <= 0) {
               finishSoloTest();
