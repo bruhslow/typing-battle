@@ -3742,15 +3742,16 @@
       .stat-strip-card:nth-child(5) { grid-column: span 2; }
 
       /* ── Mobile Header: Logo at top-left corner, username & tools next to / under it ── */
+      /* ── Mobile Header: Clean Top Bar with Logo top-left, Tools top-right, Profile box brought down ── */
       header {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 12px;
+        padding: 8px 12px;
         border-radius: var(--radius-lg);
-        gap: 8px;
+        gap: 6px 12px;
         margin: 0 auto 6px;
         width: 100%;
         box-sizing: border-box;
@@ -3758,6 +3759,7 @@
 
       /* Logo: pinned to left corner */
       .brand {
+        order: 1;
         flex-shrink: 0;
         font-size: 16px;
         gap: 6px;
@@ -3768,36 +3770,43 @@
       .brand-svg-mark { width: 26px; height: 26px; border-radius: 8px; }
       .brand-title { font-size: 15px; }
 
-      /* Tools & Username wrapper on mobile */
+      /* Header tools: pinned to top-right corner */
       .header-tools {
+        order: 2;
         display: flex;
         flex-direction: row;
-        flex-wrap: wrap;
         align-items: center;
         justify-content: flex-end;
         gap: 6px;
         margin: 0;
-        flex: 1;
-        min-width: 0;
+        flex-shrink: 0;
       }
 
-      /* Profile box: compact, aligned left inside flex */
+      /* Profile box: brought down to its own clean full-width row below top bar */
       .profile-box {
-        padding: 3px 8px 3px 4px;
-        gap: 5px;
-        height: 32px;
-        min-width: 0;
-        flex-shrink: 1;
-        max-width: 160px;
-        justify-content: flex-start;
-        margin: 0;
+        order: 3;
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+        padding: 5px 10px;
+        gap: 6px;
+        height: auto;
+        min-height: 36px;
+        justify-content: space-between;
+        margin: 4px 0 0;
+        background: rgba(236, 231, 217, 0.85);
+        border: 1.5px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        box-sizing: border-box;
       }
-      .profile-field-label { display: none !important; }
-      .profile-avatar { width: 22px; height: 22px; font-size: 10px; flex-shrink: 0; }
+      .profile-field-label { display: block !important; font-size: 7.5px; color: var(--text-dim); }
+      .profile-avatar { width: 24px; height: 24px; font-size: 10.5px; flex-shrink: 0; }
       .profile-field-wrap { flex: 1; min-width: 0; }
-      .profile-input { width: 100%; min-width: 32px; font-size: 12px; font-weight: 700; height: 22px; text-align: left; }
-      .profile-elo-tag { display: inline-flex; font-size: 9px; padding: 2px 4px; border-radius: 4px; }
-      .profile-country-btn { padding: 2px 4px; font-size: 10px; }
+      .profile-input { width: 85px !important; min-width: 32px; font-size: 11.5px !important; font-weight: 700; height: 20px; text-align: left; }
+      .username-readonly-wrap { display: flex; border-left: 1.5px solid var(--border-subtle); padding-left: 6px; margin-left: 0; }
+      .readonly-handle-input { width: 75px !important; font-size: 11px !important; }
+      .profile-elo-tag { display: inline-flex; font-size: 9.5px; padding: 2px 6px; border-radius: 4px; }
+      .profile-country-btn { padding: 2px 5px; font-size: 10px; }
 
       /* Room code pill */
       #code-pill-wrap {
@@ -3836,15 +3845,15 @@
 
       .sound-toggle-btn {
         flex-shrink: 0;
-        padding: 4px 7px;
-        font-size: 10px;
+        padding: 4px 8px;
+        font-size: 11px;
         height: 30px;
-        gap: 3px;
+        gap: 4px;
         border-radius: var(--radius-sm);
         justify-content: center;
         margin: 0;
       }
-      .sound-btn-label { display: none; }
+      .sound-btn-label { display: inline-block; font-size: 10px; }
 
       /* Main content grids & cards centered */
       .home-grid { grid-template-columns: 1fr; gap: 12px; width: 100%; margin: 0 auto; }
