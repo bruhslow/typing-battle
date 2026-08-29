@@ -1188,6 +1188,31 @@
       font-weight: 800;
     }
 
+    .solo-diff-pill {
+      background: none;
+      border: 0;
+      padding: 5px 11px;
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .solo-diff-pill:hover {
+      color: var(--text-main);
+    }
+
+    .solo-diff-pill.active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: var(--shadow-xs);
+      font-weight: 800;
+    }
+
     .solo-refresh-btn {
       background: #fff;
       border: 1.5px solid var(--border-subtle);
@@ -1276,12 +1301,16 @@
 
     .solo-quote-display {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 17.5px;
+      font-size: 18px;
       line-height: 2.1;
+      height: 76px;
+      max-height: 76px;
+      overflow: hidden;
       color: var(--text-dim);
       user-select: none;
       word-break: break-word;
       letter-spacing: 0.03em;
+      scroll-behavior: smooth;
     }
 
     .solo-char-correct {
@@ -2384,22 +2413,23 @@
     .race-display {
       position: relative;
       margin-bottom: 14px;
-      padding: 24px;
+      padding: 16px 20px;
       background: linear-gradient(180deg, #fdfcf9 0%, #faf8f3 100%);
       border: 1.5px solid var(--border-subtle);
       border-left: 4px solid var(--primary);
       border-radius: 0 var(--radius-md) var(--radius-md) 0;
       font-family: 'JetBrains Mono', monospace;
       font-size: 18px;
-      line-height: 2.2;
+      line-height: 2.1;
       user-select: none;
       -webkit-user-select: none;
       word-break: break-word;
       white-space: pre-wrap;
       box-shadow: inset 0 2px 6px rgba(0,0,0,0.02), var(--shadow-sm);
-      max-height: 320px;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      height: 80px;
+      max-height: 80px;
+      overflow: hidden;
+      scroll-behavior: smooth;
     }
 
     .word-span {
@@ -4062,12 +4092,16 @@
                 </div>
               </div>
               <div class="solo-header-actions">
+                <div class="solo-timer-pills" id="solo-diff-pills-wrap" role="group" aria-label="Word Mode">
+                  <button class="solo-diff-pill active" data-solomode="standard" type="button">📝 Words</button>
+                  <button class="solo-diff-pill" data-solomode="hard" type="button">⚡ Hard & Punctuation</button>
+                </div>
                 <div class="solo-timer-pills" role="group" aria-label="Test Duration">
                   <button class="solo-timer-pill active" data-duration="15" type="button">15s</button>
                   <button class="solo-timer-pill" data-duration="30" type="button">30s</button>
                   <button class="solo-timer-pill" data-duration="60" type="button">60s</button>
                 </div>
-                <button class="solo-refresh-btn" id="solo-refresh-btn" type="button" title="Get a new practice sentence">
+                <button class="solo-refresh-btn" id="solo-refresh-btn" type="button" title="Get a new practice text">
                   <span>🔄</span>
                   <span>New Text</span>
                 </button>
@@ -5979,11 +6013,45 @@
       "swift", "champion", "cadence", "tactile", "switch", "tempo", "dynamic", "sparkle", "velocity", "stream", "precision"
     ];
 
+    const SOLO_HARD_WORD_BANK = [
+      "extraordinary", "counter-intuitive", "synchronization", "cryptographic", "neuroplasticity",
+      "quantum-mechanical", "sophisticated", "architectures", "infrastructure", "multi-threaded",
+      "breakthrough", "algorithmic", "phenomenon", "high-frequency", "epistemology", "juxtaposition",
+      "deterministic", "bioinformatics", "unprecedented", "telemetry", "decentralized", "thermodynamics",
+      "microservices", "asynchronous", "reinforcement", "cryptography", "proportional", "indispensable",
+      "characteristic", "computational", "probabilistic", "imperceptible", "reconciliation", "optimization",
+      "observability", "heterogeneous", "differentiation", "concurrency", "vulnerabilities", "instrumentation"
+    ];
+
+    const SOLO_PUNCTUATION_BANK = [
+      "99.98%", "Dr. Turing:", "\"breakthrough\"", "algorithms;", "failover—", "v4.5?", "$3.85M",
+      "O(N log N)", "(sub-zero)", "system-wide!", "MTTR < 60s", "Byzantine-fault", "Section 14(b)",
+      "10,000+", "24/7", "state-of-the-art", "\"precision\"", "SHA-256", "real-time:", "well-designed;",
+      "error-free!", "high-speed—", "(multi-core)", "42.5%", "1,000x", "non-blocking;", "\"quantum\""
+    ];
+
+    let soloDifficultyMode = 'standard'; // 'standard' or 'hard'
+
     function generateSoloWordBatch(count = 50) {
       const words = [];
       for (let i = 0; i < count; i++) {
-        const rand = SOLO_WORD_BANK[Math.floor(Math.random() * SOLO_WORD_BANK.length)];
-        words.push(rand);
+        if (soloDifficultyMode === 'hard') {
+          const randType = Math.random();
+          if (randType < 0.42) {
+            // Big challenging multi-syllable word
+            words.push(SOLO_HARD_WORD_BANK[Math.floor(Math.random() * SOLO_HARD_WORD_BANK.length)]);
+          } else if (randType < 0.75) {
+            // Punctuation token with numbers, symbols, quotes, or dashes
+            words.push(SOLO_PUNCTUATION_BANK[Math.floor(Math.random() * SOLO_PUNCTUATION_BANK.length)]);
+          } else {
+            // Standard word with occasional capitalization
+            const std = SOLO_WORD_BANK[Math.floor(Math.random() * SOLO_WORD_BANK.length)];
+            words.push(Math.random() > 0.5 ? std.charAt(0).toUpperCase() + std.slice(1) : std);
+          }
+        } else {
+          const rand = SOLO_WORD_BANK[Math.floor(Math.random() * SOLO_WORD_BANK.length)];
+          words.push(rand);
+        }
       }
       return words;
     }
@@ -6014,6 +6082,7 @@
     const soloCopyStatsBtn = document.querySelector('#solo-copy-stats-btn');
     const soloJumpDuelBtn = document.querySelector('#solo-jump-duel-btn');
     const soloTimerPills = document.querySelectorAll('.solo-timer-pill');
+    const soloDiffPills = document.querySelectorAll('.solo-diff-pill');
 
     let soloDurationSec = 15;
     let soloWordsStream = [];
@@ -6123,12 +6192,13 @@
       if (streak > soloMaxStreak) soloMaxStreak = streak;
       if (soloLiveStreak) soloLiveStreak.textContent = `🔥 ${streak} Streak`;
 
-      // Auto scroll active word line smoothly
+      // Smooth 2-line rolling conveyor: active line stays on line 1, upcoming line visible below
       const currentWordEl = document.querySelector(`#solo-word-${currentWordIdx}`);
       if (currentWordEl && soloQuoteDisplay) {
         const topPos = currentWordEl.offsetTop - soloQuoteDisplay.offsetTop;
-        if (topPos > soloQuoteDisplay.scrollTop + 80 || topPos < soloQuoteDisplay.scrollTop) {
-          soloQuoteDisplay.scrollTop = Math.max(0, topPos - 20);
+        const targetScroll = Math.max(0, topPos - 8);
+        if (Math.abs(soloQuoteDisplay.scrollTop - targetScroll) > 6) {
+          soloQuoteDisplay.scrollTop = targetScroll;
         }
       }
     }
@@ -6213,6 +6283,17 @@
           SoundEngine.playSelectSound();
           soloDurationSec = parseInt(pill.dataset.duration || '15', 10);
           soloTimerPills.forEach((p) => p.classList.toggle('active', p === pill));
+          initSoloQuote();
+        });
+      });
+    }
+
+    if (soloDiffPills) {
+      soloDiffPills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          SoundEngine.playSelectSound();
+          soloDifficultyMode = pill.dataset.solomode || 'standard';
+          soloDiffPills.forEach((p) => p.classList.toggle('active', p === pill));
           initSoloQuote();
         });
       });
@@ -6772,11 +6853,13 @@
         el.classList.toggle('current-word', idx === currentWordIndex);
       });
 
+      // Smooth 2-line rolling conveyor: active line stays on line 1, upcoming line visible below
       const activeWordEl = document.querySelector(`#word-span-${currentWordIndex}`);
       if (activeWordEl && raceDisplay) {
         const topPos = activeWordEl.offsetTop - raceDisplay.offsetTop;
-        if (topPos > raceDisplay.scrollTop + 120 || topPos < raceDisplay.scrollTop) {
-          raceDisplay.scrollTop = Math.max(0, topPos - 40);
+        const targetScroll = Math.max(0, topPos - 12);
+        if (Math.abs(raceDisplay.scrollTop - targetScroll) > 6) {
+          raceDisplay.scrollTop = targetScroll;
         }
       }
 

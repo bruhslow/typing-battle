@@ -326,36 +326,34 @@ const paragraphs = {
     'The night sky over the desert was impossibly clear, revealing the dense band of the Milky Way stretching from horizon to horizon.',
   ],
   hard: [
-    'Technological revolutions frequently originate at the intersection of diverse disciplines, demanding resilience, rigorous empirical testing, and unyielding intellectual curiosity. The capacity to synthesize knowledge from disparate fields has proven essential for breakthrough innovation throughout history.',
-    'Complex asynchronous architectures necessitate meticulous state synchronization, preventing race conditions through deterministic dispatch cycles and resilient event boundaries. Failure to properly orchestrate concurrent operations can result in catastrophic data corruption and system-wide cascading failures.',
-    'The philosophical juxtaposition of computational abstraction against concrete algorithmic optimization remains an intriguing paradox for modern systems architects. Balancing theoretical elegance with practical performance constraints requires deep understanding of both mathematical foundations and hardware limitations.',
-    'Distributed consensus protocols guarantee deterministic convergence under adversarial network partitions through cryptographic Byzantine fault tolerance paradigms. These mechanisms form the backbone of modern blockchain architectures and decentralized financial infrastructure.',
-    'Quantum entanglement challenges classical notions of spatial locality, introducing non-deterministic probabilistic amplitudes into fundamental particle interactions. Experimental verification of Bell inequality violations has definitively established the non-local character of quantum mechanical correlations.',
-    'Microservices ecosystems demand sophisticated observability pipelines, orchestrating distributed tracing, telemetry metrics, and automated canary deployments. Without comprehensive monitoring infrastructure, debugging production incidents across dozens of interdependent services becomes virtually impossible.',
-    'Epistemological inquiries regarding cognitive introspection reveal fundamental limitations in human heuristics, cognitive biases, and sensory deduction. Kahneman and Tversky demonstrated that systematic irrationality pervades human judgment through anchoring effects and availability cascades.',
-    'Hyperdimensional vector embeddings facilitate nuanced semantic retrieval across heterogeneous multi-modal transformer neural architectures. Recent advances in contrastive learning have dramatically improved the quality of cross-modal representations for vision-language understanding tasks.',
-    'Cryptographic zero-knowledge succinct non-interactive arguments of knowledge establish verifiable computation without compromising privacy. These mathematical constructs enable trustless verification of computational integrity across decentralized networks without revealing underlying data.',
-    'Thermodynamic entropy dictates the inexorable progression toward cosmic equilibrium, governing the evolutionary trajectory of stellar nucleosynthesis. The second law of thermodynamics fundamentally constrains all physical processes and establishes the arrow of temporal directionality.',
-    'Sophisticated typographical aesthetics synthesize proportional kerning, baseline grid alignment, and typographic hierarchy to optimize legibility. The deliberate orchestration of whitespace, contrast ratios, and font weight distribution profoundly influences reading comprehension and visual fatigue.',
-    'High-frequency quantitative trading algorithms leverage sub-millisecond execution pipelines, deterministic FPGA accelerators, and stochastic volatility modeling. Market microstructure analysis reveals that algorithmic participants now account for the overwhelming majority of equity market transaction volume.',
-    'The idiosyncratic vernacular of Elizabethan drama juxtaposes archaic syntactical structures against evocative metaphorical imagery and iambic pentameter. Shakespeare mastery of linguistic innovation introduced approximately seventeen hundred neologisms that remain embedded in contemporary English vocabulary.',
-    'Immutable append-only ledger architectures mitigate unauthorized tampering by establishing cryptographically chained hash digests with probabilistic finality guarantees. Merkle tree data structures enable efficient verification of transaction inclusion without requiring complete blockchain traversal.',
-    'Neuroplasticity facilitates adaptive synaptic reorganization in response to experiential stimuli, environmental perturbations, and targeted cognitive rehabilitation. Longitudinal neuroimaging studies have demonstrated that deliberate practice induces measurable structural changes in cortical thickness and white matter connectivity.',
-    'Decentralized autonomous organizations synthesize smart contracts, tokenized governance mechanics, and quadratic voting paradigms to coordinate collective capital allocation. The elimination of traditional hierarchical management structures introduces novel challenges in accountability and dispute resolution.',
-    'The socioeconomic implications of pervasive automation necessitate proactive structural realignment, progressive fiscal policy, and universal upskilling initiatives. Historical precedent suggests that technological displacement ultimately generates more employment opportunities than it eliminates across economic cycles.',
-    'Multithreaded concurrency paradigms must rigorously address deadlock vulnerabilities, thread starvation, and cache-coherency synchronization overheads. Lock-free data structures utilizing compare-and-swap atomic operations provide superior throughput characteristics under high-contention workloads.',
-    'Atmospheric thermodynamic fluctuations precipitate turbulent convective vortices, challenging meteorological predictive simulations and aerodynamic stability calculations. Computational fluid dynamics models require extraordinary spatial and temporal resolution to accurately capture chaotic atmospheric boundary layer phenomena.',
-    'The epistemological dilemma of artificial general intelligence centers on alignment architectures, value extrapolation, and recursive self-improvement constraints. Ensuring that superintelligent systems remain compatible with human values represents perhaps the most consequential technical challenge of the century.',
-    'Bioinformatics workflows orchestrate high-throughput genomic sequencing pipelines, variant identification algorithms, and phylogenetic reconstruction methodologies. The exponential decrease in sequencing costs has democratized access to precision medicine and population-scale genetic epidemiology research.',
-    'Topological quantum computation utilizes non-Abelian anyons to perform fault-tolerant logic gates protected by geometric braid invariants. This approach promises exponentially greater noise resilience compared to conventional qubit architectures by encoding information in topologically protected quantum states.',
-    'The ontological status of mathematical realism posits abstract structures existing independently of empirical observation or linguistic formulation. Platonist perspectives contend that mathematical truths are discovered rather than invented, existing timelessly in an abstract realm accessible through pure reason.',
-    'Comprehensive architectural resilience encompasses proactive chaos engineering, automated disaster failover topologies, and continuous vulnerability remediation cycles. Organizations that embrace failure injection testing consistently demonstrate superior mean time to recovery and reduced blast radius during production incidents.',
-    'Ubiquitous telemetry ingestion pipelines demand horizontally partitioned time-series storage engines capable of handling petabyte-scale throughput with sub-second query latency. Columnar compression algorithms and hierarchical aggregation strategies enable efficient retention of high-cardinality observability data across multi-year horizons.',
-    'Reinforcement learning agents operating in partially observable stochastic environments must balance exploration of unknown state spaces against exploitation of established reward-maximizing policies. The credit assignment problem becomes particularly acute in environments with sparse delayed feedback signals and high-dimensional action spaces.',
-    'Contemporary natural language processing architectures employ self-attention mechanisms across billions of learned parameters, enabling unprecedented performance in machine translation, summarization, and generative composition. The computational requirements for training frontier language models have increased by approximately six orders of magnitude over the preceding decade.',
-    'Elliptic curve cryptography provides equivalent security guarantees to traditional RSA implementations while utilizing substantially smaller key sizes, reducing computational overhead and bandwidth consumption. The mathematical intractability of the discrete logarithm problem over elliptic curve groups forms the foundational security assumption.',
+    'Technological revolutions—originating at the intersection of bio-engineering, AI (v4.5), and quantum physics—demand 99.98% precision; however, can empirical rigor survive unyielding corporate velocity? "Breakthroughs," remarked Dr. Turing in 1950, "require deliberate sacrifice!"',
+    'Complex asynchronous micro-architectures (handling >750,000 req/sec) necessitate deterministic lock-free queues; otherwise, race conditions corrupt multi-threaded memory pools! Did the kernel panic at 0x8004F2A1, or was the fault-tolerant failover successful?',
+    'The philosophical paradox: "Can computational abstractions—modeled across 1,024-dimensional vector spaces—truly understand human consciousness?" Skeptics argue no; nevertheless, large-scale multimodal transformers achieved a 94.7% comprehension index!',
+    'Under Section 14(b): High-frequency quantitative algorithms (executing within 12.4 microseconds) yielded $3.85M profit; yet, extreme volatility—e.g., flash crashes—threatens the integrity of decentralized liquidity pools!',
+    'Quantum-entangled qubits—isolated at sub-zero temperatures (0.015 Kelvin)—exhibit non-local probabilistic amplitudes; consequently, classical cryptographic ciphers (such as 2048-bit RSA) face catastrophic obsolescence by 2030!',
+    'Modern telemetry pipelines—ingesting 1.8 Petabytes/hour—orchestrate distributed OpenTelemetry spans, Prometheus metrics (port :9090), and automated canary rollbacks. Is your MTTR (Mean Time to Recovery) sub-60 seconds?',
+    'Kahneman & Tversky asked: "Why does human decision-making systematically deviate from rational probability theory?" Cognitive biases—anchoring heuristics, availability cascades, and loss aversion—profoundly distort financial judgment!',
+    'Zero-knowledge SNARKs (Succinct Non-Interactive Arguments of Knowledge) mathematically prove: "Statement X is 100% valid," without revealing private credentials or plaintext hashes! This breakthrough revolutionizes Web3 privacy paradigms.',
+    'Atmospheric thermodynamic instability—characterized by turbulent Mach 2.4 shockwaves—demanded computational fluid dynamics (CFD) simulations running across 16,384 GPU nodes! Did the spacecraft survive atmospheric re-entry?',
+    'Topological quantum computers utilize non-Abelian anyons (braid invariants: π/4 phase shifts) to construct error-corrected logic gates; thus, physical decoherence rates decrease exponentially below 10^-9 errors/operation!',
+    'Sophisticated typography requires meticulous craftsmanship: proportional kerning, 1.618 golden-ratio line heights, and WCAG AAA contrast ratios (>=7:1). "Design is not merely what it looks like," stated Steve Jobs; "it is how it works!"',
+    'Immutable append-only distributed ledgers utilize SHA-256 Merkle trees & Byzantine Fault Tolerance (BFT); consequently, unauthorized alterations become computationally infeasible (>2^128 operations required).',
+    'Neuroplasticity research (conducted across 450 longitudinal fMRI trials) demonstrated: deliberate touch-typing practice (>120 WPM) induces measurable cortical thickening in the primary motor cortex (Brodmann area 4)!',
+    'In multi-agent reinforcement learning (MARL), stochastic policy gradients face severe credit-assignment dilemmas: "How should reward signals (R_t >= +50.0) be distributed among cooperating autonomous drones?"',
+    'Elliptic-curve cryptography (e.g., Ed25519 & secp256k1) offers 128-bit symmetric security while utilizing compact 32-byte keys—dramatically outperforming legacy 4096-bit RSA implementations in bandwidth-constrained IoT devices!'
   ],
 };
+
+function getRandomParagraph(difficulty = 'medium', lastParagraph = '', mode = 'standard') {
+  let list = paragraphs[difficulty] || paragraphs.medium;
+  if (mode === 'ranked') {
+    // Ranked mode uses challenging competitive passages with rich vocabulary and punctuation
+    list = Math.random() > 0.4 ? paragraphs.hard : paragraphs.medium;
+  }
+  const filtered = list.filter((p) => p !== lastParagraph);
+  const pool = filtered.length > 0 ? filtered : list;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 const CLERK_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || process.env.CLERK_PUBLISHABLE_KEY || 'pk_test_c3dlZXQtbW90aC03NjMwLmNsZXJrLmFjY291bnRzLmRldiQ';
 const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY || 'sk_test_0eGnnOm1hVz9BiwX1f6wdCarx5Y8VM0yHfvrWI99k0';
@@ -500,7 +498,7 @@ function startRace(roomId, countdownMs = 3500) {
   room.startedAt = startTime;
   room.finishData = new Map();
   room.latestProgress = new Map();
-  room.paragraph = getRandomParagraph(room.difficulty, room.lastParagraph || '');
+  room.paragraph = getRandomParagraph(room.difficulty, room.lastParagraph || '', room.mode);
   room.lastParagraph = room.paragraph;
 
   const durationSec = getRoomMaxDurationSec(room);
