@@ -5781,6 +5781,7 @@
     let currentWordIndex = 0;
     let skippedWords = new Set();
     let wrongWords = new Set();
+    let typedErrorPositions = new Set();
     let finished = false;
     let activeMatch = false;
     let startTime = 0;
@@ -7739,6 +7740,11 @@
                 } else {
                   charEl.className = 'char-wrong';
                   wordBroken = true;
+                  if (!typedErrorPositions.has(charCounter)) {
+                    typedErrorPositions.add(charCounter);
+                    errorCount++;
+                    if (activeErrorsBadge) activeErrorsBadge.textContent = errorCount;
+                  }
                 }
               } else if (c === typedWord.length) {
                 charEl.className = 'char-current';
@@ -8667,6 +8673,7 @@
       totalKeystrokes = 0;
       skippedWords = new Set();
       wrongWords = new Set();
+      typedErrorPositions = new Set();
 
       // Hide room code and code pill during active battle
       document.querySelector('#room-label').classList.add('hidden');
@@ -8881,7 +8888,7 @@
             <strong>${escapeHtml(usernameInput.value || 'You')}</strong>
           </span>
           <span>Winner</span>
-          <span>0 err</span>
+          <span>${errorCount || 0} err</span>
         </div>
       `;
       
