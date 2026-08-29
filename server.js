@@ -948,7 +948,64 @@ io.on('connection', (socket) => {
   });
 
   // ══════════════════════════════════════════════════════
-  // REGISTRATION WITH EMAIL OTP & STANDARD PASSWORD LOGIN
+  // DIRECT USERNAME & PASSWORD REGISTRATION
+  // ══════════════════════════════════════════════════════
+  socket.on('register', ({ username, password, country, email }) => {
+    const cleanUsername = typeof username === 'string' ? username.trim() : '';
+    const cleanCountry = typeof country === 'string' && country.trim() ? country.trim().slice(0, 5).toUpperCase() : 'IND';
+    const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+
+    if (!cleanUsername || !/^[a-zA-Z0-9_ ]{3,24}$/.test(cleanUsername)) {
+      socket.emit('authError', 'Player name must be 3-24 letters, numbers, or spaces.');
+      return;
+    }
+
+    if (typeof password !== 'string' || password.length < 6) {
+      socket.emit('authError', 'Password must be at least 6 characters long.');
+      return;
+    }
+
+    const accountKey = cleanUsername.toLowerCase();
+    if (accounts.has(accountKey)) {
+      socket.emit('authError', `Username "${cleanUsername}" is already taken. Please choose a different name.`);
+      return;
+    }
+
+    const credentials = hashPassword(password);
+    const newAccount = {
+      username: cleanUsername,
+      email: cleanEmail,
+      country: cleanCountry,
+      ...credentials,
+      rating: 1000,
+      createdAt: Date.now(),
+      duelHistory: [],
+      eloHistory: [],
+    };
+
+    accounts.set(accountKey, newAccount);
+    saveAccounts();
+    broadcastLeaderboard();
+
+    socket.data.accountKey = accountKey;
+    socket.data.username = newAccount.username;
+    socket.data.country = newAccount.country;
+    rotateFriendId(socket);
+
+    socket.emit('authSuccess', {
+      username: newAccount.username,
+      email: newAccount.email,
+      country: newAccount.country,
+      rating: 1000,
+      accountKey,
+      createdAt: newAccount.createdAt,
+      duelHistory: [],
+      eloHistory: [],
+    });
+  });
+
+  // ══════════════════════════════════════════════════════
+  // EMAIL OTP REGISTRATION & LOGIN
   // ══════════════════════════════════════════════════════
   socket.on('requestOtp', async ({ email, username, password, country }) => {
     const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';

@@ -2471,58 +2471,17 @@
                 <span>Continue with Google</span>
               </button>
 
-              <div class="auth-divider"><span>or with credentials</span></div>
+              <div class="auth-divider"><span>or with player credentials</span></div>
 
-              <div class="account-tabs">
-                <button class="account-tab active" id="tab-login" type="button">🔑 Log In</button>
-                <button class="account-tab" id="tab-signup" type="button">✨ Sign Up (OTP)</button>
-              </div>
+              <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">Player Name or Email</div>
+              <input id="login-identifier" maxlength="64" placeholder="Unique Name or Email" autocomplete="username">
+              
+              <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">Password</div>
+              <input id="login-password" type="password" placeholder="Password (6+ chars)" autocomplete="current-password">
 
-              <!-- LOGIN PANE (Username/Email + Password - No OTP needed) -->
-              <div id="auth-pane-login">
-                <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">Player Name or Email</div>
-                <input id="login-identifier" maxlength="64" placeholder="Username or Email" autocomplete="username">
-                <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">Password</div>
-                <input id="login-password" type="password" placeholder="Your Password" autocomplete="current-password">
-                <button class="account-submit" id="auth-login-btn" type="button">Log In</button>
-              </div>
-
-              <!-- SIGNUP PANE (Email OTP Verification + Password Setup) -->
-              <div id="auth-pane-signup" class="hidden">
-                <!-- Step 1: Sign up details -->
-                <div id="signup-step-form">
-                  <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">1. Email Address (for verification)</div>
-                  <input id="signup-email" type="email" placeholder="you@example.com" autocomplete="email" required>
-                  
-                  <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">2. Choose Unique Player Name</div>
-                  <input id="signup-username" maxlength="24" placeholder="Unique Player Name" autocomplete="nickname" required>
-
-                  <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">3. Password (6+ chars)</div>
-                  <input id="signup-password" type="password" placeholder="Create a password" autocomplete="new-password" required>
-
-                  <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">4. Nationality</div>
-                  <select class="account-country-select" id="account-country" aria-label="Select Country" style="margin-bottom: 10px;">
-                    <!-- populated by JS -->
-                  </select>
-
-                  <button class="account-submit" id="auth-send-signup-otp-btn" type="button">📩 Send Verification Code</button>
-                </div>
-
-                <!-- Step 2: 6-Digit OTP Entry -->
-                <div id="signup-step-otp" class="hidden">
-                  <div class="otp-target-bar">
-                    <span>Code sent to: <strong id="otp-target-email">name@example.com</strong></span>
-                    <button class="otp-edit-btn" id="otp-change-email-btn" type="button">Edit</button>
-                  </div>
-                  <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">Enter 6-Digit Code</div>
-                  <input id="signup-otp-input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="• • • • • •" style="letter-spacing: 0.3em; font-size: 18px; text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 800;">
-                  
-                  <button class="account-submit" id="auth-verify-signup-btn" type="button">🔐 Verify Code & Create Account</button>
-                  
-                  <div class="otp-resend-row">
-                    <button class="otp-resend-btn" id="auth-resend-signup-otp-btn" type="button" disabled>Resend Code (<span id="otp-countdown">60</span>s)</button>
-                  </div>
-                </div>
+              <div style="display: flex; gap: 8px; margin-top: 10px;">
+                <button class="account-submit" id="auth-login-btn" type="button" style="flex: 1;">🔑 Log In</button>
+                <button class="account-submit" id="auth-register-btn" type="button" style="flex: 1; background: var(--bg-subtle); color: var(--text-main); border: 1px solid var(--border-strong);">✨ Register</button>
               </div>
 
               <p class="account-msg" id="account-message" aria-live="polite"></p>
@@ -3326,13 +3285,12 @@
     const authPaneLogin = document.querySelector('#auth-pane-login');
     const authPaneSignup = document.querySelector('#auth-pane-signup');
     
-    // Login Elements
+    // Login & Register Elements
     const loginIdentifier = document.querySelector('#login-identifier');
     const loginPassword = document.querySelector('#login-password');
     const authLoginBtn = document.querySelector('#auth-login-btn');
-
-    // Signup Elements
-    const signupStepForm = document.querySelector('#signup-step-form');
+    const authRegisterBtn = document.querySelector('#auth-register-btn');
+    const accountMessage = document.querySelector('#account-message');
     const signupStepOtp = document.querySelector('#signup-step-otp');
     const signupEmail = document.querySelector('#signup-email');
     const signupUsername = document.querySelector('#signup-username');
@@ -3589,195 +3547,119 @@
     });
 
     // ══════════════════════════════════════════════════════
-    // AUTHENTICATION: LOGIN (PASSWORD) & SIGNUP (EMAIL OTP)
+    // AUTHENTICATION: LOGIN & REGISTER
     // ══════════════════════════════════════════════════════
-    let currentAuthEmail = '';
-    let currentAuthUsername = '';
-    let otpCooldownTimer = null;
-    let resendSecondsRemaining = 0;
-
-    function startOtpCooldown(sec = 60) {
-      clearInterval(otpCooldownTimer);
-      resendSecondsRemaining = sec;
-      authResendSignupOtpBtn.disabled = true;
-      otpCountdown.textContent = resendSecondsRemaining;
-      otpCooldownTimer = setInterval(() => {
-        resendSecondsRemaining--;
-        if (resendSecondsRemaining > 0) {
-          otpCountdown.textContent = resendSecondsRemaining;
-        } else {
-          clearInterval(otpCooldownTimer);
-          authResendSignupOtpBtn.disabled = false;
-          authResendSignupOtpBtn.innerHTML = '🔄 Resend Code';
+    if (authLoginBtn) {
+      authLoginBtn.addEventListener('click', () => {
+        const identifier = loginIdentifier.value.trim();
+        const password = loginPassword.value;
+        if (!identifier || !password) {
+          accountMessage.textContent = 'Please enter your player name and password.';
+          accountMessage.style.color = 'var(--rose)';
+          return;
         }
-      }, 1000);
+        accountMessage.textContent = 'Logging in...';
+        accountMessage.style.color = 'var(--primary)';
+        socket.emit('login', { identifier, password });
+      });
     }
 
-    function switchAuthTab(mode) {
-      authMode = mode;
-      accountMessage.textContent = '';
-      if (mode === 'login') {
-        tabLogin.classList.add('active');
-        tabSignup.classList.remove('active');
-        authPaneLogin.classList.remove('hidden');
-        authPaneSignup.classList.add('hidden');
-      } else {
-        tabSignup.classList.add('active');
-        tabLogin.classList.remove('active');
-        authPaneSignup.classList.remove('hidden');
-        authPaneLogin.classList.add('hidden');
-        if (!signupUsername.value) {
-          signupUsername.value = usernameInput.value.trim() || '';
+    if (authRegisterBtn) {
+      authRegisterBtn.addEventListener('click', () => {
+        const username = loginIdentifier.value.trim();
+        const password = loginPassword.value;
+        if (!username || username.length < 3 || username.length > 24) {
+          accountMessage.textContent = 'Player name must be 3-24 letters, numbers, or spaces.';
+          accountMessage.style.color = 'var(--rose)';
+          loginIdentifier.focus();
+          return;
         }
-      }
+        if (!password || password.length < 6) {
+          accountMessage.textContent = 'Password must be at least 6 characters.';
+          accountMessage.style.color = 'var(--rose)';
+          loginPassword.focus();
+          return;
+        }
+        accountMessage.textContent = 'Creating your account...';
+        accountMessage.style.color = 'var(--primary)';
+        socket.emit('register', {
+          username,
+          password,
+          country: userCountry,
+        });
+      });
     }
 
-    tabLogin.addEventListener('click', () => switchAuthTab('login'));
-    tabSignup.addEventListener('click', () => switchAuthTab('signup'));
-
-    // --- STANDARD LOGIN (Username/Email + Password) ---
-    authLoginBtn.addEventListener('click', () => {
-      const identifier = loginIdentifier.value.trim();
-      const password = loginPassword.value;
-      if (!identifier || !password) {
-        accountMessage.textContent = 'Please enter your username/email and password.';
-        accountMessage.style.color = 'var(--rose)';
-        return;
-      }
-      accountMessage.textContent = 'Logging in...';
-      accountMessage.style.color = 'var(--primary)';
-      socket.emit('login', { identifier, password });
-    });
-
-    loginIdentifier.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') loginPassword.focus();
-    });
-    loginPassword.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') authLoginBtn.click();
-    });
-
-    // --- SIGN UP STEP 1: REQUEST VERIFICATION CODE ---
-    authSendSignupOtpBtn.addEventListener('click', () => {
-      const email = signupEmail.value.trim();
-      const username = signupUsername.value.trim();
-      const password = signupPassword.value;
-      const country = accountCountry.value || userCountry;
-
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        accountMessage.textContent = 'Please enter a valid email address.';
-        accountMessage.style.color = 'var(--rose)';
-        signupEmail.focus();
-        return;
-      }
-
-      if (!username || username.length < 3 || username.length > 24) {
-        accountMessage.textContent = 'Player name must be between 3 and 24 characters.';
-        accountMessage.style.color = 'var(--rose)';
-        signupUsername.focus();
-        return;
-      }
-
-      if (!password || password.length < 6) {
-        accountMessage.textContent = 'Password must be at least 6 characters.';
-        accountMessage.style.color = 'var(--rose)';
-        signupPassword.focus();
-        return;
-      }
-
-      accountMessage.textContent = 'Dispatching 6-digit verification code...';
-      accountMessage.style.color = 'var(--primary)';
-      authSendSignupOtpBtn.disabled = true;
-
-      socket.emit('requestOtp', { email, username, password, country });
-    });
-
-    signupEmail.addEventListener('keydown', (e) => { if (e.key === 'Enter') signupUsername.focus(); });
-    signupUsername.addEventListener('keydown', (e) => { if (e.key === 'Enter') signupPassword.focus(); });
-    signupPassword.addEventListener('keydown', (e) => { if (e.key === 'Enter') authSendSignupOtpBtn.click(); });
-
-    // --- SIGN UP STEP 2: EDIT EMAIL ---
-    otpChangeEmailBtn.addEventListener('click', () => {
-      signupStepOtp.classList.add('hidden');
-      signupStepForm.classList.remove('hidden');
-      accountMessage.textContent = '';
-      authSendSignupOtpBtn.disabled = false;
-      signupEmail.focus();
-    });
-
-    // --- SIGN UP STEP 2: VERIFY OTP & CREATE ACCOUNT ---
-    authVerifySignupBtn.addEventListener('click', () => {
-      const code = signupOtpInput.value.trim();
-      if (!code || code.length < 6) {
-        accountMessage.textContent = 'Please enter the 6-digit code received in your email.';
-        accountMessage.style.color = 'var(--rose)';
-        signupOtpInput.focus();
-        return;
-      }
-      accountMessage.textContent = 'Verifying & activating account...';
-      accountMessage.style.color = 'var(--primary)';
-      socket.emit('verifyOtp', {
-        email: currentAuthEmail,
-        code,
+    if (loginIdentifier) {
+      loginIdentifier.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') loginPassword.focus();
       });
-    });
-
-    signupOtpInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') authVerifySignupBtn.click();
-    });
-
-    // --- SIGN UP STEP 2: RESEND OTP ---
-    authResendSignupOtpBtn.addEventListener('click', () => {
-      if (authResendSignupOtpBtn.disabled) return;
-      accountMessage.textContent = 'Resending verification code...';
-      accountMessage.style.color = 'var(--primary)';
-      authResendSignupOtpBtn.disabled = true;
-      socket.emit('requestOtp', {
-        email: currentAuthEmail,
-        username: currentAuthUsername,
-        password: signupPassword.value,
-        country: accountCountry.value || userCountry,
+    }
+    if (loginPassword) {
+      loginPassword.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') authLoginBtn.click();
       });
-    });
-
-    // Socket Event: OTP Sent Response
-    socket.on('otpSent', ({ email, username, cooldownSec, message }) => {
-      currentAuthEmail = email;
-      currentAuthUsername = username;
-      authSendSignupOtpBtn.disabled = false;
-      otpTargetEmail.textContent = email;
-      signupStepForm.classList.add('hidden');
-      signupStepOtp.classList.remove('hidden');
-      signupOtpInput.value = '';
-      setTimeout(() => signupOtpInput.focus(), 100);
-
-      accountMessage.textContent = message || '6-digit verification code dispatched to your email.';
-      accountMessage.style.color = 'var(--primary)';
-      startOtpCooldown(cooldownSec || 60);
-      showToast(`Verification code sent to ${email}`);
-    });
+    }
 
     // ══════════════════════════════════════════════════════
     // CLERK 1-CLICK AUTHENTICATION (Google, etc.)
     // ══════════════════════════════════════════════════════
     const clerkGoogleBtn = document.querySelector('#clerk-google-btn');
+    const CLERK_PUBLISHABLE_KEY = 'pk_test_c3dlZXQtbW90aC03NjMwLmNsZXJrLmFjY291bnRzLmRldiQ';
+
+    async function ensureClerkLoaded() {
+      if (window.Clerk && window.Clerk.loaded) return window.Clerk;
+      if (window.Clerk && typeof window.Clerk.load === 'function') {
+        try {
+          await window.Clerk.load();
+          return window.Clerk;
+        } catch (e) {
+          console.warn('Clerk load error:', e);
+        }
+      }
+
+      return new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.setAttribute('data-clerk-publishable-key', CLERK_PUBLISHABLE_KEY);
+        script.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js';
+        script.crossOrigin = 'anonymous';
+        script.onload = async () => {
+          try {
+            if (window.Clerk && typeof window.Clerk.load === 'function') {
+              await window.Clerk.load();
+              resolve(window.Clerk);
+            } else {
+              resolve(window.Clerk || null);
+            }
+          } catch (err) {
+            console.error('Clerk script init error:', err);
+            resolve(window.Clerk || null);
+          }
+        };
+        script.onerror = () => resolve(window.Clerk || null);
+        document.head.appendChild(script);
+      });
+    }
 
     async function initClerk() {
       try {
-        if (window.Clerk) {
-          await window.Clerk.load();
-          if (window.Clerk.user) {
-            syncClerkUser(window.Clerk.user);
+        const clerk = await ensureClerkLoaded();
+        if (clerk) {
+          if (clerk.user) {
+            syncClerkUser(clerk.user);
           }
-          window.Clerk.addListener(({ user }) => {
-            if (user) {
-              syncClerkUser(user);
-            } else if (loggedIn && userProfile && userProfile.clerkId) {
-              handleLocalLogout();
-            }
-          });
+          if (typeof clerk.addListener === 'function') {
+            clerk.addListener(({ user }) => {
+              if (user) {
+                syncClerkUser(user);
+              } else if (loggedIn && userProfile && userProfile.clerkId) {
+                handleLocalLogout();
+              }
+            });
+          }
         }
       } catch (err) {
-        console.warn('Clerk initialization warning:', err);
+        console.warn('Clerk init warning:', err);
       }
     }
 
@@ -3798,12 +3680,22 @@
     }
 
     if (clerkGoogleBtn) {
-      clerkGoogleBtn.addEventListener('click', () => {
-        if (window.Clerk) {
-          accountPanel.classList.add('hidden');
-          window.Clerk.openSignIn();
-        } else {
-          showToast('Loading Google Sign-In...');
+      clerkGoogleBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        accountPanel.classList.add('hidden');
+        showToast('Opening Google Sign-In...');
+
+        try {
+          const clerk = await ensureClerkLoaded();
+          if (clerk && typeof clerk.openSignIn === 'function') {
+            clerk.openSignIn();
+          } else {
+            window.location.href = 'https://sweet-moth-7630.clerk.accounts.dev/sign-in';
+          }
+        } catch (err) {
+          console.error('Clerk openSignIn error:', err);
+          window.location.href = 'https://sweet-moth-7630.clerk.accounts.dev/sign-in';
         }
       });
     }
