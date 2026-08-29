@@ -31,18 +31,30 @@ if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   });
   console.log(`Configured SMTP mail transporter (${process.env.SMTP_HOST}).`);
 } else if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASS) {
   const cleanPass = String(process.env.GMAIL_APP_PASS).replace(/\s+/g, '');
+  const gmailUser = process.env.GMAIL_USER.trim();
   mailTransporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
-      user: process.env.GMAIL_USER.trim(),
+      user: gmailUser,
       pass: cleanPass,
     },
+    tls: {
+      rejectUnauthorized: false,
+    },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   });
-  console.log(`Configured Gmail mail transporter (${process.env.GMAIL_USER.trim()}).`);
+  console.log(`Configured Gmail SMTP mail transporter (${gmailUser}).`);
 } else {
   console.log(`ℹ️ No SMTP env variables found. Email OTP codes will print to terminal console in Development Mode.`);
 }
@@ -55,8 +67,9 @@ function generateOtp() {
 }
 
 async function sendOtpEmail(email, otp, username = 'Typist') {
+  const senderEmail = process.env.EMAIL_FROM || (process.env.GMAIL_USER ? `"Typendo Security" <${process.env.GMAIL_USER.trim()}>` : '"Typendo Security" <no-reply@typendo.com>');
   const mailOptions = {
-    from: process.env.EMAIL_FROM || '"Typendo Security" <no-reply@typendo.com>',
+    from: senderEmail,
     to: email,
     subject: `🔐 Your Typendo Login Code: ${otp}`,
     text: `Hello ${username},\n\nYour 6-digit Typendo login verification code is: ${otp}\n\nThis code will expire in 10 minutes. Only use this code if you requested to log in or register on Typendo.\n\n— Typendo Typing Battle Arena`,
