@@ -217,8 +217,23 @@
 
     .profile-box:focus-within {
       background: #fff;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-glow);
+      border-color: var(--border-strong);
+      box-shadow: none;
+    }
+
+    .username-readonly-wrap {
+      border-left: 1.5px solid var(--border-subtle);
+      padding-left: 8px;
+      margin-left: 2px;
+    }
+
+    .readonly-handle-input {
+      width: 90px !important;
+      color: var(--text-dim) !important;
+      font-weight: 700;
+      cursor: default !important;
+      user-select: none;
+      opacity: 0.85;
     }
 
     .profile-avatar {
@@ -4458,8 +4473,12 @@
             </button>
             <div class="profile-avatar" id="header-avatar">P</div>
             <div class="profile-field-wrap">
-              <span class="profile-field-label">PLAYER NAME</span>
-              <input class="profile-input" id="username-input" maxlength="20" placeholder="Your Name" autocomplete="nickname">
+              <span class="profile-field-label">NICKNAME</span>
+              <input class="profile-input" id="username-input" maxlength="20" placeholder="Your Nickname" title="Your editable display nickname" autocomplete="nickname">
+            </div>
+            <div class="profile-field-wrap username-readonly-wrap">
+              <span class="profile-field-label">USERNAME</span>
+              <input class="profile-input readonly-handle-input" id="handle-display-input" readonly placeholder="@guest" value="@guest" tabindex="-1" title="Fixed account username handle (cannot be changed)">
             </div>
             <div class="profile-elo-tag" id="header-elo" title="Click to view ELO Division Tiers">1000 ELO</div>
           </div>
@@ -6198,29 +6217,51 @@
       showToast(`Sending friend request to ${targetUsername}...`);
     };
 
+    let previousSavedNickname = localStorage.getItem('typendoUsername') || 'Player';
+
+    function getActiveNickname() {
+      return userProfile?.nickname || userProfile?.username || previousSavedNickname || 'Player';
+    }
+
     usernameInput.addEventListener('input', () => {
-      const name = usernameInput.value.trim() || 'Player';
-      headerAvatar.textContent = name.slice(0, 1).toUpperCase();
-      localStorage.setItem('typendoUsername', name);
-      if (loggedIn) {
-        socket.emit('updateProfile', { newUsername: name });
-      } else {
-        socket.emit('setUsername', { username: name, country: userCountry });
+      const typed = usernameInput.value;
+      if (typed.trim().length > 0) {
+        headerAvatar.textContent = typed.trim().slice(0, 1).toUpperCase();
       }
     });
 
-    usernameInput.addEventListener('change', () => {
-      const name = usernameInput.value.trim() || 'Player';
-      if (loggedIn) {
-        socket.emit('updateProfile', { newUsername: name });
-      } else {
-        localStorage.setItem('typendoUsername', name);
-        socket.emit('setUsername', { username: name, country: userCountry });
+    function commitNicknameChange() {
+      const typed = usernameInput.value.trim();
+      const currentNick = getActiveNickname();
+
+      // If user deleted all letters / left blank, revert to previous nickname
+      if (!typed) {
+        usernameInput.value = currentNick;
+        headerAvatar.textContent = currentNick.slice(0, 1).toUpperCase();
+        return;
       }
-    });
+
+      // If nickname actually changed
+      if (typed !== currentNick) {
+        previousSavedNickname = typed;
+        localStorage.setItem('typendoUsername', typed);
+        if (loggedIn) {
+          socket.emit('updateProfile', { newUsername: typed });
+        } else {
+          socket.emit('setUsername', { username: typed, country: userCountry });
+        }
+      }
+    }
+
+    usernameInput.addEventListener('blur', commitNicknameChange);
 
     usernameInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
+        e.preventDefault();
+        usernameInput.blur();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        usernameInput.value = getActiveNickname();
         usernameInput.blur();
       }
     });
@@ -6271,13 +6312,17 @@
     const CLERK_PUBLISHABLE_KEY = 'pk_test_c3dlZXQtbW90aC03NjMwLmNsZXJrLmFjY291bnRzLmRldiQ';
     const CLERK_FRONTEND_API = 'https://sweet-moth-7630.clerk.accounts.dev';
 
-    function updateAuthHeaderUI(isLoggedIn, name = 'Player') {
+    function updateAuthHeaderUI(isLoggedIn, nickname = 'Player', usernameHandle = '') {
       const loggedOutGroup = document.querySelector('#header-auth-logged-out');
       const loggedInGroup = document.querySelector('#header-auth-logged-in');
+      const handleInput = document.querySelector('#handle-display-input');
+      if (handleInput) {
+        handleInput.value = usernameHandle ? `@${usernameHandle.replace(/^@/, '')}` : (isLoggedIn ? '@player' : '@guest');
+      }
       if (isLoggedIn) {
         if (loggedOutGroup) loggedOutGroup.classList.add('hidden');
         if (loggedInGroup) loggedInGroup.classList.remove('hidden');
-        if (accountBtnText) accountBtnText.textContent = name;
+        if (accountBtnText) accountBtnText.textContent = nickname;
       } else {
         if (loggedOutGroup) loggedOutGroup.classList.remove('hidden');
         if (loggedInGroup) loggedInGroup.classList.add('hidden');
@@ -6684,11 +6729,13 @@
         if (country) userProfile.country = userCountry;
         if (rating) userProfile.rating = rating;
       }
-      usernameInput.value = display;
+      if (document.activeElement !== usernameInput) {
+        usernameInput.value = display;
+      }
       if (!userProfile?.imageUrl) {
         headerAvatar.textContent = display.slice(0, 1).toUpperCase();
       }
-      updateAuthHeaderUI(true, display);
+      updateAuthHeaderUI(true, display, username);
       localStorage.setItem('typendoUsername', display);
       if (accountKey) localStorage.setItem('typendoAccountKey', accountKey);
       profileModalMsg.textContent = '✔ Profile display name successfully updated!';
@@ -8353,14 +8400,16 @@
         updateCountryUI(userCountry);
       }
       userProfile = { username, nickname: displayNickname, email, country: userCountry, rating, accountKey, clerkId, imageUrl, hasPassword, createdAt, isAdmin };
-      usernameInput.value = displayNickname;
+      if (document.activeElement !== usernameInput) {
+        usernameInput.value = displayNickname;
+      }
       if (imageUrl) {
         headerAvatar.innerHTML = `<img src="${escapeHtml(imageUrl)}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
       } else {
         headerAvatar.textContent = displayNickname.slice(0, 1).toUpperCase();
       }
       headerElo.textContent = rating + ' ELO';
-      updateAuthHeaderUI(true, displayNickname);
+      updateAuthHeaderUI(true, displayNickname, username);
       applyAdminUI(isAdmin);
 
       if (accountKey) localStorage.setItem('typendoAccountKey', accountKey);
