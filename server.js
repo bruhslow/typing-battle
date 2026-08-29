@@ -196,6 +196,22 @@ function formatAccountResponse(acc, accountKey) {
   };
 }
 
+function bindAccountSession(socket, accountKey) {
+  if (!accountKey) return;
+  // Disconnect any existing active socket sessions for this account
+  for (const [id, s] of io.sockets.sockets.entries()) {
+    if (s.id !== socket.id && s.data?.accountKey === accountKey) {
+      console.log(`Enforcing single session: logging out duplicate session for account ${accountKey} on socket ${id}`);
+      s.data.accountKey = null;
+      s.emit('forceLogout', {
+        reason: 'You were logged out because this account logged in on another device or tab.'
+      });
+      s.emit('authSignedOut');
+    }
+  }
+  socket.data.accountKey = accountKey;
+}
+
 function saveAccounts() {
   try {
     const obj = Object.fromEntries(accounts);
@@ -1153,7 +1169,7 @@ io.on('connection', (socket) => {
     if (country && typeof country === 'string') socket.data.country = country.trim().slice(0, 5).toUpperCase();
     if (accountKey && accounts.has(accountKey)) {
       const acc = accounts.get(accountKey);
-      socket.data.accountKey = accountKey;
+      bindAccountSession(socket, accountKey);
       socket.data.username = acc.username;
       socket.data.country = acc.country || socket.data.country || 'IND';
       socket.emit('authSuccess', {
@@ -1238,7 +1254,7 @@ io.on('connection', (socket) => {
       saveAccounts();
     }
 
-    socket.data.accountKey = accountKey;
+    bindAccountSession(socket, accountKey);
     socket.data.username = account.username;
     socket.data.country = account.country || 'IND';
     rotateFriendId(socket);
@@ -1294,7 +1310,7 @@ io.on('connection', (socket) => {
     saveAccounts();
     broadcastLeaderboard();
 
-    socket.data.accountKey = accountKey;
+    bindAccountSession(socket, accountKey);
     socket.data.username = newAccount.username;
     socket.data.country = newAccount.country;
     rotateFriendId(socket);
@@ -1420,7 +1436,7 @@ io.on('connection', (socket) => {
     saveAccounts();
     broadcastLeaderboard();
 
-    socket.data.accountKey = accountKey;
+    bindAccountSession(socket, accountKey);
     socket.data.username = newAccount.nickname;
     socket.data.country = newAccount.country;
     rotateFriendId(socket);
@@ -1485,7 +1501,7 @@ io.on('connection', (socket) => {
     saveAccounts();
     broadcastLeaderboard();
 
-    socket.data.accountKey = accountKey;
+    bindAccountSession(socket, accountKey);
     socket.data.username = newAccount.username;
     socket.data.country = newAccount.country;
     rotateFriendId(socket);
@@ -1522,7 +1538,7 @@ io.on('connection', (socket) => {
         return;
       }
       const accountKey = account.username.toLowerCase();
-      socket.data.accountKey = accountKey;
+      bindAccountSession(socket, accountKey);
       socket.data.username = account.username;
       socket.data.country = account.country || 'IND';
       rotateFriendId(socket);
@@ -1563,7 +1579,7 @@ io.on('connection', (socket) => {
       saveAccounts();
       broadcastLeaderboard();
 
-      socket.data.accountKey = candidateKey;
+      bindAccountSession(socket, candidateKey);
       socket.data.username = newAccount.username;
       socket.data.country = newAccount.country;
       rotateFriendId(socket);

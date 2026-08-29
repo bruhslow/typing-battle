@@ -9026,6 +9026,11 @@
       handleLocalLogout();
     });
 
+    socket.on('forceLogout', ({ reason }) => {
+      showToast(reason || '⚠️ Account logged in on another device or window.', true);
+      handleLocalLogout();
+    });
+
     socket.on('authSignedOut', () => {
       handleLocalLogout();
     });
