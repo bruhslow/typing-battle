@@ -3805,14 +3805,14 @@
         min-width: 0;
       }
 
-      /* Profile box: compact, aligned left inside flex */
+      /* Profile box: extended rightwards on mobile for full clear display */
       .profile-box {
         padding: 3px 8px 3px 4px;
         gap: 5px;
         height: 32px;
-        min-width: 0;
+        min-width: 140px;
         flex: 1;
-        max-width: 210px;
+        max-width: 270px;
         justify-content: flex-start;
         margin: 0;
       }
@@ -3858,6 +3858,7 @@
         margin: 0;
       }
 
+      /* Mute SFX button: brought straight down on the right side */
       .sound-toggle-btn {
         flex-shrink: 0;
         padding: 4px 7px;
@@ -3866,7 +3867,10 @@
         gap: 3px;
         border-radius: var(--radius-sm);
         justify-content: center;
-        margin: 0;
+        margin-top: 6px;
+        transform: translateY(6px);
+        order: 99;
+        margin-left: auto;
       }
       .sound-btn-label { display: none; }
 
