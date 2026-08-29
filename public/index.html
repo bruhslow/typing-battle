@@ -2430,6 +2430,8 @@
       max-height: 80px;
       overflow: hidden;
       scroll-behavior: smooth;
+      -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0.4) 0%, rgba(0,0,0,1) 4%, rgba(0,0,0,1) 96%, rgba(0,0,0,0.4) 100%);
+      mask-image: linear-gradient(to right, rgba(0,0,0,0.4) 0%, rgba(0,0,0,1) 4%, rgba(0,0,0,1) 96%, rgba(0,0,0,0.4) 100%);
     }
 
     .word-span {
@@ -2437,7 +2439,18 @@
       display: inline-block;
       margin-right: 0.35em;
       border-radius: 4px;
-      transition: background 0.12s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .word-span.word-past {
+      opacity: 0.36;
+      filter: blur(0.15px);
+    }
+
+    .solo-word-past {
+      opacity: 0.36;
+      filter: blur(0.15px);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .word-span.current-word {
@@ -6014,20 +6027,19 @@
     ];
 
     const SOLO_HARD_WORD_BANK = [
-      "extraordinary", "counter-intuitive", "synchronization", "cryptographic", "neuroplasticity",
-      "quantum-mechanical", "sophisticated", "architectures", "infrastructure", "multi-threaded",
-      "breakthrough", "algorithmic", "phenomenon", "high-frequency", "epistemology", "juxtaposition",
-      "deterministic", "bioinformatics", "unprecedented", "telemetry", "decentralized", "thermodynamics",
-      "microservices", "asynchronous", "reinforcement", "cryptography", "proportional", "indispensable",
-      "characteristic", "computational", "probabilistic", "imperceptible", "reconciliation", "optimization",
-      "observability", "heterogeneous", "differentiation", "concurrency", "vulnerabilities", "instrumentation"
+      "it's", "don't", "can't", "won't", "they're", "we've", "who's", "let's",
+      "extraordinary", "counter-intuitive", "synchronization", "cryptographic",
+      "practice;", "code:", "fast!", "why?", "\"ready\"", "'focus'",
+      "speed—", "100%", "30s", "15s", "$500", "#1", "24/7", "v2.0",
+      "function()", "const", "return;", "true;", "false;", "x = 42;",
+      "Dr.", "e.g.,", "i.e.,", "vs.", "etc.", "(accuracy)", "zero-error!"
     ];
 
     const SOLO_PUNCTUATION_BANK = [
-      "99.98%", "Dr. Turing:", "\"breakthrough\"", "algorithms;", "failover—", "v4.5?", "$3.85M",
-      "O(N log N)", "(sub-zero)", "system-wide!", "MTTR < 60s", "Byzantine-fault", "Section 14(b)",
-      "10,000+", "24/7", "state-of-the-art", "\"precision\"", "SHA-256", "real-time:", "well-designed;",
-      "error-free!", "high-speed—", "(multi-core)", "42.5%", "1,000x", "non-blocking;", "\"quantum\""
+      "it's", "don't", "let's", "stop;", "go:", "wait...", "\"quote\"",
+      "(100%)", "$250", "#winner", "10x", "24/7", "99.5%", "error—",
+      "test;", "result:", "win!", "ready?", "A+", "x = 10;", "step #1:",
+      "true;", "false;", "key: 'val',", "count++", "[0, 1, 2]"
     ];
 
     let soloDifficultyMode = 'standard'; // 'standard' or 'hard'
@@ -6135,7 +6147,7 @@
         const isCurrent = w === currentWordIdx;
         const isFuture = w > currentWordIdx;
 
-        let wordHtml = `<span class="solo-word-span ${isCurrent ? 'current-word' : ''}" id="solo-word-${w}" style="display:inline-block; margin-right:0.35em; border-radius:3px;">`;
+        let wordHtml = `<span class="solo-word-span ${isPast ? 'solo-word-past' : (isCurrent ? 'current-word' : '')}" id="solo-word-${w}" style="display:inline-block; margin-right:0.35em; border-radius:3px;">`;
         let wordHasError = false;
 
         for (let c = 0; c < targetWord.length; c++) {
@@ -6850,6 +6862,7 @@
       }
 
       document.querySelectorAll('.word-span').forEach((el, idx) => {
+        el.classList.toggle('word-past', idx < currentWordIndex);
         el.classList.toggle('current-word', idx === currentWordIndex);
       });
 
