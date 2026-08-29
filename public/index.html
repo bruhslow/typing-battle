@@ -6615,10 +6615,12 @@
     });
 
     // Header Account / Profile Button Trigger
-    accountButton.addEventListener('click', (e) => {
-      e.stopPropagation();
-      openProfileModal();
-    });
+    if (accountButton) {
+      accountButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openProfileModal();
+      });
+    }
 
     // Open Profile Modal Function
     function openProfileModal() {
@@ -6654,43 +6656,51 @@
       }, 50);
     }
 
-    closeProfileModalBtn.addEventListener('click', () => profileModal.classList.add('hidden'));
+    if (closeProfileModalBtn) {
+      closeProfileModalBtn.addEventListener('click', () => profileModal.classList.add('hidden'));
+    }
 
     if (profileEditNameInput) {
       profileEditNameInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
-          saveUsernameBtn.click();
+          if (saveUsernameBtn) saveUsernameBtn.click();
         }
       });
     }
 
     // Profile Modal Edit Handlers
-    saveUsernameBtn.addEventListener('click', () => {
-      const newUsername = profileEditNameInput.value.trim();
-      if (!newUsername) return;
-      profileModalMsg.textContent = 'Updating display name...';
-      socket.emit('updateProfile', { newUsername });
-    });
+    if (saveUsernameBtn) {
+      saveUsernameBtn.addEventListener('click', () => {
+        const newUsername = profileEditNameInput.value.trim();
+        if (!newUsername) return;
+        profileModalMsg.textContent = 'Updating display name...';
+        socket.emit('updateProfile', { newUsername });
+      });
+    }
 
-    saveCountryBtn.addEventListener('click', () => {
-      const newCountry = profileEditCountrySelect.value;
-      if (!newCountry) return;
-      profileModalMsg.textContent = 'Updating country...';
-      updateCountryUI(newCountry);
-      socket.emit('updateProfile', { newCountry });
-    });
+    if (saveCountryBtn) {
+      saveCountryBtn.addEventListener('click', () => {
+        const newCountry = profileEditCountrySelect.value;
+        if (!newCountry) return;
+        profileModalMsg.textContent = 'Updating country...';
+        updateCountryUI(newCountry);
+        socket.emit('updateProfile', { newCountry });
+      });
+    }
 
-    savePasswordBtn.addEventListener('click', () => {
-      const currentPassword = profileCurrPass.value;
-      const newPassword = profileNewPass.value;
-      if (!currentPassword || !newPassword) {
-        profileModalMsg.textContent = 'Enter both current and new password.';
-        return;
-      }
-      profileModalMsg.textContent = 'Updating password...';
-      socket.emit('updateProfile', { currentPassword, newPassword });
-    });
+    if (savePasswordBtn) {
+      savePasswordBtn.addEventListener('click', () => {
+        const currentPassword = profileCurrPass.value;
+        const newPassword = profileNewPass.value;
+        if (!currentPassword || !newPassword) {
+          profileModalMsg.textContent = 'Enter both current and new password.';
+          return;
+        }
+        profileModalMsg.textContent = 'Updating password...';
+        socket.emit('updateProfile', { currentPassword, newPassword });
+      });
+    }
 
     function handleLocalLogout() {
       socket.emit('logout');
@@ -6706,13 +6716,15 @@
       showToast('Logged out.');
     }
 
-    profileLogoutBtn.addEventListener('click', () => {
-      if (window.Clerk && window.Clerk.user) {
-        window.Clerk.signOut().then(() => handleLocalLogout());
-      } else {
-        handleLocalLogout();
-      }
-    });
+    if (profileLogoutBtn) {
+      profileLogoutBtn.addEventListener('click', () => {
+        if (window.Clerk && window.Clerk.user) {
+          window.Clerk.signOut().then(() => handleLocalLogout());
+        } else {
+          handleLocalLogout();
+        }
+      });
+    }
 
     socket.on('profileUpdated', ({ username, nickname, email, country, rating, accountKey }) => {
       const display = nickname || username || 'Player';
