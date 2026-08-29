@@ -14,35 +14,35 @@
 
 ## ✨ Features
 
-- ⚡ **Real-Time Multiplayer Duels**: Sub-millisecond WebSocket state synchronization.
-- 🏆 **Ranked 1v1 & Division Tiers**: Competitive ELO matchmaking spanning Bronze to Grandmaster.
-- 👥 **Persistent Friends System & Right-Slide Drawer**:
-  - **Right-Edge Pullout Drawer**: Dedicated task-manager style drawer with live badge notifications.
-  - **🟢 Online Friends Tab**: See friends currently online with one-click **⚔️ Duel** instant casual 1v1 challenges.
-  - **👥 All Friends Tab**: Manage your full friends list with online/offline status dots and removal.
-  - **📬 Pending Requests Tab**: Full request/accept system with separate **Received** (Accept/Decline) and **Sent** (Cancel) sections.
-  - **Search & Add**: Send friend requests by registered username or 6-character Friend Code.
-- ⚔️ **Live Friend Invites**: Real-time sliding invite banner with Accept / Decline and a 30-second auto-dismiss countdown timer.
-- 🏎️ **Animated Racer Tracks**: Dynamic live vehicle avatars (🏍️ Superbike, 🏎️ F1, 🚀 Cosmic Jet, 🐎 Stallion, 🛸 UFO, 🐆 Cheetah) tracking typist velocity.
-- 📜 **2-Line Rolling Conveyor Display**: Focused, distraction-free Monkeytype-style 2-line smooth rolling text window.
-- 🔬 **Solo Speed Lab Engine**: Endless continuous word stream with live WPM/accuracy telemetry and customizable duration tests (15s, 30s, 60s).
-- 🔊 **Web Audio Synthesizer**: Zero-latency procedural sound effects for keystrokes, countdown beeps, button clicks, and victory fanfares with top-right mute toggle.
-- 🛡️ **Anti-Cheat & Fair Judging**: Automatic bot/macro disqualification and real-time keystroke progress snapshots.
-- 📱 **Mobile-Optimised Layout**: Single-row header (logo left, tools right), proper touch keyboard handling, and zero autocorrect interference.
+- ⚡ **Real-Time Multiplayer Duels** — Sub-millisecond WebSocket state synchronization
+- 🏆 **Ranked 1v1 & Division Tiers** — Competitive ELO matchmaking spanning Bronze to Grandmaster
+- 👥 **Persistent Friends System & Right-Slide Drawer**
+  - Right-edge pullout drawer with live badge notifications
+  - 🟢 Online Friends tab with one-click ⚔️ Duel challenges
+  - 👥 All Friends tab with online/offline status and removal
+  - 📬 Pending Requests tab with Accept / Decline / Cancel flows
+  - Search & Add friends by username or 6-character Friend Code
+- ⚔️ **Live Friend Invites** — Real-time sliding invite banner with 30-second auto-dismiss countdown
+- 🏎️ **Animated Racer Tracks** — Dynamic vehicle avatars (🏍️ Superbike, 🏎️ F1, 🚀 Cosmic Jet, 🐎 Stallion, 🛸 UFO, 🐆 Cheetah) tracking typist velocity
+- 📜 **2-Line Rolling Conveyor Display** — Focused Monkeytype-style smooth rolling text window
+- 🔬 **Solo Speed Lab** — Endless word stream with live WPM/accuracy and customizable duration tests (15s, 30s, 60s)
+- 🔊 **Web Audio Synthesizer** — Zero-latency procedural sound effects for keystrokes, countdown, and victory fanfares
+- 🛡️ **Anti-Cheat Engine** — Automatic bot/macro disqualification via keystroke velocity analysis
+- 📱 **Mobile-Optimised** — Touch keyboard handling, zero autocorrect interference
 
 ---
 
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
+|-------|------------|
 | **Runtime** | Node.js |
 | **Backend Framework** | Express.js |
 | **Real-Time Engine** | Socket.io (WebSockets) |
+| **Authentication** | Clerk (Google SSO + Email OTP) |
 | **Audio Engine** | Web Audio API (Synthesized) |
-| **Auth** | Clerk (Google SSO + Email OTP) + Custom Username/Password |
 | **Storage** | JSON-backed persistence (`data/accounts.json`) |
-| **Frontend** | Vanilla HTML5 / Modern CSS Design Tokens / Vanilla JS |
+| **Frontend** | Vanilla HTML5 / Modern CSS / Vanilla JS |
 | **Hosting** | Render.com |
 | **Version Control** | Git + GitHub |
 
@@ -58,23 +58,20 @@ cd typing-battle
 # Install dependencies
 npm install
 
-# Start the dev server
+# Start the server
 node server.js
 ```
 
-Open `http://localhost:3000` in multiple browser tabs or devices to start racing.
+Open `http://localhost:3000` in multiple tabs or devices to start racing.
 
-### Optional Environment Variables
+### Environment Variables
 
 | Variable | Purpose |
 |----------|---------|
-| `GMAIL_USER` | Gmail address for OTP emails |
-| `GMAIL_APP_PASS` | Gmail App Password |
-| `SMTP_HOST` / `SMTP_USER` / `SMTP_PASS` | Custom SMTP provider |
-| `CLERK_SECRET_KEY` | Clerk backend secret |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk frontend key |
+| `CLERK_SECRET_KEY` | Clerk backend secret key |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk frontend publishable key |
 
-If no SMTP variables are set, OTP codes are printed to the terminal console (development mode).
+> If no Clerk keys are set, the app runs in guest mode (no persistent accounts).
 
 ---
 
@@ -83,30 +80,77 @@ If no SMTP variables are set, OTP codes are printed to the terminal console (dev
 ```
 typendo/
 ├── public/
-│   └── index.html      # Frontend — UI, Friends drawer, Web Audio engine, client sockets
+│   └── index.html       # Frontend — UI, Friends drawer, Web Audio, client sockets
 ├── data/
-│   └── accounts.json   # Persisted user accounts, friends & pending requests
-├── server.js           # Backend — Express, Socket.io, Friend System, ELO matchmaking, anti-cheat
-├── package.json        # Dependencies and scripts
+│   └── accounts.json    # Persisted user accounts, ELO ratings, friends data
+├── server.js            # Backend — Express, Socket.io, ELO, Friends system, Anti-cheat
+├── package.json         # Dependencies and scripts
 └── README.md
 ```
 
 ---
 
-## 👥 Friends System & Invite Flows
+## 🏗️ System Architecture
 
-| Feature | Details |
-|---------|---------|
-| **Friends Drawer** | Click the floating `👥 FRIENDS` tab on the right edge of the screen to open the panel. |
-| **Online Friends** | Shows friends currently connected. Click **⚔️ Duel** to immediately create a private room and send them a live pop-up invite. |
-| **All Friends** | Lists all accepted friends, sorted online first with live status indicators and ELO ratings. |
-| **Pending Requests** | Incoming requests with **Accept / Decline** buttons and outgoing requests with **Cancel** buttons. |
-| **Lobby Invites** | When in a custom lobby, enter any friend's code or username in the lobby panel to invite them directly. |
+```
+[Browser Client] ←── WebSocket (Socket.io) ──→ [Node.js + Express Server]
+                                                          ↕
+                                                  [accounts.json]
+                                                  (Users, ELO, Friends)
+```
+
+- **Express.js** serves the frontend and handles REST API routes (login, signup)
+- **Socket.io** maintains persistent connections for real-time game state sync
+- **Clerk** handles all authentication — Google SSO, Email OTP, session tokens
+- **accounts.json** stores all persistent data — accounts, ELO ratings, friend lists
+
+---
+
+## 👥 Friends & Invite Flow
+
+```
+Player A sends friend request
+        ↓
+Server saves pending request to accounts.json
+        ↓
+Player B receives live notification via Socket.io
+        ↓
+Player B accepts → both added as friends
+        ↓
+Player A can now send a live ⚔️ Duel invite
+        ↓
+Private room created → both players race
+```
+
+---
+
+## 🏆 ELO Ranking System
+
+| Tier | ELO Range |
+|------|-----------|
+| 🥉 Bronze | 0 — 999 |
+| 🥈 Silver | 1000 — 1199 |
+| 🥇 Gold | 1200 — 1499 |
+| 💎 Diamond | 1500 — 1799 |
+| 🏆 Master | 1800 — 1999 |
+| 👑 Grandmaster | 2000+ |
+
+Win against stronger players = more ELO gained. Lose against weaker players = more ELO lost.
+
+---
+
+## 🛡️ Anti-Cheat System
+
+- Tracks keystroke velocity in real time
+- Flags and disqualifies players typing above human-possible speeds
+- Protects ranked integrity from macros and bots
 
 ---
 
 ## 👥 Authors
 
-**Giridharan N S & Shivani**
+**Giridharan N S & Shivani** — Built for a college hackathon.
+
+---
 
 *Fast fingers. Clear mind.*
