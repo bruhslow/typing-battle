@@ -6873,7 +6873,8 @@
         completed: isCompleted,
         wordsTyped: correctWordsCount,
       });
-      showToast('Submitted! Awaiting opponent or timer...');
+      raceStatus.textContent = '🏁 YOU FINISHED! AWAITING FINAL SCOREBOARD...';
+      showToast('🏁 You finished! Waiting for timer / opponents to qualify...');
     }
 
     // Submit button click handler
@@ -7660,6 +7661,10 @@
         authModalMsg.textContent = msg;
         authModalMsg.style.color = 'var(--rose)';
       }
+      if (setupModalMsg) {
+        setupModalMsg.textContent = msg;
+        setupModalMsg.style.color = 'var(--rose)';
+      }
       showToast(msg, true);
     });
 
@@ -7892,7 +7897,21 @@
     });
 
     socket.on('finishGraceStarted', ({ seconds }) => {
-      showToast(`A player finished! Battle concluding in ${seconds}s...`);
+      let graceSec = seconds;
+      roundTimerDisplay.textContent = graceSec + 's';
+      roundTimerDisplay.classList.add('time-warning');
+      clearInterval(roundTimerInterval);
+      roundTimerInterval = setInterval(() => {
+        graceSec--;
+        if (graceSec >= 0) {
+          roundTimerDisplay.textContent = graceSec + 's';
+        }
+        if (graceSec <= 0) {
+          clearInterval(roundTimerInterval);
+        }
+      }, 1000);
+      SoundEngine.playCountdownBeep(false);
+      showToast(`⏱️ Opponent finished! ${seconds}s remaining to complete your passage and qualify!`);
     });
 
     socket.on('raceFinished', ({ winnerId, results = [], reason, mode }) => {
