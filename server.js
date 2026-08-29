@@ -586,35 +586,40 @@ function finishRace(roomId, force = false, reason = '') {
       if (first.disqualified && !second.disqualified) return 1;
       if (!first.disqualified && second.disqualified) return -1;
 
-      // 2. DNF (0 words / early abandon) players rank below players with actual progress
+      // 2. DNF (0 words / space spam / 0% progress) players rank below players with actual progress
       if (first.dnf && !second.dnf) return 1;
       if (!first.dnf && second.dnf) return -1;
 
       // 3. Completed finishers rank above partial submissions
-      const firstDone = Boolean(first.completed || (first.progress && first.progress >= 99));
-      const secondDone = Boolean(second.completed || (second.progress && second.progress >= 99));
+      const firstDone = Boolean(first.completed || (first.progress && first.progress >= 85));
+      const secondDone = Boolean(second.completed || (second.progress && second.progress >= 85));
       if (firstDone && !secondDone) return -1;
       if (!firstDone && secondDone) return 1;
 
-      // 4. If both completed: rank by WPM descending (higher speed wins), then faster elapsed time
+      // 4. If both completed: rank by higher WPM, then fewer errors, then faster time
       if (firstDone && secondDone) {
         if (second.wpm !== first.wpm) return second.wpm - first.wpm;
+        if ((first.errors || 0) !== (second.errors || 0)) return (first.errors || 0) - (second.errors || 0);
         return first.elapsedMs - second.elapsedMs;
       }
 
-      // 5. If neither finished (timeout / early submits): rank by progress %, then WPM
+      // 5. If neither finished: rank by actual progress %, then WPM, then fewer errors
       const firstProg = first.progress || 0;
       const secondProg = second.progress || 0;
       if (secondProg !== firstProg) return secondProg - firstProg;
-      return (second.wpm || 0) - (first.wpm || 0);
+      if ((second.wpm || 0) !== (first.wpm || 0)) return (second.wpm || 0) - (first.wpm || 0);
+      return (first.errors || 0) - (second.errors || 0);
     });
 
   if (results.length === 0) return;
 
-  const winnerId = results[0].id;
-  const isWinnerDisqualified = Boolean(results[0].disqualified);
+  // If top player is DNF with 0 progress / disqualified, nobody is awarded winner
+  const topResult = results[0];
+  const allDnf = results.every(r => r.dnf || (r.progress === 0 && r.wpm === 0) || r.disqualified);
+  const winnerId = (!allDnf && !topResult.disqualified && !topResult.dnf && (topResult.progress > 0 || topResult.wpm > 0)) ? topResult.id : null;
+  const isWinnerDisqualified = Boolean(topResult.disqualified);
 
-  if (room.mode === 'ranked' && results.length >= 2 && results[0] && results[1]) {
+  if (room.mode === 'ranked' && results.length >= 2 && results[0] && results[1] && winnerId) {
     const winner = results[0];
     const loser = results[1];
 
