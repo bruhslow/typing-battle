@@ -365,8 +365,8 @@ app.get('/api/config', (req, res) => {
 function getRoomMaxDurationSec(room) {
   if (!room) return 30;
   if (room.mode === 'quick') return 30; // Quick Play is always 30s
-  if (room.difficulty === 'hard') return 30; // Hard custom lobby is 30s
-  return 60; // Easy and Medium custom lobbies / Ranked are 60s
+  if (room.difficulty === 'hard' || room.difficulty === 'medium') return 30;
+  return 60; // Easy custom lobbies / Ranked are 60s
 }
 
 function getRandomParagraph(difficulty = 'medium', lastParagraph = '') {
