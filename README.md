@@ -279,7 +279,7 @@ Win against stronger players = more ELO gained. Lose against weaker players = mo
 
 ## 👥 Authors
 
-**Giridharan N S & Shivani** — Built for a college hackathon.
+**Giridharan N S & Shivani**
 
 ---
 
