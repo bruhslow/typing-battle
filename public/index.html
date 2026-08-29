@@ -5158,10 +5158,8 @@
     let roundTimerInterval;
     let readyTimerInterval;
     let countdownInterval;
-    let raceConveyorTimer = null;
-    let raceCurrentLine = 0;
-    let soloConveyorTimer = null;
-    let soloCurrentLine = 0;
+    let racePageStartWord = 0;
+    let soloPageStartWord = 0;
     const searchPhrases = ['Scanning for quick rivals...', 'Warming up the arena...', 'Tuning battle engines...', 'Opponent is stepping up...'];
 
     // Init username, country & avatar
@@ -6239,6 +6237,7 @@
       if (soloLiveTime) soloLiveTime.textContent = soloDurationSec + 's';
       if (soloLiveStreak) soloLiveStreak.textContent = '🔥 0 Streak';
       if (soloStageContainer) soloStageContainer.classList.remove('is-active');
+      soloPageStartWord = 0;
       if (soloQuoteDisplay) soloQuoteDisplay.scrollTop = 0;
 
       renderSoloQuoteVisual('');
@@ -6259,9 +6258,9 @@
         const typedWord = typedWords[w] || '';
         const isPast = w < currentWordIdx;
         const isCurrent = w === currentWordIdx;
-        const isFuture = w > currentWordIdx;
 
-        let wordHtml = `<span class="solo-word-span ${isPast ? 'solo-word-past' : (isCurrent ? 'current-word' : '')}" id="solo-word-${w}" style="display:inline-block; margin-right:0.35em; border-radius:3px;">`;
+        const isVisible = w >= soloPageStartWord;
+        let wordHtml = `<span class="solo-word-span ${isPast ? 'solo-word-past' : (isCurrent ? 'current-word' : '')}" id="solo-word-${w}" style="display:${isVisible ? 'inline-block' : 'none'}; margin-right:0.35em; border-radius:3px;">`;
         let wordHasError = false;
 
         for (let c = 0; c < targetWord.length; c++) {
@@ -6318,41 +6317,35 @@
       if (streak > soloMaxStreak) soloMaxStreak = streak;
       if (soloLiveStreak) soloLiveStreak.textContent = `🔥 ${streak} Streak`;
 
-      // Smooth 2-line rolling conveyor: active line stays on line 1, upcoming line visible below
+      // 2-Line Instant Page Turn Snap (Thanos Snap):
+      // As soon as user finishes Line 2 and steps onto Line 3, previous 2 lines instantly vanish!
       const currentWordEl = document.querySelector(`#solo-word-${currentWordIdx}`);
-      const firstSoloWordEl = soloQuoteDisplay ? soloQuoteDisplay.firstElementChild : null;
-      if (currentWordEl && firstSoloWordEl && soloQuoteDisplay) {
-        const firstTop = firstSoloWordEl.offsetTop;
+      const pageStartWordEl = document.querySelector(`#solo-word-${soloPageStartWord}`);
+      if (currentWordEl && pageStartWordEl && soloQuoteDisplay) {
+        const startTop = pageStartWordEl.offsetTop;
         const activeTop = currentWordEl.offsetTop;
-        const estLineHeight = Math.max(22, firstSoloWordEl.offsetHeight || 30);
-        const lineIndex = Math.max(0, Math.round((activeTop - firstTop) / estLineHeight));
+        const estLineHeight = Math.max(20, pageStartWordEl.offsetHeight || 28);
+        const lineDiff = Math.round((activeTop - startTop) / estLineHeight);
 
-        if (lineIndex <= 1) {
-          if (soloConveyorTimer) {
-            clearTimeout(soloConveyorTimer);
-            soloConveyorTimer = null;
+        if (lineDiff >= 2) {
+          soloPageStartWord = currentWordIdx;
+          for (let w = 0; w < targetWords.length; w++) {
+            const wEl = document.querySelector(`#solo-word-${w}`);
+            if (wEl) {
+              wEl.style.display = w < soloPageStartWord ? 'none' : 'inline-block';
+            }
           }
-          soloCurrentLine = 0;
-          if (soloQuoteDisplay.scrollTop !== 0) {
-            soloQuoteDisplay.scrollTo({ top: 0, behavior: 'smooth' });
-          }
-        } else if (lineIndex > soloCurrentLine) {
-          if (!soloConveyorTimer) {
-            soloConveyorTimer = setTimeout(() => {
-              const targetScroll = Math.max(0, (lineIndex - 1) * estLineHeight);
-              soloQuoteDisplay.scrollTo({ top: targetScroll, behavior: 'smooth' });
-              soloCurrentLine = lineIndex - 1;
-              soloConveyorTimer = null;
-
-              document.querySelectorAll('.solo-word-span').forEach((wEl, idx) => {
-                if (idx < currentWordIdx && wEl.offsetTop < activeTop - (estLineHeight * 0.4)) {
-                  wEl.classList.add('solo-word-fading-up');
-                }
-              });
-            }, 1800);
+        } else if (currentWordIdx < soloPageStartWord) {
+          soloPageStartWord = currentWordIdx;
+          for (let w = 0; w < targetWords.length; w++) {
+            const wEl = document.querySelector(`#solo-word-${w}`);
+            if (wEl) {
+              wEl.style.display = w < soloPageStartWord ? 'none' : 'inline-block';
+            }
           }
         }
       }
+      soloQuoteDisplay.scrollTop = 0;
     }
 
     function finishSoloTest() {
@@ -6636,11 +6629,7 @@
       clearInterval(roundTimerInterval);
       clearInterval(readyTimerInterval);
       clearInterval(countdownInterval);
-      if (raceConveyorTimer) {
-        clearTimeout(raceConveyorTimer);
-        raceConveyorTimer = null;
-      }
-      raceCurrentLine = 0;
+      racePageStartWord = 0;
       if (raceDisplay) raceDisplay.scrollTop = 0;
       
       typingArea.value = '';
@@ -7013,41 +7002,35 @@
         el.classList.toggle('current-word', idx === currentWordIndex);
       });
 
-      // Smooth 2-line rolling conveyor: active line stays on line 1, upcoming line visible below
+      // 2-Line Instant Page Turn Snap (Thanos Snap):
+      // As soon as user finishes Line 2 and steps onto Line 3, previous 2 lines instantly vanish!
       const activeWordEl = document.querySelector(`#word-span-${currentWordIndex}`);
-      const firstWordEl = raceDisplay ? raceDisplay.firstElementChild : null;
-      if (activeWordEl && firstWordEl && raceDisplay) {
-        const firstTop = firstWordEl.offsetTop;
+      const pageStartWordEl = document.querySelector(`#word-span-${racePageStartWord}`);
+      if (activeWordEl && pageStartWordEl && raceDisplay) {
+        const startTop = pageStartWordEl.offsetTop;
         const activeTop = activeWordEl.offsetTop;
-        const estLineHeight = Math.max(22, firstWordEl.offsetHeight || 30);
-        const lineIndex = Math.max(0, Math.round((activeTop - firstTop) / estLineHeight));
+        const estLineHeight = Math.max(20, pageStartWordEl.offsetHeight || 28);
+        const lineDiff = Math.round((activeTop - startTop) / estLineHeight);
 
-        if (lineIndex <= 1) {
-          if (raceConveyorTimer) {
-            clearTimeout(raceConveyorTimer);
-            raceConveyorTimer = null;
+        if (lineDiff >= 2) {
+          racePageStartWord = currentWordIndex;
+          for (let w = 0; w < wordsArray.length; w++) {
+            const wEl = document.querySelector(`#word-span-${w}`);
+            if (wEl) {
+              wEl.style.display = w < racePageStartWord ? 'none' : 'inline-block';
+            }
           }
-          raceCurrentLine = 0;
-          if (raceDisplay.scrollTop !== 0) {
-            raceDisplay.scrollTo({ top: 0, behavior: 'smooth' });
-          }
-        } else if (lineIndex > raceCurrentLine) {
-          if (!raceConveyorTimer) {
-            raceConveyorTimer = setTimeout(() => {
-              const targetScroll = Math.max(0, (lineIndex - 1) * estLineHeight);
-              raceDisplay.scrollTo({ top: targetScroll, behavior: 'smooth' });
-              raceCurrentLine = lineIndex - 1;
-              raceConveyorTimer = null;
-
-              document.querySelectorAll('.word-span').forEach((wEl, idx) => {
-                if (idx < currentWordIndex && wEl.offsetTop < activeTop - (estLineHeight * 0.4)) {
-                  wEl.classList.add('word-fading-up');
-                }
-              });
-            }, 1800);
+        } else if (currentWordIndex < racePageStartWord) {
+          racePageStartWord = currentWordIndex;
+          for (let w = 0; w < wordsArray.length; w++) {
+            const wEl = document.querySelector(`#word-span-${w}`);
+            if (wEl) {
+              wEl.style.display = w < racePageStartWord ? 'none' : 'inline-block';
+            }
           }
         }
       }
+      if (raceDisplay) raceDisplay.scrollTop = 0;
 
       const progress = Math.min(100, (totalCorrectChars / paragraph.length) * 100);
       const elapsedMin = Math.max(0.01, (Date.now() - startTime) / 60000);
