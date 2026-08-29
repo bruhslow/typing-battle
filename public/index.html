@@ -5779,6 +5779,7 @@
       startTime = 0;
       errorCount = 0;
       totalKeystrokes = 0;
+      raceTypingMode = 'standard';
       opponentCursors.clear();
       clearInterval(roundTimerInterval);
       clearInterval(readyTimerInterval);
@@ -5786,6 +5787,7 @@
       
       typingArea.value = '';
       typingArea.disabled = true;
+      typingArea.placeholder = 'Wait for countdown...';
       raceDisplay.innerHTML = '';
       resultsElement.innerHTML = '';
       sidebarPlayersList.innerHTML = '';
@@ -5793,12 +5795,25 @@
       
       const submitBtn = document.querySelector('#submit-race-btn');
       if (submitBtn) submitBtn.classList.add('hidden');
+
+      // Reset badge displays
+      activeSpeedBadge.textContent = '0 WPM';
+      activeErrorsBadge.textContent = '0';
+      roundTimerDisplay.textContent = '90s';
+      roundTimerDisplay.classList.remove('time-warning');
+      activeModeBadge.textContent = 'Standard';
       
+      // Reset UI panels
       waiting.classList.remove('hidden');
       raceContent.classList.add('hidden');
       readyOverlay.classList.add('hidden');
       countdownOverlay.classList.add('hidden');
+      hostSettingsPanel.classList.add('hidden');
+      startRoomButton.classList.add('hidden');
       setSearching(false);
+
+      // Hide room code pill
+      document.querySelector('#code-pill-wrap').classList.add('hidden');
     }
 
     function buildParagraphHTML() {
@@ -5951,19 +5966,27 @@
       clearInterval(roundTimerInterval);
       const elapsedMs = Math.max(1, Date.now() - startTime);
 
-      // In standard mode, only count correct words for WPM
-      let effectiveChars = paragraph.length;
-      if (raceTypingMode === 'standard') {
-        effectiveChars = 0;
-        for (let w = 0; w < wordsArray.length; w++) {
-          if (!skippedWords.has(w) && !wrongWords.has(w)) {
-            effectiveChars += wordsArray[w].length;
-            if (w < wordsArray.length - 1) effectiveChars++; // space
-          }
-        }
+      // Only count words that were actually REACHED and typed correctly
+      const typedWords = typingArea.value.split(' ');
+      const reachedWordCount = typedWords.length; // how many words user actually got to
+      let effectiveChars = 0;
+
+      for (let w = 0; w < wordsArray.length; w++) {
+        // Only count words the player actually reached
+        if (w >= reachedWordCount) break;
+
+        const typedWord = typedWords[w] || '';
+        const targetWord = wordsArray[w];
+
+        // Skip words that are wrong, skipped, or empty
+        if (skippedWords.has(w) || wrongWords.has(w)) continue;
+        if (typedWord !== targetWord) continue;
+
+        effectiveChars += targetWord.length;
+        if (w < wordsArray.length - 1) effectiveChars++; // space
       }
 
-      const finalWpm = Math.round((effectiveChars / 5) / (elapsedMs / 60000));
+      const finalWpm = effectiveChars > 0 ? Math.round((effectiveChars / 5) / (elapsedMs / 60000)) : 0;
       const totalErrors = errorCount + skippedWords.size;
       socket.emit('finished', { wpm: finalWpm, errors: totalErrors, elapsedMs });
       showToast('Submitted! Awaiting opponent or timer...');
