@@ -1643,6 +1643,65 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('skipMatch', ({ roomId }) => {
+    const readyState = readyMatches.get(roomId);
+    if (!readyState || !readyState.players.has(socket.id)) return;
+
+    // Rule: Skip opponent is strictly forbidden in ranked mode
+    if (readyState.mode === 'ranked') {
+      socket.emit('errorMessage', 'Opponents cannot be skipped in Ranked mode.');
+      return;
+    }
+
+    clearTimeout(readyState.timeout);
+    readyMatches.delete(roomId);
+    rooms.delete(roomId);
+
+    // Skipping player leaves match and re-queues
+    socket.leave(roomId);
+    delete socket.data.roomId;
+    socket.emit('matchCancelled', { message: 'You skipped this opponent. Searching for a new rival...' });
+
+    const mode = readyState.mode || 'quick';
+    const queuePlatform = ['pc', 'phone', 'cross'].includes(socket.data?.platform) ? socket.data.platform : 'pc';
+    if (matchmakingQueues[mode] && matchmakingQueues[mode][queuePlatform]) {
+      matchmakingQueues[mode][queuePlatform].push(socket.id);
+      socket.data.queued = true;
+      socket.emit('matchmaking', {
+        position: matchmakingQueues[mode][queuePlatform].length,
+        mode,
+        platform: socket.data.platform,
+        queuePlatform,
+        rating: getRating(socket.id),
+      });
+      createMatch(mode, queuePlatform);
+    }
+
+    // Other player is informed and priority re-queued
+    readyState.players.forEach((otherId) => {
+      if (otherId === socket.id) return;
+      const otherSocket = io.sockets.sockets.get(otherId);
+      if (!otherSocket) return;
+      otherSocket.leave(roomId);
+      delete otherSocket.data.roomId;
+      otherSocket.emit('matchCancelled', { message: 'Opponent skipped the match. Finding you a new rival...' });
+
+      const otherPlatform = ['pc', 'phone', 'cross'].includes(otherSocket.data?.platform) ? otherSocket.data.platform : 'pc';
+      if (matchmakingQueues[mode] && matchmakingQueues[mode][otherPlatform]) {
+        matchmakingQueues[mode][otherPlatform].unshift(otherSocket.id);
+        otherSocket.data.queued = true;
+        otherSocket.emit('matchmaking', {
+          position: 1,
+          mode,
+          platform: otherSocket.data.platform,
+          queuePlatform: otherPlatform,
+          rating: getRating(otherSocket.id),
+        });
+        createMatch(mode, otherPlatform);
+      }
+    });
+  });
+
   socket.on('getPublicRooms', () => {
     socket.emit('publicRoomsList', getPublicRoomsList());
   });

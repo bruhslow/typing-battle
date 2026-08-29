@@ -3354,6 +3354,37 @@
       box-shadow: none;
     }
 
+    .ready-actions-grid {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      width: 100%;
+    }
+
+    .ready-skip-btn {
+      min-height: 48px;
+      padding: 0 20px;
+      background: rgba(244, 63, 94, 0.12);
+      color: var(--rose);
+      font-weight: 800;
+      font-size: 13px;
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .ready-skip-btn:hover {
+      background: rgba(244, 63, 94, 0.22);
+      border-color: var(--rose);
+      transform: translateY(-1px);
+    }
+
     .countdown-overlay {
       position: absolute;
       inset: 0;
@@ -4160,7 +4191,10 @@
             <div class="ready-timer-bar">
               <div class="ready-timer-fill" id="ready-timer-progress"></div>
             </div>
-            <button class="ready-accept-btn" id="ready-button" type="button">ACCEPT & READY</button>
+            <div class="ready-actions-grid" id="ready-actions-wrap">
+              <button class="ready-accept-btn" id="ready-button" type="button" style="flex: 1;">ACCEPT & READY</button>
+              <button class="ready-skip-btn hidden" id="ready-skip-button" type="button" title="Skip this opponent and search for a new rival">⏭️ SKIP</button>
+            </div>
           </div>
         </div>
 
@@ -4942,6 +4976,7 @@
     // Ready Check & Race Metrics
     const readyOverlay = document.querySelector('#ready-overlay');
     const readyButton = document.querySelector('#ready-button');
+    const readySkipButton = document.querySelector('#ready-skip-button');
     const readyTimerProgress = document.querySelector('#ready-timer-progress');
     const readyOpponentName = document.querySelector('#ready-opponent-name');
     const readyOpponentStatus = document.querySelector('#ready-opponent-status');
@@ -6948,6 +6983,16 @@
       socket.emit('playerReady', { roomId: currentRoomId });
     });
 
+    if (readySkipButton) {
+      readySkipButton.addEventListener('click', () => {
+        SoundEngine.playButtonClick();
+        readyOverlay.classList.add('hidden');
+        clearInterval(readyTimerInterval);
+        socket.emit('skipMatch', { roomId: currentRoomId });
+        showToast('Skipped opponent. Searching for a new rival...');
+      });
+    }
+
     // Duel History & ELO History State
     let duelHistory = [];
     let eloHistory = [];
@@ -7421,6 +7466,11 @@
       readyOverlay.classList.remove('hidden');
       readyButton.textContent = 'ACCEPT & READY';
       readyButton.classList.remove('is-ready');
+
+      // Skip is enabled for Quick & Custom, but strictly forbidden in Ranked mode
+      if (readySkipButton) {
+        readySkipButton.classList.toggle('hidden', mode === 'ranked');
+      }
 
       if (readyOpponentName && readyOpponentStatus) {
         readyOpponentName.innerHTML = `
