@@ -217,8 +217,8 @@
 
     .profile-box:focus-within {
       background: #fff;
-      border-color: var(--border-strong);
-      box-shadow: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
     }
 
     .profile-avatar {
@@ -261,21 +261,6 @@
       outline: none;
       padding: 1px 0 0;
       text-overflow: ellipsis;
-    }
-
-    .username-readonly-wrap {
-      border-left: 1.5px solid var(--border-subtle);
-      padding-left: 8px;
-      margin-left: 2px;
-    }
-
-    .readonly-handle-input {
-      width: 90px !important;
-      color: var(--text-dim) !important;
-      font-weight: 700;
-      cursor: default !important;
-      user-select: none;
-      opacity: 0.85;
     }
 
     .profile-elo-tag {
@@ -3679,37 +3664,97 @@
       gap: 8px;
     }
 
-    /*      /* ── Mobile Header: Logo left, Profile Box right inside topbar, Mute button below username box ── */
+    /* TOAST */
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 18px;
+      background: var(--text-main);
+      border-radius: var(--radius-md);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: var(--shadow-xl);
+      animation: toast-in 0.25s ease-out both;
+      max-width: calc(100vw - 40px);
+    }
+
+    .toast-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .toast.toast-error .toast-dot { background: var(--rose); }
+    .toast.hiding { animation: toast-out 0.2s ease-in both; }
+
+    .hidden { display: none !important; }
+
+    /* ANIMATIONS */
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pop { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.85); } }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(12px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes toast-out { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(12px) scale(0.96); } }
+    @keyframes search-slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
+
+    /* RESPONSIVE */
+    @media (max-width: 980px) {
+      .top-stats-strip { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .stat-strip-card:nth-child(4) { grid-column: span 1; }
+      .stat-strip-card:nth-child(5) { grid-column: span 2; }
+    }
+
+    @media (max-width: 880px) {
+      .race-layout { grid-template-columns: 1fr; }
+      .home-grid { grid-template-columns: 1fr; gap: 14px; }
+    }
+
+    @media (max-width: 768px) {
+      .shell { width: 100%; max-width: 100%; margin: 0 auto; padding: 10px 12px 16px; }
+      .viewport-screen { gap: 12px; }
+
+      .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; justify-content: center; width: 100%; }
+      .stat-strip-card { padding: 8px 10px; justify-content: center; text-align: center; }
+      .stat-strip-card:nth-child(5) { grid-column: span 2; }
+
+      /* ── Mobile Header: Logo at top-left corner, username & tools next to / under it ── */
       header {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 12px;
+        padding: 10px 12px;
         border-radius: var(--radius-lg);
-        gap: 6px 10px;
-        margin: 0 auto 8px;
+        gap: 8px;
+        margin: 0 auto 6px;
         width: 100%;
         box-sizing: border-box;
       }
 
       /* Logo: pinned to left corner */
       .brand {
-        order: 1;
         flex-shrink: 0;
-        font-size: 15px;
+        font-size: 16px;
         gap: 6px;
         margin: 0;
         justify-content: flex-start;
         text-align: left;
       }
-      .brand-svg-mark { width: 24px; height: 24px; border-radius: 8px; }
-      .brand-title { font-size: 14px; }
+      .brand-svg-mark { width: 26px; height: 26px; border-radius: 8px; }
+      .brand-title { font-size: 15px; }
 
-      /* Header tools: pinned to right side of topbar */
+      /* Tools & Username wrapper on mobile */
       .header-tools {
-        order: 2;
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
@@ -3721,110 +3766,23 @@
         min-width: 0;
       }
 
-      /* Profile box: aligned right inside header tools */
+      /* Profile box: compact, aligned left inside flex */
       .profile-box {
-        order: 1;
-        padding: 3px 6px;
+        padding: 3px 8px 3px 4px;
         gap: 5px;
-        height: auto;
-        min-height: 32px;
+        height: 32px;
         min-width: 0;
-        flex: 1;
-        max-width: 100%;
+        flex-shrink: 1;
+        max-width: 160px;
         justify-content: flex-start;
         margin: 0;
-        background: transparent;
-        border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-md);
-        box-shadow: none !important;
       }
-      .profile-field-label { display: block !important; font-size: 7.5px; color: var(--text-dim); }
+      .profile-field-label { display: none !important; }
       .profile-avatar { width: 22px; height: 22px; font-size: 10px; flex-shrink: 0; }
       .profile-field-wrap { flex: 1; min-width: 0; }
-      .profile-input { width: 75px !important; min-width: 32px; font-size: 11.5px !important; font-weight: 700; height: 20px; text-align: left; }
-      .username-readonly-wrap { display: flex; border-left: 1px solid var(--border-subtle); padding-left: 5px; margin-left: 0; }
-      .readonly-handle-input { width: 65px !important; font-size: 10.5px !important; }
-      .profile-elo-tag { display: inline-flex; font-size: 9px; padding: 2px 5px; border-radius: 4px; }
+      .profile-input { width: 100%; min-width: 32px; font-size: 12px; font-weight: 700; height: 22px; text-align: left; }
+      .profile-elo-tag { display: inline-flex; font-size: 9px; padding: 2px 4px; border-radius: 4px; }
       .profile-country-btn { padding: 2px 4px; font-size: 10px; }
-
-      /* Room code pill */
-      #code-pill-wrap {
-        padding: 3px 7px;
-        font-size: 10px;
-        gap: 4px;
-        flex-shrink: 0;
-        height: 30px;
-        justify-content: center;
-        margin: 0;
-      }
-      #friend-id { font-size: 11px; }
-
-      /* Auth buttons */
-      .auth-btn-group { order: 2; gap: 4px; flex-shrink: 0; justify-content: flex-end; margin: 0; }
-      .account-btn {
-        padding: 4px 8px;
-        font-size: 11px;
-        height: 30px;
-        border-radius: 999px;
-        gap: 4px;
-        justify-content: center;
-      }
-      .account-btn span { white-space: nowrap; }
-
-      /* Auth logged-in wrapper */
-      #header-auth-logged-out,
-      #header-auth-logged-in {
-        order: 2;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 4px;
-        flex-shrink: 0;
-        margin: 0;
-      }
-
-      /* Mute button on mobile: placed right below the username box */
-      .sound-toggle-btn {
-        order: 5;
-        width: 100% !important;
-        flex: 0 0 100% !important;
-        margin-top: 4px;
-        height: 28px;
-        padding: 2px 8px;
-        font-size: 10.5px;
-        border-radius: var(--radius-sm);
-        justify-content: center;
-        background: rgba(236, 231, 217, 0.4);
-        border: 1px solid var(--border-subtle);
-      }
-      .sound-btn-label { display: inline-block !important; font-size: 10px; }   flex-shrink: 0;
-      }
-
-      /* Profile box: brought down to its own clean full-width row below top bar */
-      .profile-box {
-        order: 3;
-        width: 100% !important;
-        max-width: 100% !important;
-        flex: 0 0 100% !important;
-        padding: 5px 10px;
-        gap: 6px;
-        height: auto;
-        min-height: 36px;
-        justify-content: space-between;
-        margin: 4px 0 0;
-        background: rgba(236, 231, 217, 0.85);
-        border: 1.5px solid var(--border-subtle);
-        border-radius: var(--radius-md);
-        box-sizing: border-box;
-      }
-      .profile-field-label { display: block !important; font-size: 7.5px; color: var(--text-dim); }
-      .profile-avatar { width: 24px; height: 24px; font-size: 10.5px; flex-shrink: 0; }
-      .profile-field-wrap { flex: 1; min-width: 0; }
-      .profile-input { width: 85px !important; min-width: 32px; font-size: 11.5px !important; font-weight: 700; height: 20px; text-align: left; }
-      .username-readonly-wrap { display: flex; border-left: 1.5px solid var(--border-subtle); padding-left: 6px; margin-left: 0; }
-      .readonly-handle-input { width: 75px !important; font-size: 11px !important; }
-      .profile-elo-tag { display: inline-flex; font-size: 9.5px; padding: 2px 6px; border-radius: 4px; }
-      .profile-country-btn { padding: 2px 5px; font-size: 10px; }
 
       /* Room code pill */
       #code-pill-wrap {
@@ -3863,15 +3821,15 @@
 
       .sound-toggle-btn {
         flex-shrink: 0;
-        padding: 4px 8px;
-        font-size: 11px;
+        padding: 4px 7px;
+        font-size: 10px;
         height: 30px;
-        gap: 4px;
+        gap: 3px;
         border-radius: var(--radius-sm);
         justify-content: center;
         margin: 0;
       }
-      .sound-btn-label { display: inline-block; font-size: 10px; }
+      .sound-btn-label { display: none; }
 
       /* Main content grids & cards centered */
       .home-grid { grid-template-columns: 1fr; gap: 12px; width: 100%; margin: 0 auto; }
@@ -4500,12 +4458,8 @@
             </button>
             <div class="profile-avatar" id="header-avatar">P</div>
             <div class="profile-field-wrap">
-              <span class="profile-field-label">NICKNAME</span>
-              <input class="profile-input" id="username-input" maxlength="20" placeholder="Your Nickname" title="Your editable display nickname" autocomplete="nickname">
-            </div>
-            <div class="profile-field-wrap username-readonly-wrap">
-              <span class="profile-field-label">USERNAME</span>
-              <input class="profile-input readonly-handle-input" id="handle-display-input" readonly placeholder="@guest" value="@guest" tabindex="-1" title="Fixed account username handle (cannot be changed)">
+              <span class="profile-field-label">PLAYER NAME</span>
+              <input class="profile-input" id="username-input" maxlength="20" placeholder="Your Name" autocomplete="nickname">
             </div>
             <div class="profile-elo-tag" id="header-elo" title="Click to view ELO Division Tiers">1000 ELO</div>
           </div>
@@ -5054,14 +5008,14 @@
       </div>
     </footer>
   <!-- UNIFIED MULTI-METHOD AUTH MODAL -->
-  <div class="modal-overlay hidden" id="unified-auth-modal" onclick="if(event.target===this) this.classList.add('hidden')">
+  <div class="modal-overlay hidden" id="unified-auth-modal">
     <div class="unified-auth-card">
       <div class="auth-modal-header">
         <div class="auth-modal-title">
           <h3 id="auth-modal-heading">Account Access</h3>
           <p id="auth-modal-sub">Log in or create a new account with Google, Nickname, or @username.</p>
         </div>
-        <button class="btn-secondary" id="close-auth-modal-btn" type="button" style="padding: 4px 8px;" onclick="document.querySelector('#unified-auth-modal').classList.add('hidden')">✕</button>
+        <button class="btn-secondary" id="close-auth-modal-btn" type="button" style="padding: 4px 8px;">✕</button>
       </div>
 
       <!-- Google Single Sign-On (Gmail) via Clerk -->
@@ -5119,7 +5073,7 @@
   </div>
 
   <!-- SETUP USERNAME & PASSWORD ONBOARDING MODAL -->
-  <div class="modal-overlay hidden" id="setup-credentials-modal" onclick="if(event.target===this) this.classList.add('hidden')">
+  <div class="modal-overlay hidden" id="setup-credentials-modal">
     <div class="unified-auth-card" style="max-width: 440px;">
       <div class="auth-modal-header">
         <div class="auth-modal-title">
@@ -5129,7 +5083,7 @@
             Set your username and password so you can log in directly from any device without email!
           </p>
         </div>
-        <button class="btn-secondary" id="close-setup-modal-btn" type="button" style="padding: 4px 8px;" onclick="document.querySelector('#setup-credentials-modal').classList.add('hidden')">✕</button>
+        <button class="btn-secondary" id="close-setup-modal-btn" type="button" style="padding: 4px 8px;">✕</button>
       </div>
 
       <form class="auth-form-fields" id="setup-credentials-form">
@@ -5154,11 +5108,11 @@
   </div>
 
   <!-- USER PROFILE / ACCOUNT MANAGEMENT MODAL -->
-  <div class="modal-overlay hidden" id="profile-modal" onclick="if(event.target===this) this.classList.add('hidden')">
+  <div class="modal-overlay hidden" id="profile-modal">
     <div class="profile-modal-content">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h3 style="font-size: 18px; font-weight: 800;">👤 Player Profile & Settings</h3>
-        <button class="btn-secondary" id="close-profile-modal" type="button" style="padding: 4px 10px;" onclick="document.querySelector('#profile-modal').classList.add('hidden')">✕</button>
+        <button class="btn-secondary" id="close-profile-modal" type="button" style="padding: 4px 10px;">✕</button>
       </div>
 
       <!-- Overview Header -->
@@ -5297,13 +5251,24 @@
     </div>
   </div>
 
+  <!-- Global Floating Server Announcement Banner -->
+  <div class="server-announcement-banner hidden" id="server-announcement-banner">
+    <div class="announcement-content">
+      <span class="announcement-icon">📢</span>
+      <div class="announcement-text-wrap">
+        <strong id="announcement-sender">ADMIN ANNOUNCEMENT</strong>
+        <span id="announcement-msg">System message goes here</span>
+      </div>
+    </div>
+    <button class="announcement-close-btn" id="announcement-close-btn" type="button">✕</button>
+  </div>
 
   <!-- DIVISION TIERS BREAKDOWN MODAL -->
-  <div class="modal-overlay hidden" id="tier-info-modal" onclick="if(event.target===this) this.classList.add('hidden')">
+  <div class="modal-overlay hidden" id="tier-info-modal">
     <div class="tier-modal-content">
       <div class="tier-modal-head">
         <h3 style="font-size: 18px; font-weight: 800;">🏆 Competitive Division Tiers</h3>
-        <button class="btn-secondary" id="close-tier-modal" type="button" style="padding: 4px 10px;" onclick="document.querySelector('#tier-info-modal').classList.add('hidden')">✕</button>
+        <button class="btn-secondary" id="close-tier-modal" type="button" style="padding: 4px 10px;">✕</button>
       </div>
 
       <!-- Current Player Rank Banner -->
@@ -5398,11 +5363,11 @@
   </div>
 
   <!-- CREATE ROOM CUSTOMIZATION MODAL -->
-  <div class="modal-overlay hidden" id="create-room-modal" onclick="if(event.target===this) this.classList.add('hidden')">
+  <div class="modal-overlay hidden" id="create-room-modal">
     <div class="create-modal-content">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h3 style="font-size: 18px; font-weight: 800;">Create Custom Lobby</h3>
-        <button class="btn-secondary" id="close-create-modal" type="button" style="padding: 4px 10px;" onclick="document.querySelector('#create-room-modal').classList.add('hidden')">✕</button>
+        <button class="btn-secondary" id="close-create-modal" type="button" style="padding: 4px 10px;">✕</button>
       </div>
 
       <div>
@@ -5461,13 +5426,13 @@
   </div>
 
   <!-- PUBLIC ROOM BROWSER MODAL -->
-  <div class="modal-overlay hidden" id="browser-modal" onclick="if(event.target===this){ this.style.display='none'; this.classList.add('hidden'); }">
+  <div class="modal-overlay hidden" id="browser-modal">
     <div class="browser-modal">
       <div class="browser-head">
         <h3>Public Battle Lobbies</h3>
         <div style="display: flex; gap: 6px;">
           <button class="btn-secondary" id="refresh-browser-button" type="button">🔄 Refresh</button>
-          <button class="btn-secondary" id="close-browser-button" type="button" onclick="document.getElementById('browser-modal').style.display='none'; document.getElementById('browser-modal').classList.add('hidden');">✕ Close</button>
+          <button class="btn-secondary" id="close-browser-button" type="button">✕ Close</button>
         </div>
       </div>
       <div class="browser-list" id="browser-list">
@@ -5476,7 +5441,20 @@
     </div>
   </div>
 
-
+  <!-- QUICK COUNTRY PICKER MODAL -->
+  <div class="modal-overlay hidden" id="country-picker-modal">
+    <div class="profile-modal-content" style="max-width: 440px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="font-size: 17px; font-weight: 800;">🌍 Select Your Country</h3>
+        <button class="btn-secondary" id="close-country-modal" type="button" style="padding: 4px 10px;">✕</button>
+      </div>
+      <input id="country-search-input" class="profile-field-input" placeholder="Search country or code (e.g. IND, USA)..." style="margin-bottom: 10px; width: 100%;">
+      <div class="country-picker-grid" id="country-picker-grid">
+        <!-- populated with countries via JS -->
+      </div>
+    </div>
+  </div>
+  </div>
 
   <div class="toast hidden" id="toast" role="status" aria-live="polite">
     <div class="toast-dot"></div>
@@ -6153,7 +6131,56 @@
       updateCountryUI(userCountry);
     }
 
+    function renderCountryPickerGrid(filter = '') {
+      if (!countryPickerGrid) return;
+      const term = filter.trim().toLowerCase();
+      const filtered = COUNTRIES.filter((c) => 
+        !term || c.name.toLowerCase().includes(term) || c.code.toLowerCase().includes(term) || (c.aliases && c.aliases.some((a) => a.includes(term)))
+      );
+      if (filtered.length === 0) {
+        countryPickerGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--text-muted);">No matching country found</div>';
+        return;
+      }
+      countryPickerGrid.innerHTML = filtered.map((c) => `
+        <button class="country-picker-item ${c.code === userCountry ? 'active' : ''}" type="button" data-code="${c.code}">
+          <span class="item-flag">${c.flag}</span>
+          <span class="item-name">${escapeHtml(c.name)}</span>
+          <span class="item-code">${c.code}</span>
+        </button>
+      `).join('');
+
+      countryPickerGrid.querySelectorAll('.country-picker-item').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const code = btn.dataset.code;
+          updateCountryUI(code);
+          countryPickerModal.classList.add('hidden');
+          socket.emit('setCountry', code);
+          showToast(`Country set to ${getCountry(code).flag} ${getCountry(code).name} (${code})`);
+        });
+      });
+    }
+
     populateCountrySelects();
+
+    // Country Picker Modal Trigger
+    if (headerCountryBtn) {
+      headerCountryBtn.addEventListener('click', () => {
+        if (countrySearchInput) countrySearchInput.value = '';
+        renderCountryPickerGrid();
+        countryPickerModal.classList.remove('hidden');
+        if (countrySearchInput) setTimeout(() => countrySearchInput.focus(), 50);
+      });
+    }
+
+    if (closeCountryModalBtn) {
+      closeCountryModalBtn.addEventListener('click', () => countryPickerModal.classList.add('hidden'));
+    }
+
+    if (countrySearchInput) {
+      countrySearchInput.addEventListener('input', () => {
+        renderCountryPickerGrid(countrySearchInput.value);
+      });
+    }
 
     window.quickAddFriend = function(targetUsername) {
       if (!loggedIn) {
@@ -6171,59 +6198,29 @@
       showToast(`Sending friend request to ${targetUsername}...`);
     };
 
-    let previousSavedNickname = localStorage.getItem('typendoUsername') || 'Player';
-
-    function getActiveNickname() {
-      return userProfile?.nickname || userProfile?.username || previousSavedNickname || 'Player';
-    }
-
     usernameInput.addEventListener('input', () => {
-      const typed = usernameInput.value;
-      if (typed.trim().length > 0) {
-        headerAvatar.textContent = typed.trim().slice(0, 1).toUpperCase();
+      const name = usernameInput.value.trim() || 'Player';
+      headerAvatar.textContent = name.slice(0, 1).toUpperCase();
+      localStorage.setItem('typendoUsername', name);
+      if (loggedIn) {
+        socket.emit('updateProfile', { newUsername: name });
+      } else {
+        socket.emit('setUsername', { username: name, country: userCountry });
       }
     });
 
-    function commitNicknameChange() {
-      const typed = usernameInput.value.trim();
-      const currentNick = getActiveNickname();
-
-      // If user deleted all letters / left blank, revert to previous nickname
-      if (!typed) {
-        usernameInput.value = currentNick;
-        headerAvatar.textContent = currentNick.slice(0, 1).toUpperCase();
-        return;
+    usernameInput.addEventListener('change', () => {
+      const name = usernameInput.value.trim() || 'Player';
+      if (loggedIn) {
+        socket.emit('updateProfile', { newUsername: name });
+      } else {
+        localStorage.setItem('typendoUsername', name);
+        socket.emit('setUsername', { username: name, country: userCountry });
       }
-
-      // Must be at least 2 characters to update
-      if (typed.length < 2) {
-        showToast('Nickname must be at least 2 characters.', true);
-        usernameInput.value = currentNick;
-        headerAvatar.textContent = currentNick.slice(0, 1).toUpperCase();
-        return;
-      }
-
-      // If nickname actually changed
-      if (typed !== currentNick) {
-        previousSavedNickname = typed;
-        localStorage.setItem('typendoUsername', typed);
-        if (loggedIn) {
-          socket.emit('updateProfile', { newUsername: typed });
-        } else {
-          socket.emit('setUsername', { username: typed, country: userCountry });
-        }
-      }
-    }
-
-    usernameInput.addEventListener('blur', commitNicknameChange);
+    });
 
     usernameInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
-        e.preventDefault();
-        usernameInput.blur();
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        usernameInput.value = getActiveNickname();
         usernameInput.blur();
       }
     });
@@ -6274,23 +6271,16 @@
     const CLERK_PUBLISHABLE_KEY = 'pk_test_c3dlZXQtbW90aC03NjMwLmNsZXJrLmFjY291bnRzLmRldiQ';
     const CLERK_FRONTEND_API = 'https://sweet-moth-7630.clerk.accounts.dev';
 
-    const handleDisplayInput = document.querySelector('#handle-display-input');
-
-    function updateAuthHeaderUI(isLoggedIn, nickname = 'Player', usernameHandle = '') {
+    function updateAuthHeaderUI(isLoggedIn, name = 'Player') {
       const loggedOutGroup = document.querySelector('#header-auth-logged-out');
       const loggedInGroup = document.querySelector('#header-auth-logged-in');
       if (isLoggedIn) {
         if (loggedOutGroup) loggedOutGroup.classList.add('hidden');
         if (loggedInGroup) loggedInGroup.classList.remove('hidden');
-        if (accountBtnText) accountBtnText.textContent = nickname;
-        if (handleDisplayInput) {
-          const handle = usernameHandle || userProfile?.username || '';
-          handleDisplayInput.value = handle ? `@${handle}` : '@registered';
-        }
+        if (accountBtnText) accountBtnText.textContent = name;
       } else {
         if (loggedOutGroup) loggedOutGroup.classList.remove('hidden');
         if (loggedInGroup) loggedInGroup.classList.add('hidden');
-        if (handleDisplayInput) handleDisplayInput.value = '@guest';
       }
     }
 
@@ -6694,13 +6684,11 @@
         if (country) userProfile.country = userCountry;
         if (rating) userProfile.rating = rating;
       }
-      if (document.activeElement !== usernameInput) {
-        usernameInput.value = display;
-      }
+      usernameInput.value = display;
       if (!userProfile?.imageUrl) {
         headerAvatar.textContent = display.slice(0, 1).toUpperCase();
       }
-      updateAuthHeaderUI(true, display, username);
+      updateAuthHeaderUI(true, display);
       localStorage.setItem('typendoUsername', display);
       if (accountKey) localStorage.setItem('typendoAccountKey', accountKey);
       profileModalMsg.textContent = '✔ Profile display name successfully updated!';
@@ -7483,24 +7471,17 @@
         const wpm = p.wpm || 0;
         const color = p.color?.hex || '#215e45';
         const racer = getRacerForPlayer(p, idx);
-        const handle = p.username || 'player';
-        const nickname = p.nickname || p.username || 'Player';
         return `
           <div class="sidebar-player-card">
-            <div class="sidebar-player-header" style="align-items: flex-start;">
-              <div style="display: flex; flex-direction: column; overflow: hidden;">
-                <div style="display: flex; align-items: center; gap: 4px;">
-                  <span>${racer.icon}</span>
-                  <strong style="color: ${color};">●</strong>
-                  ${renderCountryBadge(p.country, 'badge-sm')}
-                  <strong style="font-size: 12px; font-weight: 800; color: var(--text-main);">@${escapeHtml(handle)}</strong>
-                  ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(You)</span>' : ''}
-                </div>
-                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-left: 20px; margin-top: 1px;">
-                  ${escapeHtml(nickname)}
-                </div>
-              </div>
-              <span style="font-size: 11px; white-space: nowrap; font-weight: 800; font-family: 'JetBrains Mono', monospace;">${pct}% • ${wpm} WPM</span>
+            <div class="sidebar-player-header">
+              <span style="display: flex; align-items: center; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <span>${racer.icon}</span>
+                <strong style="color: ${color};">●</strong>
+                ${renderCountryBadge(p.country, 'badge-sm')}
+                <strong>${escapeHtml(p.username)}</strong>
+                ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(You)</span>' : ''}
+              </span>
+              <span style="font-size: 11px; white-space: nowrap;">${pct}% • ${wpm} WPM</span>
             </div>
             <div class="sidebar-progress-track">
               <div class="sidebar-progress-fill" style="width: ${pct}%; background: ${color};"></div>
@@ -7776,39 +7757,20 @@
     });
 
     // Lobby Browser
-    let browserLoadTimer = null;
-
-    function fetchPublicRooms() {
-      if (browserList) {
-        browserList.innerHTML = '<div style="text-align: center; padding: 30px; color: var(--text-muted);">Loading active lobbies...</div>';
-      }
-      socket.emit('getPublicRooms');
-      clearTimeout(browserLoadTimer);
-      browserLoadTimer = setTimeout(() => {
-        if (browserList && browserList.innerHTML.includes('Loading active lobbies...')) {
-          browserList.innerHTML = '<div style="text-align: center; padding: 30px; color: var(--text-muted);">No active lobbies found right now. Click "Create Lobby" to host one!</div>';
-        }
-      }, 2000);
-    }
-
     document.querySelector('#browse-rooms-button').addEventListener('click', () => {
-      browserModal.style.display = 'flex';
       browserModal.classList.remove('hidden');
-      fetchPublicRooms();
+      socket.emit('getPublicRooms');
     });
 
     document.querySelector('#refresh-browser-button').addEventListener('click', () => {
-      fetchPublicRooms();
+      socket.emit('getPublicRooms');
     });
 
     document.querySelector('#close-browser-button').addEventListener('click', () => {
-      clearTimeout(browserLoadTimer);
-      browserModal.style.display = 'none';
       browserModal.classList.add('hidden');
     });
 
     socket.on('publicRoomsList', (roomsList) => {
-      clearTimeout(browserLoadTimer);
       if (!roomsList || roomsList.length === 0) {
         browserList.innerHTML = '<div style="text-align: center; padding: 30px; color: var(--text-muted);">No public lobbies active. Click "Create Lobby" to host one!</div>';
         return;
@@ -7822,7 +7784,7 @@
                 Host: ${renderCountryBadge(r.hostCountry, 'badge-sm')} ${escapeHtml(r.hostName)}
               </span>
               <span class="room-tag">${r.difficulty}</span>
-              <span class="room-tag">${(r.typingMode || '').replace('_', ' ')}</span>
+              <span class="room-tag">${r.typingMode.replace('_', ' ')}</span>
             </div>
           </div>
           <div style="font-family: 'JetBrains Mono', monospace; font-weight: 800; color: var(--primary); font-size: 12px;">
@@ -7835,8 +7797,6 @@
 
     window.joinPublicRoom = function(roomId) {
       const username = usernameInput.value.trim() || 'Player';
-      clearTimeout(browserLoadTimer);
-      browserModal.style.display = 'none';
       browserModal.classList.add('hidden');
       resetRaceState();
       socket.emit('joinCustomRoom', { roomId, username, country: userCountry, platform: selectedPlatform, device: currentDevice });
@@ -8184,34 +8144,21 @@
       const selfName = userProfile?.username || usernameInput.value.trim();
 
       hallFameList.innerHTML = leaderboard.map((player, index) => {
-        const handle = player.username || 'player';
-        const nickname = player.nickname || player.username || 'Player';
-        const isSelf = loggedIn && selfName && (
-          (player.username && player.username.toLowerCase() === selfName.toLowerCase()) ||
-          (player.nickname && player.nickname.toLowerCase() === selfName.toLowerCase())
-        );
+        const isSelf = loggedIn && selfName && player.username.toLowerCase() === selfName.toLowerCase();
         let rankBadge = `#${index + 1}`;
         if (index === 0) rankBadge = '👑';
         else if (index === 1) rankBadge = '🥈';
         else if (index === 2) rankBadge = '🥉';
-
-        const addFriendBtn = (!isSelf)
-          ? `<button type="button" class="quick-add-friend-btn" onclick="quickAddFriend('${escapeHtml(handle)}')" title="Add @${escapeHtml(handle)} as friend">➕ Friend</button>`
-          : '';
 
         return `
           <div class="top-typist-item ${isSelf ? 'my-rank-item' : ''}">
             <div class="top-typist-left">
               <span class="rank-number">${rankBadge}</span>
               <div>
-                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 5px;">
                   ${renderCountryBadge(player.country, isSelf ? 'badge-highlight' : '')}
-                  <strong style="font-size: 13px; font-weight: 800; color: var(--text-main);">@${escapeHtml(handle)}</strong>
+                  <strong>${escapeHtml(player.username)}</strong>
                   ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(YOU)</span>' : ''}
-                  ${addFriendBtn}
-                </div>
-                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-top: 1px;">
-                  ${escapeHtml(nickname)}
                 </div>
                 <div style="font-size: 10px; color: var(--text-dim); margin-top: 1px;">${player.wins || 0}W • ${player.matches || 0} duels</div>
               </div>
@@ -8385,13 +8332,15 @@
       }
     });
 
-    // Global Backdrop Click Handler: Click outside any modal card to close it
-    document.querySelectorAll('.modal-overlay').forEach((overlay) => {
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-          overlay.classList.add('hidden');
-        }
-      });
+    socket.on('serverAnnouncement', ({ sender, message }) => {
+      if (serverAnnouncementBanner && announcementMsg) {
+        if (announcementSender) announcementSender.textContent = `📢 ADMIN ANNOUNCEMENT (${sender})`;
+        announcementMsg.textContent = message;
+        serverAnnouncementBanner.classList.remove('hidden');
+        setTimeout(() => {
+          serverAnnouncementBanner.classList.add('hidden');
+        }, 8000);
+      }
     });
 
     // Handle Authentication & Auto-load User Data & History
@@ -8404,16 +8353,14 @@
         updateCountryUI(userCountry);
       }
       userProfile = { username, nickname: displayNickname, email, country: userCountry, rating, accountKey, clerkId, imageUrl, hasPassword, createdAt, isAdmin };
-      if (document.activeElement !== usernameInput) {
-        usernameInput.value = displayNickname;
-      }
+      usernameInput.value = displayNickname;
       if (imageUrl) {
         headerAvatar.innerHTML = `<img src="${escapeHtml(imageUrl)}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
       } else {
         headerAvatar.textContent = displayNickname.slice(0, 1).toUpperCase();
       }
       headerElo.textContent = rating + ' ELO';
-      updateAuthHeaderUI(true, displayNickname, username);
+      updateAuthHeaderUI(true, displayNickname);
       applyAdminUI(isAdmin);
 
       if (accountKey) localStorage.setItem('typendoAccountKey', accountKey);
@@ -8588,30 +8535,18 @@
     function renderLobbyMembers(players, hostId) {
       lobbyMembers.innerHTML = players.map((p) => {
         const isPlayerHost = p.id === hostId;
-        const isSelf = p.id === socket.id;
         const color = p.color?.hex || '#215e45';
         const statusTag = p.isRanked ? '✔ Registered' : 'Guest';
-        const handle = p.username || 'player';
-        const nickname = p.nickname || p.username || 'Player';
-        const addFriendBtn = (!isSelf && p.username)
-          ? `<button type="button" class="quick-add-friend-btn" style="margin-left:auto; padding:3px 8px; font-size:10.5px;" onclick="quickAddFriend('${escapeHtml(handle)}')" title="Add @${escapeHtml(handle)} as friend">➕ Friend</button>`
-          : '';
-
         return `
           <div class="lobby-player-card">
-            <div class="player-chip-avatar" style="background: ${color};">${escapeHtml(nickname.slice(0, 2).toUpperCase())}</div>
-            <div class="player-chip-info" style="flex:1;">
+            <div class="player-chip-avatar" style="background: ${color};">${escapeHtml(p.username.slice(0, 2).toUpperCase())}</div>
+            <div class="player-chip-info">
               <div style="display: flex; align-items: center; gap: 5px;">
                 ${renderCountryBadge(p.country, 'badge-sm')}
-                <strong style="font-size: 13px; font-weight: 800; color: var(--text-main);">@${escapeHtml(handle)}</strong>
-                ${isPlayerHost ? '👑 HOST' : ''}
+                <strong>${escapeHtml(p.username)}</strong>
               </div>
-              <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-top: 1px;">
-                ${escapeHtml(nickname)}
-              </div>
-              <small style="font-size: 10px; color: var(--text-dim);">${statusTag} • ${(p.platform || 'pc').toUpperCase()}</small>
+              <small>${isPlayerHost ? '👑 HOST • ' : ''}${statusTag} • ${(p.platform || 'pc').toUpperCase()}</small>
             </div>
-            ${addFriendBtn}
           </div>
         `;
       }).join('');

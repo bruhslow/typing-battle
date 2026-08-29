@@ -469,15 +469,11 @@ function removeFromQueue(socket) {
 function playerInfo(player, fallbackId, fallbackData) {
   if (player) {
     const isRankedAccount = Boolean(player.data?.accountKey && accounts.has(player.data.accountKey));
-    const acc = isRankedAccount ? accounts.get(player.data.accountKey) : null;
-    const username = acc ? acc.username : (player.data?.username || 'Player');
-    const nickname = acc ? (acc.nickname || acc.username) : (player.data?.nickname || player.data?.username || 'Player');
-    const country = player.data?.country || acc?.country || 'IND';
+    const accCountry = player.data?.accountKey && accounts.get(player.data.accountKey)?.country;
     return {
       id: player.id,
-      username,
-      nickname,
-      country,
+      username: player.data?.username || 'Player',
+      country: player.data?.country || accCountry || 'IND',
       platform: player.data?.device || player.data?.platform || 'pc',
       rating: getRating(player.id),
       isRanked: isRankedAccount,
@@ -486,7 +482,6 @@ function playerInfo(player, fallbackId, fallbackData) {
   return {
     id: fallbackId || 'disconnected',
     username: fallbackData?.username || 'Player',
-    nickname: fallbackData?.nickname || fallbackData?.username || 'Player',
     country: fallbackData?.country || 'IND',
     platform: fallbackData?.platform || 'pc',
     rating: fallbackId ? getRating(fallbackId) : 1000,
