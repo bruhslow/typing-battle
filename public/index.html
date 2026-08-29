@@ -1283,26 +1283,34 @@
     }
 
     .solo-char-correct {
-      color: var(--primary);
+      color: #15803d;
+      background: rgba(22, 163, 74, 0.14);
       font-weight: 700;
+      border-radius: 3px;
     }
 
     .solo-char-incorrect {
-      color: #fff;
-      background: var(--rose);
+      color: #dc2626;
+      background: rgba(220, 38, 38, 0.18);
       border-radius: 3px;
+      font-weight: 700;
+      text-decoration: underline wavy #dc2626;
       padding: 0 1px;
     }
 
+    .solo-char-untyped {
+      color: var(--text-dim);
+    }
+
     .solo-char-current {
-      background: rgba(29, 90, 63, 0.18);
-      border-bottom: 3px solid var(--primary);
+      background: rgba(22, 163, 74, 0.18);
+      border-bottom: 3px solid #16a34a;
       border-radius: 2px 2px 0 0;
       animation: caretPulse 1s infinite;
     }
 
     @keyframes caretPulse {
-      0%, 100% { border-bottom-color: var(--primary); }
+      0%, 100% { border-bottom-color: #16a34a; }
       50% { border-bottom-color: transparent; }
     }
 
@@ -2408,7 +2416,19 @@
     .word-span.word-error {
       background: var(--rose-subtle);
       box-shadow: 0 2px 0 var(--rose);
-      animation: shake 0.25s ease-in-out;
+      animation: wordShake 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    .word-span.word-skipped {
+      opacity: 0.45;
+      text-decoration: line-through;
+      text-decoration-color: var(--rose);
+      text-decoration-thickness: 2px;
+    }
+
+    .word-span.word-wrong-complete {
+      background: rgba(220, 38, 38, 0.08);
+      box-shadow: 0 2px 0 rgba(220, 38, 38, 0.4);
     }
 
     .cursor-pill {
@@ -2428,25 +2448,47 @@
     }
 
     .char-correct {
-      color: var(--primary);
-      background: var(--primary-subtle);
+      color: #15803d;
+      background: rgba(22, 163, 74, 0.14);
+      font-weight: 600;
       border-radius: 2px;
     }
 
     .char-wrong {
-      color: #fff;
-      background: var(--rose);
+      color: #dc2626;
+      background: rgba(220, 38, 38, 0.18);
+      font-weight: 700;
       border-radius: 2px;
+      text-decoration: underline wavy #dc2626;
     }
 
     .char-current {
-      border-bottom: 2px solid var(--text-main);
-      background: rgba(25, 30, 28, 0.06);
+      border-bottom: 2.5px solid #16a34a;
+      background: rgba(22, 163, 74, 0.14);
+      border-radius: 2px 2px 0 0;
     }
 
     .char-untyped {
       color: var(--text-muted);
       opacity: 0.8;
+    }
+
+    .input-stutter-error {
+      animation: inputStutter 0.32s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important;
+      border-color: #dc2626 !important;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.25) !important;
+    }
+
+    @keyframes wordShake {
+      0%, 100% { transform: translateX(0); }
+      15%, 45%, 75% { transform: translateX(-5px); }
+      30%, 60%, 90% { transform: translateX(5px); }
+    }
+
+    @keyframes inputStutter {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
     }
 
     textarea {
@@ -2471,6 +2513,44 @@
       border-color: var(--primary);
       box-shadow: 0 0 0 3px var(--primary-glow);
       background: #fff;
+    }
+
+    .submit-race-btn {
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+      padding: 13px 24px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: #fff;
+      background: linear-gradient(135deg, #1d5a3f 0%, #2a7a5a 100%);
+      border: 2px solid rgba(42, 122, 90, 0.5);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(29, 90, 63, 0.3), 0 0 0 0 rgba(29, 90, 63, 0);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: submitPulse 2s infinite;
+    }
+
+    .submit-race-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 20px rgba(29, 90, 63, 0.4), 0 0 0 3px rgba(29, 90, 63, 0.15);
+      background: linear-gradient(135deg, #164832 0%, #1d5a3f 100%);
+    }
+
+    .submit-race-btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    @keyframes submitPulse {
+      0%, 100% { box-shadow: 0 4px 14px rgba(29, 90, 63, 0.3), 0 0 0 0 rgba(29, 90, 63, 0.3); }
+      50% { box-shadow: 0 4px 14px rgba(29, 90, 63, 0.3), 0 0 0 6px rgba(29, 90, 63, 0); }
+    }
+
+    .submit-race-btn.hidden {
+      display: none;
     }
 
     /* SIDEBAR LEADERBOARD */
@@ -3952,6 +4032,9 @@
               
               <textarea id="typing-area" disabled placeholder="Wait for countdown..." 
                 spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="none" inputmode="text"></textarea>
+              <button class="submit-race-btn hidden" id="submit-race-btn" type="button">
+                ✅ SUBMIT — I'm Done!
+              </button>
             </div>
 
             <!-- Live Sidebar Leaderboard -->
@@ -4668,6 +4751,8 @@
     let paragraph = '';
     let wordsArray = [];
     let currentWordIndex = 0;
+    let skippedWords = new Set();
+    let wrongWords = new Set();
     let finished = false;
     let activeMatch = false;
     let startTime = 0;
@@ -4813,12 +4898,12 @@
     }
 
     // Platform Selector
-    document.querySelectorAll('.platform-btn').forEach((button) => {
+    document.querySelectorAll('#device-choice-box .platform-btn').forEach((button) => {
       button.classList.toggle('active', button.dataset.platform === selectedPlatform);
       button.addEventListener('click', () => {
-        selectedPlatform = button.dataset.platform;
+        selectedPlatform = button.dataset.platform || 'pc';
         localStorage.setItem('typendoPlatform', selectedPlatform);
-        document.querySelectorAll('.platform-btn').forEach((item) => item.classList.toggle('active', item === button));
+        document.querySelectorAll('#device-choice-box .platform-btn').forEach((item) => item.classList.toggle('active', item === button));
       });
     });
 
@@ -5181,10 +5266,11 @@
       }
     }
 
-    document.querySelectorAll('.quick-diff-btn').forEach((btn) => {
+    document.querySelectorAll('#quick-diff-choice-box .quick-diff-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.quickdiff === selectedQuickDiff);
       btn.addEventListener('click', () => {
         selectedQuickDiff = btn.dataset.quickdiff || 'easy';
-        document.querySelectorAll('.quick-diff-btn').forEach((b) => b.classList.toggle('active', b === btn));
+        document.querySelectorAll('#quick-diff-choice-box .quick-diff-btn').forEach((b) => b.classList.toggle('active', b === btn));
         updateQuickPerks();
       });
     });
@@ -5377,28 +5463,73 @@
 
     function renderSoloQuoteVisual(typed) {
       if (!soloQuoteDisplay) return;
-      const target = soloActiveQuote;
+      const targetWords = soloActiveQuote.split(' ');
+      const typedWords = typed.split(' ');
+      const currentWordIdx = Math.min(targetWords.length - 1, Math.max(0, typedWords.length - 1));
+      
       let html = '';
       let streak = 0;
       let broken = false;
-      
-      for (let i = 0; i < target.length; i++) {
-        const targetChar = target[i];
-        if (i < typed.length) {
-          const typedChar = typed[i];
-          if (typedChar === targetChar) {
-            html += `<span class="solo-char-correct">${escapeHtml(targetChar)}</span>`;
+
+      for (let w = 0; w < targetWords.length; w++) {
+        const targetWord = targetWords[w];
+        const typedWord = typedWords[w] || '';
+        const isPast = w < currentWordIdx;
+        const isCurrent = w === currentWordIdx;
+        const isFuture = w > currentWordIdx;
+
+        let wordHtml = `<span class="solo-word-span ${isCurrent ? 'current-word' : ''}" id="solo-word-${w}" style="display:inline-block; margin-right:0.35em; border-radius:3px;">`;
+        let wordHasError = false;
+
+        for (let c = 0; c < targetWord.length; c++) {
+          const targetChar = targetWord[c];
+          if (isPast) {
+            wordHtml += `<span class="solo-char-correct">${escapeHtml(targetChar)}</span>`;
             if (!broken) streak++;
+          } else if (isCurrent) {
+            if (c < typedWord.length) {
+              const typedChar = typedWord[c];
+              if (typedChar === targetChar && !wordHasError) {
+                wordHtml += `<span class="solo-char-correct">${escapeHtml(targetChar)}</span>`;
+                if (!broken) streak++;
+              } else {
+                wordHtml += `<span class="solo-char-incorrect">${escapeHtml(targetChar)}</span>`;
+                broken = true;
+                wordHasError = true;
+              }
+            } else if (c === typedWord.length) {
+              wordHtml += `<span class="solo-char-current">${escapeHtml(targetChar)}</span>`;
+            } else {
+              wordHtml += `<span class="solo-char-untyped">${escapeHtml(targetChar)}</span>`;
+            }
           } else {
-            html += `<span class="solo-char-incorrect">${escapeHtml(targetChar)}</span>`;
-            broken = true;
+            wordHtml += `<span class="solo-char-untyped">${escapeHtml(targetChar)}</span>`;
           }
-        } else if (i === typed.length) {
-          html += `<span class="solo-char-current">${escapeHtml(targetChar)}</span>`;
-        } else {
-          html += `<span>${escapeHtml(targetChar)}</span>`;
         }
+
+        // Display extra mistyped characters beyond word length
+        if (isCurrent && typedWord.length > targetWord.length) {
+          for (let e = targetWord.length; e < typedWord.length; e++) {
+            wordHtml += `<span class="solo-char-incorrect">${escapeHtml(typedWord[e])}</span>`;
+          }
+          wordHasError = true;
+          broken = true;
+        }
+
+        wordHtml += `</span>`;
+        if (w < targetWords.length - 1) {
+          if (isPast) {
+            wordHtml += `<span class="solo-char-correct">&nbsp;</span>`;
+            if (!broken) streak++;
+          } else if (isCurrent && typedWord === targetWord && typedWord.length === targetWord.length) {
+            wordHtml += `<span class="solo-char-current">&nbsp;</span>`;
+          } else {
+            wordHtml += `<span class="solo-char-untyped">&nbsp;</span>`;
+          }
+        }
+        html += wordHtml;
       }
+
       soloQuoteDisplay.innerHTML = html;
       soloCurrentStreak = streak;
       if (streak > soloMaxStreak) soloMaxStreak = streak;
@@ -5550,12 +5681,53 @@
           e.preventDefault();
           initSoloQuote();
           soloTypeInput.focus();
+          return;
+        }
+        if (soloFinished) return;
+
+        if (e.key === ' ') {
+          const targetWords = soloActiveQuote.split(' ');
+          const typedWords = soloTypeInput.value.split(' ');
+          const currentWordIdx = typedWords.length - 1;
+          const currentWord = typedWords[currentWordIdx];
+          const expectedWord = targetWords[currentWordIdx];
+
+          // Universal word gating: Space blocked if current word is incomplete or incorrect
+          if (currentWord !== expectedWord) {
+            e.preventDefault();
+            const wordEl = document.querySelector(`#solo-word-${currentWordIdx}`);
+            if (wordEl) {
+              wordEl.classList.remove('word-error');
+              void wordEl.offsetWidth;
+              wordEl.classList.add('word-error');
+            }
+            if (soloStageContainer) {
+              soloStageContainer.classList.remove('input-stutter-error');
+              void soloStageContainer.offsetWidth;
+              soloStageContainer.classList.add('input-stutter-error');
+              setTimeout(() => {
+                if (wordEl) wordEl.classList.remove('word-error');
+                soloStageContainer.classList.remove('input-stutter-error');
+              }, 350);
+            }
+            showToast('Complete the current word correctly before pressing Space!', true);
+            return;
+          }
+
+          // If last word is complete and space pressed, finish test
+          if (currentWordIdx === targetWords.length - 1 && currentWord === expectedWord) {
+            e.preventDefault();
+            finishSoloTest();
+            return;
+          }
         }
       });
 
       soloTypeInput.addEventListener('input', () => {
         if (soloFinished) return;
         const val = soloTypeInput.value;
+        const targetWords = soloActiveQuote.split(' ');
+        const typedWords = val.split(' ');
 
         // Start timer on first keystroke
         if (!soloStartTime && val.length > 0) {
@@ -5586,8 +5758,8 @@
 
         renderSoloQuoteVisual(val);
 
-        // Check if finished entire sentence early
-        if (val.length >= soloActiveQuote.length) {
+        // Check if finished entire quote correctly
+        if (val.trim() === soloActiveQuote.trim() || (typedWords.length === targetWords.length && typedWords[typedWords.length - 1] === targetWords[targetWords.length - 1])) {
           finishSoloTest();
         }
       });
@@ -5600,6 +5772,8 @@
       paragraph = '';
       wordsArray = [];
       currentWordIndex = 0;
+      skippedWords = new Set();
+      wrongWords = new Set();
       finished = false;
       activeMatch = false;
       startTime = 0;
@@ -5616,6 +5790,9 @@
       resultsElement.innerHTML = '';
       sidebarPlayersList.innerHTML = '';
       lobbyMembers.innerHTML = '';
+      
+      const submitBtn = document.querySelector('#submit-race-btn');
+      if (submitBtn) submitBtn.classList.add('hidden');
       
       waiting.classList.remove('hidden');
       raceContent.classList.add('hidden');
@@ -5693,61 +5870,188 @@
     }
 
     // TYPING ENGINE
+    const submitRaceBtn = document.querySelector('#submit-race-btn');
+
     typingArea.addEventListener('keydown', (e) => {
       if (!paragraph || finished) return;
 
-      if (raceTypingMode === 'word_strict') {
-        if (e.key === ' ') {
-          const typedWords = typingArea.value.split(' ');
-          const currentWord = typedWords[typedWords.length - 1];
-          const targetWord = wordsArray[typedWords.length - 1];
+      if (e.key === ' ') {
+        const typedWords = typingArea.value.split(' ');
+        const currentWordIdx = typedWords.length - 1;
+        const currentWord = typedWords[currentWordIdx];
+        const targetWord = wordsArray[currentWordIdx];
 
+        if (raceTypingMode === 'word_strict') {
+          // WORD STRICT MODE: Must complete word correctly before Space
           if (currentWord !== targetWord) {
             e.preventDefault();
             errorCount++;
             activeErrorsBadge.textContent = errorCount;
-            const wordEl = document.querySelector(`#word-span-${typedWords.length - 1}`);
+            const wordEl = document.querySelector(`#word-span-${currentWordIdx}`);
             if (wordEl) {
+              wordEl.classList.remove('word-error');
+              void wordEl.offsetWidth;
               wordEl.classList.add('word-error');
-              setTimeout(() => wordEl.classList.remove('word-error'), 400);
             }
-            showToast('Fix the word before pressing Space!', true);
+            typingArea.classList.remove('input-stutter-error');
+            void typingArea.offsetWidth;
+            typingArea.classList.add('input-stutter-error');
+            setTimeout(() => {
+              if (wordEl) wordEl.classList.remove('word-error');
+              typingArea.classList.remove('input-stutter-error');
+            }, 350);
+            showToast('Complete the current word correctly before pressing Space!', true);
+            return;
+          }
+
+          // If on the final word and it matches, space finishes the match
+          if (currentWordIdx === wordsArray.length - 1 && currentWord === targetWord) {
+            e.preventDefault();
+            submitFinish();
+            return;
+          }
+        } else {
+          // STANDARD MODE: Allow space to skip to next word
+          // Track wrong/skipped words but allow advancement
+          if (currentWord !== targetWord) {
+            // Mark as wrong/skipped word
+            if (currentWord.length === 0) {
+              skippedWords.add(currentWordIdx);
+            } else {
+              wrongWords.add(currentWordIdx);
+            }
+            errorCount++;
+            activeErrorsBadge.textContent = errorCount;
+            const wordEl = document.querySelector(`#word-span-${currentWordIdx}`);
+            if (wordEl) {
+              wordEl.classList.add('word-wrong-complete');
+            }
+          }
+
+          // If on the final word, finish the match
+          if (currentWordIdx === wordsArray.length - 1) {
+            e.preventDefault();
+            if (currentWord !== targetWord && currentWord.length > 0) {
+              wrongWords.add(currentWordIdx);
+            } else if (currentWord.length === 0) {
+              skippedWords.add(currentWordIdx);
+            }
+            submitFinish();
             return;
           }
         }
       }
     });
 
+    function submitFinish() {
+      if (finished) return;
+      finished = true;
+      typingArea.disabled = true;
+      submitRaceBtn.classList.add('hidden');
+      clearInterval(roundTimerInterval);
+      const elapsedMs = Math.max(1, Date.now() - startTime);
+
+      // In standard mode, only count correct words for WPM
+      let effectiveChars = paragraph.length;
+      if (raceTypingMode === 'standard') {
+        effectiveChars = 0;
+        for (let w = 0; w < wordsArray.length; w++) {
+          if (!skippedWords.has(w) && !wrongWords.has(w)) {
+            effectiveChars += wordsArray[w].length;
+            if (w < wordsArray.length - 1) effectiveChars++; // space
+          }
+        }
+      }
+
+      const finalWpm = Math.round((effectiveChars / 5) / (elapsedMs / 60000));
+      const totalErrors = errorCount + skippedWords.size;
+      socket.emit('finished', { wpm: finalWpm, errors: totalErrors, elapsedMs });
+      showToast('Submitted! Awaiting opponent or timer...');
+    }
+
+    // Submit button click handler
+    submitRaceBtn.addEventListener('click', () => {
+      if (finished || !paragraph) return;
+      submitFinish();
+    });
+
     typingArea.addEventListener('input', () => {
       if (!paragraph || finished) return;
       totalKeystrokes++;
       const val = typingArea.value;
-
-      let correctPrefix = 0;
-      for (let i = 0; i < val.length; i++) {
-        if (i < paragraph.length && val[i] === paragraph[i]) {
-          correctPrefix++;
-        } else {
-          break;
-        }
-      }
-
       const typedWords = val.split(' ');
-      currentWordIndex = Math.min(wordsArray.length - 1, typedWords.length - 1);
+      currentWordIndex = Math.min(wordsArray.length - 1, Math.max(0, typedWords.length - 1));
 
-      for (let i = 0; i < paragraph.length; i++) {
-        const charEl = document.querySelector(`#char-${i}`);
-        if (!charEl) continue;
-        if (i < val.length) {
-          if (i < correctPrefix) {
-            charEl.className = 'char-correct';
-          } else {
-            charEl.className = 'char-wrong';
+      let charCounter = 0;
+      let totalCorrectChars = 0;
+
+      for (let w = 0; w < wordsArray.length; w++) {
+        const word = wordsArray[w];
+        const typedWord = typedWords[w] || '';
+        const isPastWord = w < currentWordIndex;
+        const isCurrentWord = w === currentWordIndex;
+        const isFutureWord = w > currentWordIndex;
+        const isSkipped = skippedWords.has(w);
+        const isWrong = wrongWords.has(w);
+        let wordBroken = false;
+
+        for (let c = 0; c < word.length; c++) {
+          const charEl = document.querySelector(`#char-${charCounter}`);
+          if (charEl) {
+            if (isPastWord) {
+              if (isSkipped || isWrong) {
+                // Wrong/skipped words in standard mode stay dim
+                charEl.className = 'char-untyped';
+              } else {
+                charEl.className = 'char-correct';
+                totalCorrectChars++;
+              }
+            } else if (isCurrentWord) {
+              if (c < typedWord.length) {
+                if (typedWord[c] === word[c] && !wordBroken) {
+                  charEl.className = 'char-correct';
+                  totalCorrectChars++;
+                } else {
+                  charEl.className = 'char-wrong';
+                  wordBroken = true;
+                }
+              } else if (c === typedWord.length) {
+                charEl.className = 'char-current';
+              } else {
+                charEl.className = 'char-untyped';
+              }
+            } else {
+              charEl.className = 'char-untyped';
+            }
           }
-        } else if (i === val.length) {
-          charEl.className = 'char-current';
-        } else {
-          charEl.className = 'char-untyped';
+          charCounter++;
+        }
+
+        // Trailing space between words
+        if (w < wordsArray.length - 1) {
+          const spaceEl = document.querySelector(`#char-${charCounter}`);
+          if (spaceEl) {
+            if (isPastWord) {
+              if (isSkipped || isWrong) {
+                spaceEl.className = 'char-untyped char-space';
+              } else {
+                spaceEl.className = 'char-correct';
+                totalCorrectChars++;
+              }
+            } else if (isCurrentWord && typedWord === word && typedWord.length === word.length) {
+              spaceEl.className = 'char-current';
+            } else {
+              spaceEl.className = 'char-untyped char-space';
+            }
+          }
+          charCounter++;
+        }
+
+        // Apply skipped/wrong visual classes to word spans
+        const wordEl = document.querySelector(`#word-span-${w}`);
+        if (wordEl) {
+          wordEl.classList.toggle('word-skipped', isSkipped && isPastWord);
+          wordEl.classList.toggle('word-wrong-complete', isWrong && isPastWord);
         }
       }
 
@@ -5763,9 +6067,9 @@
         }
       }
 
-      const progress = Math.min(100, (correctPrefix / paragraph.length) * 100);
+      const progress = Math.min(100, (totalCorrectChars / paragraph.length) * 100);
       const elapsedMin = Math.max(0.01, (Date.now() - startTime) / 60000);
-      const wpm = Math.round((correctPrefix / 5) / elapsedMin);
+      const wpm = Math.round((totalCorrectChars / 5) / elapsedMin);
 
       activeSpeedBadge.textContent = wpm + ' WPM';
 
@@ -5776,16 +6080,11 @@
         renderSidebarProgress();
       }
 
-      socket.emit('progress', { progress, charIndex: correctPrefix, wordIndex: currentWordIndex, wpm });
+      socket.emit('progress', { progress, charIndex: totalCorrectChars, wordIndex: currentWordIndex, wpm });
 
-      if (val === paragraph && !finished) {
-        finished = true;
-        typingArea.disabled = true;
-        clearInterval(roundTimerInterval);
-        const elapsedMs = Math.max(1, Date.now() - startTime);
-        const finalWpm = Math.round((paragraph.length / 5) / (elapsedMs / 60000));
-        socket.emit('finished', { wpm: finalWpm, errors: errorCount, elapsedMs });
-        showToast('You completed the text! Awaiting final results...');
+      // Check if player completed entire text (word strict mode auto-finish)
+      if (raceTypingMode === 'word_strict' && (val === paragraph || (currentWordIndex === wordsArray.length - 1 && typedWords[currentWordIndex] === wordsArray[currentWordIndex])) && !finished) {
+        submitFinish();
       }
     });
 
@@ -6245,11 +6544,20 @@
       if (headerAdminBadge) headerAdminBadge.classList.toggle('hidden', !isAdmin);
     }
 
+    let adminMetricsInterval = null;
     if (adminConsoleBtn) {
       adminConsoleBtn.addEventListener('click', () => {
         if (adminPanelModal) {
           adminPanelModal.classList.remove('hidden');
           socket.emit('adminGetServerMetrics');
+          clearInterval(adminMetricsInterval);
+          adminMetricsInterval = setInterval(() => {
+            if (adminPanelModal && !adminPanelModal.classList.contains('hidden')) {
+              socket.emit('adminGetServerMetrics');
+            } else {
+              clearInterval(adminMetricsInterval);
+            }
+          }, 3000);
         }
       });
     }
@@ -6257,6 +6565,7 @@
     if (closeAdminModal) {
       closeAdminModal.addEventListener('click', () => {
         if (adminPanelModal) adminPanelModal.classList.add('hidden');
+        clearInterval(adminMetricsInterval);
       });
     }
 
@@ -6296,14 +6605,38 @@
       }
       if (adminRoomsList) {
         if (!data.activeRooms || data.activeRooms.length === 0) {
-          adminRoomsList.innerHTML = '<div style="color:var(--text-dim); font-size:12px; text-align:center; padding:12px;">No active matches running currently.</div>';
+          adminRoomsList.innerHTML = '<div style="color:var(--text-dim); font-size:12px; text-align:center; padding:16px;">No active matches running currently.</div>';
         } else {
-          adminRoomsList.innerHTML = data.activeRooms.map(r => `
-            <div style="padding:6px 8px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; font-size:11px;">
-              <span><strong>${r.id}</strong> (${r.mode})</span>
-              <span>${r.players.join(' vs ')}</span>
-            </div>
-          `).join('');
+          adminRoomsList.innerHTML = data.activeRooms.map(r => {
+            let statusBadge = '<span style="background:rgba(234,179,8,0.15); color:#b45309; padding:2px 6px; border-radius:4px; font-weight:700;">🟡 Waiting</span>';
+            if (r.finished) {
+              statusBadge = '<span style="background:rgba(100,116,139,0.15); color:#475569; padding:2px 6px; border-radius:4px; font-weight:700;">🏁 Finished</span>';
+            } else if (r.started) {
+              statusBadge = '<span style="background:rgba(22,163,74,0.15); color:#15803d; padding:2px 6px; border-radius:4px; font-weight:700;">🟢 Live Match</span>';
+            }
+            const modeDisplay = (r.mode || 'quick').toUpperCase();
+            const diffDisplay = r.difficulty ? `• ${r.difficulty}` : '';
+            const playerListStr = Array.isArray(r.players) && r.players.length > 0
+              ? r.players.map(p => escapeHtml(p)).join(' <strong style="color:var(--secondary);">vs</strong> ')
+              : '<span style="color:var(--text-dim);">(No players connected)</span>';
+
+            return `
+              <div style="padding:10px 12px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; font-size:11.5px; gap:8px;">
+                <div>
+                  <div style="font-weight:800; font-family:\'JetBrains Mono\', monospace; color:var(--text-main); margin-bottom:3px; display:flex; align-items:center; gap:6px;">
+                    <span>⚔️ ${modeDisplay} ${diffDisplay}</span>
+                    <span style="font-size:10px; color:var(--text-dim);">[${escapeHtml(r.id)}]</span>
+                  </div>
+                  <div style="color:var(--text-muted); font-size:11px;">
+                    ${playerListStr}
+                  </div>
+                </div>
+                <div>
+                  ${statusBadge}
+                </div>
+              </div>
+            `;
+          }).join('');
         }
       }
     });
@@ -6386,6 +6719,7 @@
       waitingMessage.textContent = mode === 'ranked' ? `Searching for ${currentDevice.toUpperCase()} opponents...` : `Searching for ${platform.toUpperCase()} opponents...`;
       setSearching(true);
       document.querySelector('#room-label').textContent = '';
+      document.querySelector('#room-label').classList.add('hidden');
       joinMessage.textContent = '';
     });
 
@@ -6445,6 +6779,7 @@
       
       raceStatus.textContent = roomName.toUpperCase();
       document.querySelector('#room-label').textContent = `CODE: ${friendId}`;
+      document.querySelector('#room-label').classList.remove('hidden');
       waitingMessage.textContent = 'Lobby ready! Share your code with friends or set visibility to Public.';
       
       hostSettingsPanel.classList.remove('hidden');
@@ -6514,6 +6849,11 @@
       startTime = targetStartTime;
       errorCount = 0;
       totalKeystrokes = 0;
+      skippedWords = new Set();
+      wrongWords = new Set();
+
+      // Hide room code during active battle
+      document.querySelector('#room-label').classList.add('hidden');
 
       readyOverlay.classList.add('hidden');
       waiting.classList.add('hidden');
@@ -6541,6 +6881,7 @@
             typingArea.disabled = false;
             typingArea.placeholder = 'Start typing the text above...';
             typingArea.focus();
+            submitRaceBtn.classList.remove('hidden');
             raceStatus.textContent = 'BATTLE IN PROGRESS';
 
             let roundSeconds = maxDurationSec;
@@ -6579,6 +6920,7 @@
     socket.on('raceFinished', ({ winnerId, results = [], reason, mode }) => {
       typingArea.disabled = true;
       activeMatch = false;
+      submitRaceBtn.classList.add('hidden');
       clearInterval(roundTimerInterval);
 
       const isWinner = winnerId === socket.id;

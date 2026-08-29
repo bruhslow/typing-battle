@@ -1418,13 +1418,28 @@ io.on('connection', (socket) => {
       return;
     }
     const onlineCount = io.engine.clientsCount || io.sockets.sockets.size;
-    const activeRooms = [...rooms.values()].map((r) => ({
-      id: r.id,
-      mode: r.mode,
-      players: r.players.map((p) => p.name),
-      started: r.started,
-      finished: r.finished,
-    }));
+    const activeRooms = [...rooms.entries()].map(([roomId, r]) => {
+      const playerNames = (r.players instanceof Set || Array.isArray(r.players))
+        ? [...r.players].map((pId) => {
+            const playerSocket = io.sockets.sockets.get(pId);
+            if (playerSocket?.data?.name) return playerSocket.data.name;
+            if (playerSocket?.data?.accountKey && accounts.has(playerSocket.data.accountKey)) {
+              return accounts.get(playerSocket.data.accountKey).username;
+            }
+            return `Player (${String(pId).slice(0, 5)})`;
+          })
+        : [];
+      return {
+        id: roomId,
+        roomName: r.roomName || roomId,
+        mode: r.mode || 'quick',
+        difficulty: r.difficulty || 'easy',
+        players: playerNames,
+        playerCount: playerNames.length,
+        started: !!r.started,
+        finished: !!r.finished,
+      };
+    });
     const totalUsers = accounts.size;
 
     socket.emit('adminMetricsData', {
