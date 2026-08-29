@@ -247,6 +247,19 @@ const PLAYER_COLORS = [
   { name: 'Cyan Sky', hex: '#0891b2', bg: '#ecfeff' },
 ];
 
+const RACER_TYPES = [
+  { id: 'superbike', icon: '🏍️', name: 'Superbike' },
+  { id: 'f1car', icon: '🏎️', name: 'F1 Racer' },
+  { id: 'rocket', icon: '🚀', name: 'Cosmic Jet' },
+  { id: 'horse', icon: '🐎', name: 'Stallion' },
+  { id: 'runner', icon: '🏃', name: 'Sprinter' },
+  { id: 'ufo', icon: '🛸', name: 'Cyber UFO' },
+  { id: 'skater', icon: '🛹', name: 'Pro Skater' },
+  { id: 'cheetah', icon: '🐆', name: 'Cheetah' },
+  { id: 'dragon', icon: '🐉', name: 'Sky Dragon' },
+  { id: 'kart', icon: '🏎️', name: 'Turbo Kart' },
+];
+
 const paragraphs = {
   easy: [
     'The quick brown fox jumps over the lazy dog on a sunny afternoon.',
@@ -438,8 +451,9 @@ function roomPlayers(room) {
     .map((playerId, index) => {
       const socket = io.sockets.sockets.get(playerId);
       const color = PLAYER_COLORS[index % PLAYER_COLORS.length];
+      const racer = RACER_TYPES[index % RACER_TYPES.length];
       const info = playerInfo(socket, playerId);
-      return { ...info, color, playerIndex: index };
+      return { ...info, color, racer, playerIndex: index };
     })
     .filter(Boolean);
 }
@@ -581,22 +595,58 @@ function finishRace(roomId, force = false, reason = '') {
       const info = playerInfo(socket, playerId, data);
       return { ...info, ...data };
     })
-    .sort((first, second) => first.elapsedMs - second.elapsedMs);
+    .sort((first, second) => {
+      // 1. Disqualified / flagged players ALWAYS lose and rank last
+      if (first.disqualified && !second.disqualified) return 1;
+      if (!first.disqualified && second.disqualified) return -1;
+
+      // 2. DNF (0 words / early abandon) players rank below players with actual progress
+      if (first.dnf && !second.dnf) return 1;
+      if (!first.dnf && second.dnf) return -1;
+
+      // 3. Completed finishers rank above partial submissions
+      const firstDone = Boolean(first.completed || (first.progress && first.progress >= 99));
+      const secondDone = Boolean(second.completed || (second.progress && second.progress >= 99));
+      if (firstDone && !secondDone) return -1;
+      if (!firstDone && secondDone) return 1;
+
+      // 4. If both completed: rank by WPM descending (higher speed wins), then faster elapsed time
+      if (firstDone && secondDone) {
+        if (second.wpm !== first.wpm) return second.wpm - first.wpm;
+        return first.elapsedMs - second.elapsedMs;
+      }
+
+      // 5. If neither finished (timeout / early submits): rank by progress %, then WPM
+      const firstProg = first.progress || 0;
+      const secondProg = second.progress || 0;
+      if (secondProg !== firstProg) return secondProg - firstProg;
+      return (second.wpm || 0) - (first.wpm || 0);
+    });
 
   if (results.length === 0) return;
 
   const winnerId = results[0].id;
+  const isWinnerDisqualified = Boolean(results[0].disqualified);
 
-  if (room.mode === 'ranked' && results.length >= 2) {
-    const winnerRating = getRating(winnerId);
-    const loserRating = getRating(results[1].id);
-    const expectedWinner = 1 / (1 + 10 ** ((loserRating - winnerRating) / 400));
-    const change = Math.max(10, Math.round(32 * (1 - expectedWinner)));
-    
-    setRating(winnerId, winnerRating + change);
-    setRating(results[1].id, Math.max(0, loserRating - change));
-    results[0].ratingChange = change;
-    results[1].ratingChange = -change;
+  if (room.mode === 'ranked' && results.length >= 2 && results[0] && results[1]) {
+    const winner = results[0];
+    const loser = results[1];
+
+    if (!isWinnerDisqualified) {
+      const winnerRating = getRating(winner.id);
+      const loserRating = getRating(loser.id);
+      const expectedWinner = 1 / (1 + 10 ** ((loserRating - winnerRating) / 400));
+      const change = Math.max(10, Math.round(32 * (1 - expectedWinner)));
+      
+      setRating(winner.id, winnerRating + change);
+      setRating(loser.id, Math.max(0, loserRating - change));
+      winner.ratingChange = change;
+      loser.ratingChange = -change;
+    } else {
+      const p1Rating = getRating(winner.id);
+      setRating(winner.id, Math.max(0, p1Rating - 50));
+      winner.ratingChange = -50;
+    }
     results.forEach((result) => {
       result.rating = getRating(result.id);
     });
@@ -1821,13 +1871,26 @@ io.on('connection', (socket) => {
     const elapsedMs = Number.isFinite(stats.elapsedMs) ? Math.max(1, stats.elapsedMs) : Math.max(1, Date.now() - room.startedAt);
     const wpm = Number.isFinite(stats.wpm) ? Math.max(0, Math.min(300, stats.wpm)) : 0;
     const errors = Number.isFinite(stats.errors) ? Math.max(0, Math.floor(stats.errors)) : 0;
-    const isSuspicious = (elapsedMs < 2000 && room.paragraph && room.paragraph.length > 30) || wpm > 260;
+    const progress = Number.isFinite(stats.progress) ? Math.max(0, Math.min(100, stats.progress)) : (wpm > 0 ? 100 : 0);
+    const completed = Boolean(stats.completed || progress >= 99);
+    const wordsTyped = Number.isFinite(stats.wordsTyped) ? Math.max(0, Math.floor(stats.wordsTyped)) : (wpm > 0 ? 1 : 0);
+
+    // Anti-Cheat: If finished in < 2.5s on a real paragraph (>40 chars) or impossible speed > 260 WPM
+    const isSuspicious = (completed && elapsedMs < 2500 && room.paragraph && room.paragraph.length > 40) || wpm > 260;
+
+    // DNF if submitted with 0 words / 0 WPM or < 5% progress without finishing
+    const isDnf = !completed && (wpm === 0 || progress < 5);
 
     room.finishData.set(socket.id, {
-      wpm,
+      wpm: isSuspicious ? 0 : wpm,
       errors,
       elapsedMs,
+      progress,
+      completed,
+      wordsTyped,
       flagged: isSuspicious,
+      disqualified: isSuspicious,
+      dnf: isDnf,
       username: socket.data.username || 'Player',
       country: socket.data.country || 'IND',
     });

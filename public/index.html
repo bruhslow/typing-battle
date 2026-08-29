@@ -2610,6 +2610,237 @@
       transition: width 0.15s ease-out;
     }
 
+    /* TOP RIGHT SOUND TOGGLE BUTTON */
+    .sound-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 38px;
+      padding: 0 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      box-shadow: var(--shadow-xs);
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .sound-toggle-btn:hover {
+      background: var(--bg-subtle-hover);
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+
+    .sound-toggle-btn:active {
+      transform: translateY(1px);
+    }
+
+    .sound-toggle-btn.is-muted {
+      color: var(--text-dim);
+      background: var(--bg-subtle);
+      border-color: var(--border-subtle);
+      opacity: 0.85;
+    }
+
+    .sound-btn-label {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    /* LIVE RACE TRACK & ANIMATED RACERS */
+    .live-race-track {
+      margin-bottom: 16px;
+      padding: 14px 18px;
+      background: linear-gradient(180deg, #1b2420 0%, #111815 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4), var(--shadow-md);
+      overflow: hidden;
+      color: #fff;
+    }
+
+    .race-track-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .race-lanes {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .race-lane {
+      position: relative;
+      height: 38px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      overflow: visible;
+    }
+
+    .lane-track-strip {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .lane-track-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      transition: width 0.12s linear;
+      box-shadow: 0 0 10px currentColor;
+    }
+
+    .lane-finish-pole {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 12px;
+      background: repeating-linear-gradient(45deg, #fff, #fff 4px, #111 4px, #111 8px);
+      border-radius: 0 8px 8px 0;
+      z-index: 2;
+      opacity: 0.6;
+    }
+
+    .lane-racer-entity {
+      position: absolute;
+      left: 0%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: left 0.12s cubic-bezier(0.2, 0.8, 0.4, 1);
+      will-change: left;
+      pointer-events: none;
+    }
+
+    .racer-icon-avatar {
+      font-size: 22px;
+      line-height: 1;
+      display: inline-block;
+      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
+      transform-origin: center bottom;
+    }
+
+    /* Dynamic vehicle / character animations */
+    .racer-bike {
+      animation: racer-drift 0.4s ease-in-out infinite alternate;
+    }
+    .racer-car {
+      animation: racer-speed-vibe 0.25s linear infinite alternate;
+    }
+    .racer-rocket {
+      animation: racer-rocket-pulse 0.3s ease-in-out infinite alternate;
+    }
+    .racer-horse {
+      animation: racer-gallop 0.45s ease-in-out infinite alternate;
+    }
+    .racer-runner {
+      animation: racer-sprint 0.35s ease-in-out infinite alternate;
+    }
+    .racer-ufo {
+      animation: racer-hover 0.7s ease-in-out infinite alternate;
+    }
+    .racer-skater {
+      animation: racer-skate 0.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes racer-drift {
+      0% { transform: rotate(-3deg) translateY(0); }
+      100% { transform: rotate(4deg) translateY(-2px); }
+    }
+    @keyframes racer-speed-vibe {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-1.5px) scale(1.04); }
+    }
+    @keyframes racer-rocket-pulse {
+      0% { transform: translateX(-1px) scale(0.98); }
+      100% { transform: translateX(2px) scale(1.05); }
+    }
+    @keyframes racer-gallop {
+      0% { transform: translateY(2px) rotate(-6deg); }
+      100% { transform: translateY(-3px) rotate(6deg); }
+    }
+    @keyframes racer-sprint {
+      0% { transform: translateY(1px) rotate(-5deg); }
+      100% { transform: translateY(-3px) rotate(5deg); }
+    }
+    @keyframes racer-hover {
+      0% { transform: translateY(-2px) scale(0.98); }
+      100% { transform: translateY(2px) scale(1.03); }
+    }
+    @keyframes racer-skate {
+      0% { transform: rotate(-4deg) translateY(0); }
+      100% { transform: rotate(4deg) translateY(-2px); }
+    }
+
+    .racer-flame-trail {
+      position: absolute;
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 4px;
+      border-radius: 2px;
+      opacity: 0.6;
+      filter: blur(2px);
+      pointer-events: none;
+    }
+
+    .racer-name-pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      background: rgba(18, 24, 21, 0.88);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .racer-wpm-live {
+      font-weight: 900;
+      color: #34d399;
+      margin-left: 2px;
+    }
+
     /* ═══════════════════════════════════════════ */
     /* ADMIN BADGE, MODAL & ANNOUNCEMENTS          */
     /* ═══════════════════════════════════════════ */
@@ -3591,6 +3822,12 @@
               <span class="admin-crown-badge hidden" id="header-admin-badge">👑 ADMIN</span>
             </button>
           </div>
+
+          <!-- Sound Effects Mute Toggle (Top Rightmost Corner) -->
+          <button class="sound-toggle-btn" id="header-sound-btn" type="button" title="Toggle Sound Effects (Mute / Unmute)">
+            <span id="sound-btn-icon">🔊</span>
+            <span id="sound-btn-text" class="sound-btn-label">SFX</span>
+          </button>
         </div>
       </header>
 
@@ -4030,6 +4267,17 @@
 
           <div class="race-layout">
             <div class="race-main-column">
+              <!-- Live Interactive Race Track -->
+              <div class="live-race-track" id="live-race-track">
+                <div class="race-track-header">
+                  <span class="race-track-title">🏁 LIVE RACE TRACK</span>
+                  <span class="race-track-finish-flag" title="Finish Line">🏁 FINISH</span>
+                </div>
+                <div class="race-lanes" id="race-lanes-list">
+                  <!-- Dynamically populated with each player's animated racer entity -->
+                </div>
+              </div>
+
               <div class="race-display" id="race-display" aria-label="Target text" oncopy="return false" oncut="return false" oncontextmenu="return false"></div>
               
               <textarea id="typing-area" disabled placeholder="Wait for countdown..." 
@@ -4786,6 +5034,241 @@
     headerAvatar.textContent = savedUsername.slice(0, 1).toUpperCase();
     rankedDeviceNotice.textContent = currentDevice === 'phone' ? 'Mobile vs Mobile (Fair ELO competition)' : 'Desktop vs Desktop (Fair ELO competition)';
 
+    // ══════════════════════════════════════════════════════
+    // SOUND EFFECTS AUDIO SYNTHESIZER (Web Audio API)
+    // ══════════════════════════════════════════════════════
+    const SoundEngine = (() => {
+      let audioCtx = null;
+      let isMuted = localStorage.getItem('typendoMuted') === 'true';
+
+      function initCtx() {
+        if (!audioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) audioCtx = new AudioContext();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      }
+
+      function playKeySound(key) {
+        if (isMuted) return;
+        try {
+          initCtx();
+          if (!audioCtx) return;
+
+          const now = audioCtx.currentTime;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          if (key === ' ' || key === 'Space') {
+            // Deeper mechanical spacebar thock
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(140 + Math.random() * 20, now);
+            osc.frequency.exponentialRampToValueAtTime(40, now + 0.08);
+
+            gain.gain.setValueAtTime(0.22, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.08);
+          } else if (key === 'Backspace') {
+            // Distinct snappy backspace click
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(280, now);
+            osc.frequency.exponentialRampToValueAtTime(120, now + 0.05);
+
+            gain.gain.setValueAtTime(0.18, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.05);
+          } else {
+            // Crisp tactile mechanical switch sound with organic pitch variation
+            osc.type = 'sine';
+            const baseFreq = 420 + Math.random() * 120;
+            osc.frequency.setValueAtTime(baseFreq, now);
+            osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.4, now + 0.045);
+
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.045);
+          }
+        } catch (e) {}
+      }
+
+      function playErrorSound() {
+        if (isMuted) return;
+        try {
+          initCtx();
+          if (!audioCtx) return;
+          const now = audioCtx.currentTime;
+
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(150, now);
+          osc.frequency.linearRampToValueAtTime(90, now + 0.12);
+
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } catch (e) {}
+      }
+
+      function playCountdownBeep(isFinal = false) {
+        if (isMuted) return;
+        try {
+          initCtx();
+          if (!audioCtx) return;
+          const now = audioCtx.currentTime;
+
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sine';
+          if (isFinal) {
+            osc.frequency.setValueAtTime(880, now);
+            osc.frequency.setValueAtTime(1174, now + 0.08);
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+            osc.start(now);
+            osc.stop(now + 0.35);
+          } else {
+            osc.frequency.setValueAtTime(587.33, now);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+            osc.start(now);
+            osc.stop(now + 0.15);
+          }
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+        } catch (e) {}
+      }
+
+      function playStreakChime() {
+        if (isMuted) return;
+        try {
+          initCtx();
+          if (!audioCtx) return;
+          const now = audioCtx.currentTime;
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + i * 0.04);
+            gain.gain.setValueAtTime(0.15, now + i * 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.04 + 0.2);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + i * 0.04);
+            osc.stop(now + i * 0.04 + 0.2);
+          });
+        } catch (e) {}
+      }
+
+      function playVictorySound() {
+        if (isMuted) return;
+        try {
+          initCtx();
+          if (!audioCtx) return;
+          const now = audioCtx.currentTime;
+          const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+          notes.forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + i * 0.09);
+            gain.gain.setValueAtTime(0.22, now + i * 0.09);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.45);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + i * 0.09);
+            osc.stop(now + i * 0.09 + 0.45);
+          });
+        } catch (e) {}
+      }
+
+      function playDefeatSound() {
+        if (isMuted) return;
+        try {
+          initCtx();
+          if (!audioCtx) return;
+          const now = audioCtx.currentTime;
+          const notes = [440, 415.3, 392, 349.23];
+          notes.forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + i * 0.12);
+            gain.gain.setValueAtTime(0.18, now + i * 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.35);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + i * 0.12);
+            osc.stop(now + i * 0.12 + 0.35);
+          });
+        } catch (e) {}
+      }
+
+      function toggleMute() {
+        isMuted = !isMuted;
+        localStorage.setItem('typendoMuted', String(isMuted));
+        return isMuted;
+      }
+
+      function getMuted() {
+        return isMuted;
+      }
+
+      return {
+        playKeySound,
+        playErrorSound,
+        playCountdownBeep,
+        playStreakChime,
+        playVictorySound,
+        playDefeatSound,
+        toggleMute,
+        getMuted,
+        initCtx,
+      };
+    })();
+
+    // Header Sound Toggle Button Binding
+    const headerSoundBtn = document.querySelector('#header-sound-btn');
+    const soundBtnIcon = document.querySelector('#sound-btn-icon');
+    const soundBtnText = document.querySelector('#sound-btn-text');
+
+    function updateSoundUI() {
+      const isMuted = SoundEngine.getMuted();
+      if (headerSoundBtn) headerSoundBtn.classList.toggle('is-muted', isMuted);
+      if (soundBtnIcon) soundBtnIcon.textContent = isMuted ? '🔇' : '🔊';
+      if (soundBtnText) soundBtnText.textContent = isMuted ? 'MUTED' : 'SFX';
+    }
+
+    if (headerSoundBtn) {
+      headerSoundBtn.addEventListener('click', () => {
+        const isMuted = SoundEngine.toggleMute();
+        updateSoundUI();
+        showToast(isMuted ? 'Sound Effects Muted 🔇' : 'Sound Effects Enabled 🔊');
+      });
+      updateSoundUI();
+    }
+
     function updateCountryUI(code) {
       const c = getCountry(code);
       userCountry = c.code;
@@ -5537,6 +6020,7 @@
       soloFinished = true;
       clearInterval(soloTimerInterval);
       if (soloTypeInput) soloTypeInput.disabled = true;
+      SoundEngine.playVictorySound();
 
       const typed = soloTypeInput ? soloTypeInput.value : '';
       const elapsedSec = soloStartTime ? Math.max(1, Math.round((Date.now() - soloStartTime) / 1000)) : soloDurationSec;
@@ -5681,6 +6165,8 @@
         }
         if (soloFinished) return;
 
+        SoundEngine.playKeySound(e.key);
+
         if (e.key === ' ') {
           const targetWords = soloActiveQuote.split(' ');
           const typedWords = soloTypeInput.value.split(' ');
@@ -5691,6 +6177,7 @@
           // Universal word gating: Space blocked if current word is incomplete or incorrect
           if (currentWord !== expectedWord) {
             e.preventDefault();
+            SoundEngine.playErrorSound();
             const wordEl = document.querySelector(`#solo-word-${currentWordIdx}`);
             if (wordEl) {
               wordEl.classList.remove('word-error');
@@ -5855,16 +6342,86 @@
       });
     }
 
+    const DEFAULT_RACER_LIST = [
+      { id: 'superbike', icon: '🏍️', name: 'Superbike', anim: 'racer-bike' },
+      { id: 'f1car', icon: '🏎️', name: 'F1 Racer', anim: 'racer-car' },
+      { id: 'rocket', icon: '🚀', name: 'Cosmic Jet', anim: 'racer-rocket' },
+      { id: 'horse', icon: '🐎', name: 'Stallion', anim: 'racer-horse' },
+      { id: 'runner', icon: '🏃', name: 'Sprinter', anim: 'racer-runner' },
+      { id: 'ufo', icon: '🛸', name: 'Cyber UFO', anim: 'racer-ufo' },
+      { id: 'skater', icon: '🛹', name: 'Pro Skater', anim: 'racer-skater' },
+      { id: 'cheetah', icon: '🐆', name: 'Cheetah', anim: 'racer-runner' },
+    ];
+
+    function getRacerForPlayer(player, index) {
+      if (player && player.racer && player.racer.icon) {
+        const anim = player.racer.anim || `racer-${player.racer.id || 'bike'}`;
+        return { ...player.racer, anim };
+      }
+      return DEFAULT_RACER_LIST[index % DEFAULT_RACER_LIST.length];
+    }
+
+    const raceLanesList = document.querySelector('#race-lanes-list');
+
+    function renderRaceLanes() {
+      if (!raceLanesList) return;
+      if (!activePlayers || activePlayers.length === 0) {
+        raceLanesList.innerHTML = '';
+        return;
+      }
+
+      raceLanesList.innerHTML = activePlayers.map((player, idx) => {
+        const isSelf = player.id === socket.id;
+        const color = player.color?.hex || '#2d8a62';
+        const racer = getRacerForPlayer(player, idx);
+        const country = getCountry(player.country);
+        const pct = Math.max(0, Math.min(100, Math.round(player.progress || 0)));
+        const wpm = player.wpm || 0;
+
+        return `
+          <div class="race-lane" id="race-lane-${player.id}">
+            <div class="lane-track-strip">
+              <div class="lane-track-fill" id="lane-fill-${player.id}" style="width: ${pct}%; background: ${color}; color: ${color};"></div>
+            </div>
+            <div class="lane-finish-pole"></div>
+            <div class="lane-racer-entity" id="racer-entity-${player.id}" style="left: ${pct}%;">
+              <div class="racer-flame-trail" style="background: ${color};"></div>
+              <div class="racer-icon-avatar ${racer.anim}">${racer.icon}</div>
+              <div class="racer-name-pill" style="border-color: ${color};">
+                <span>${country.flag}</span>
+                <strong>${escapeHtml(player.username.slice(0, 10))}</strong>
+                ${isSelf ? '<span style="color: #34d399; font-weight: 800;">(You)</span>' : ''}
+                <span class="racer-wpm-live" id="racer-wpm-${player.id}">${wpm} WPM</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateRacerPosition(playerId, progress, wpm) {
+      const entity = document.querySelector(`#racer-entity-${playerId}`);
+      const fill = document.querySelector(`#lane-fill-${playerId}`);
+      const wpmTag = document.querySelector(`#racer-wpm-${playerId}`);
+      const pct = Math.max(0, Math.min(100, Math.round(progress || 0)));
+
+      if (entity) entity.style.left = `${pct}%`;
+      if (fill) fill.style.width = `${pct}%`;
+      if (wpmTag) wpmTag.textContent = `${wpm || 0} WPM`;
+    }
+
     function renderSidebarProgress() {
-      sidebarPlayersList.innerHTML = activePlayers.map((p) => {
+      sidebarPlayersList.innerHTML = activePlayers.map((p, idx) => {
         const isSelf = p.id === socket.id;
         const pct = Math.round(p.progress || 0);
         const wpm = p.wpm || 0;
         const color = p.color?.hex || '#215e45';
+        const racer = getRacerForPlayer(p, idx);
         return `
           <div class="sidebar-player-card">
             <div class="sidebar-player-header">
               <span style="display: flex; align-items: center; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <span>${racer.icon}</span>
                 <strong style="color: ${color};">●</strong>
                 ${renderCountryBadge(p.country, 'badge-sm')}
                 <strong>${escapeHtml(p.username)}</strong>
@@ -5886,6 +6443,8 @@
     typingArea.addEventListener('keydown', (e) => {
       if (!paragraph || finished) return;
 
+      SoundEngine.playKeySound(e.key);
+
       if (e.key === ' ') {
         const typedWords = typingArea.value.split(' ');
         const currentWordIdx = typedWords.length - 1;
@@ -5896,6 +6455,7 @@
           // WORD STRICT MODE: Must complete word correctly before Space
           if (currentWord !== targetWord) {
             e.preventDefault();
+            SoundEngine.playErrorSound();
             errorCount++;
             activeErrorsBadge.textContent = errorCount;
             const wordEl = document.querySelector(`#word-span-${currentWordIdx}`);
@@ -5925,7 +6485,7 @@
           // STANDARD MODE: Allow space to skip to next word
           // Track wrong/skipped words but allow advancement
           if (currentWord !== targetWord) {
-            // Mark as wrong/skipped word
+            SoundEngine.playErrorSound();
             if (currentWord.length === 0) {
               skippedWords.add(currentWordIdx);
             } else {
@@ -5963,18 +6523,16 @@
       const elapsedMs = Math.max(1, Date.now() - startTime);
 
       // Only count words that were actually REACHED and typed correctly
-      const typedWords = typingArea.value.split(' ');
-      const reachedWordCount = typedWords.length; // how many words user actually got to
+      const typedWords = typingArea.value.trim().split(/\s+/).filter(Boolean);
+      const reachedWordCount = typingArea.value.split(' ').length;
       let effectiveChars = 0;
 
       for (let w = 0; w < wordsArray.length; w++) {
-        // Only count words the player actually reached
         if (w >= reachedWordCount) break;
 
         const typedWord = typedWords[w] || '';
         const targetWord = wordsArray[w];
 
-        // Skip words that are wrong, skipped, or empty
         if (skippedWords.has(w) || wrongWords.has(w)) continue;
         if (typedWord !== targetWord) continue;
 
@@ -5984,7 +6542,17 @@
 
       const finalWpm = effectiveChars > 0 ? Math.round((effectiveChars / 5) / (elapsedMs / 60000)) : 0;
       const totalErrors = errorCount + skippedWords.size;
-      socket.emit('finished', { wpm: finalWpm, errors: totalErrors, elapsedMs });
+      const currentProg = Math.max(0, Math.min(100, Math.round((effectiveChars / Math.max(1, paragraph.length)) * 100)));
+      const isCompleted = reachedWordCount >= wordsArray.length && effectiveChars >= (paragraph.length * 0.7);
+
+      socket.emit('finished', {
+        wpm: finalWpm,
+        errors: totalErrors,
+        elapsedMs,
+        progress: currentProg,
+        completed: isCompleted,
+        wordsTyped: typedWords.length,
+      });
       showToast('Submitted! Awaiting opponent or timer...');
     }
 
@@ -6097,6 +6665,7 @@
         selfPlayer.progress = progress;
         selfPlayer.wpm = wpm;
         renderSidebarProgress();
+        updateRacerPosition(socket.id, progress, wpm);
       }
 
       socket.emit('progress', { progress, charIndex: totalCorrectChars, wordIndex: currentWordIndex, wpm });
@@ -6887,7 +7456,9 @@
       activeModeBadge.textContent = raceTypingMode === 'word_strict' ? 'Word Strict Mode' : 'Standard Mode';
       buildParagraphHTML();
       renderSidebarProgress();
+      renderRaceLanes();
 
+      let lastBeepSec = -1;
       clearInterval(countdownInterval);
       function updateCountdown() {
         const remMs = targetStartTime - Date.now();
@@ -6896,9 +7467,17 @@
         if (remSec > 0) {
           countdownNumber.textContent = remSec;
           countdownSubtitle.textContent = mode === 'custom' ? 'Custom Lobby Battle' : 'Competitive Duel';
+          if (remSec !== lastBeepSec && remSec <= 3) {
+            lastBeepSec = remSec;
+            SoundEngine.playCountdownBeep(false);
+          }
         } else {
           countdownNumber.textContent = 'GO!';
           countdownNumber.style.color = 'var(--primary)';
+          if (lastBeepSec !== 0) {
+            lastBeepSec = 0;
+            SoundEngine.playCountdownBeep(true);
+          }
           clearInterval(countdownInterval);
           setTimeout(() => {
             countdownOverlay.classList.add('hidden');
@@ -6935,6 +7514,7 @@
       }
       updateLiveCursors();
       renderSidebarProgress();
+      updateRacerPosition(playerId, progress, wpm);
     });
 
     socket.on('finishGraceStarted', ({ seconds }) => {
@@ -6947,11 +7527,28 @@
       submitRaceBtn.classList.add('hidden');
       clearInterval(roundTimerInterval);
 
-      const isWinner = winnerId === socket.id;
+      const selfResult = results.find((r) => r.id === socket.id);
+      const isWinner = winnerId === socket.id && !selfResult?.disqualified;
       const winnerBadge = document.querySelector('#winner-badge');
       const winnerScreenEl = document.querySelector('#winner-screen');
-      const selfResult = results.find((r) => r.id === socket.id);
       const opponentResult = results.find((r) => r.id !== socket.id);
+
+      // Play audio fanfare / defeat
+      if (isWinner) {
+        SoundEngine.playVictorySound();
+        winnerBadge.textContent = '🏆';
+        winnerScreenEl.classList.remove('lost');
+        document.querySelector('#winner-title').textContent = 'Victory!';
+        document.querySelector('#winner-subtitle').textContent = 'You won the typing duel!';
+      } else {
+        SoundEngine.playDefeatSound();
+        winnerBadge.textContent = selfResult?.disqualified ? '🚫' : '🥈';
+        winnerScreenEl.classList.add('lost');
+        document.querySelector('#winner-title').textContent = selfResult?.disqualified ? 'Disqualified' : 'Battle Concluded';
+        document.querySelector('#winner-subtitle').textContent = selfResult?.disqualified
+          ? '⚠️ Disqualified for suspicious input / inhuman speed.'
+          : (reason ? `Match ended: ${reason}` : 'Good duel! Keep training your precision.');
+      }
 
       // Log Duel History
       if (selfResult) {
@@ -6989,31 +7586,24 @@
         updateOverallStats(eloEntry.rating);
       }
 
-      if (isWinner) {
-        winnerBadge.textContent = '🏆';
-        winnerScreenEl.classList.remove('lost');
-        document.querySelector('#winner-title').textContent = 'Victory!';
-        document.querySelector('#winner-subtitle').textContent = 'You won the typing duel!';
-      } else {
-        winnerBadge.textContent = '🥈';
-        winnerScreenEl.classList.add('lost');
-        document.querySelector('#winner-title').textContent = 'Battle Concluded';
-        document.querySelector('#winner-subtitle').textContent = reason ? `Match ended: ${reason}` : 'Good duel! Keep training your precision.';
-      }
-
       resultsElement.innerHTML = results.map((res, idx) => {
         const isSelf = res.id === socket.id;
         const color = res.color?.hex || '#215e45';
+        const racer = getRacerForPlayer(res, idx);
+        const statusText = res.disqualified
+          ? '<span style="color: var(--rose); font-weight: 800;">🚫 Disqualified</span>'
+          : (res.dnf ? '<span style="color: var(--text-dim);">DNF (Incomplete)</span>' : `<strong>${res.wpm || 0} WPM</strong>`);
+
         return `
-          <div class="result-row ${idx === 0 ? 'winner-row' : ''}">
+          <div class="result-row ${idx === 0 && !res.disqualified ? 'winner-row' : ''}">
             <span style="font-weight: 800; color: ${color};">#${idx + 1}</span>
-            <span style="display: flex; align-items: center; gap: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            <span style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              <span>${racer.icon}</span>
               ${renderCountryBadge(res.country, 'badge-sm')}
               <strong>${escapeHtml(res.username)}</strong>
               ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(You)</span>' : ''}
-              ${res.flagged ? '⚠️ (Flagged)' : ''}
             </span>
-            <span>${res.dnf ? 'DNF' : res.wpm + ' WPM'}</span>
+            <span>${statusText}</span>
             <span>${res.errors || 0} err</span>
             <span>${res.ratingChange ? (res.ratingChange > 0 ? '+' : '') + res.ratingChange + ' ELO' : ''}</span>
           </div>
