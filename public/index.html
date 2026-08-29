@@ -5297,17 +5297,6 @@
     </div>
   </div>
 
-  <!-- Global Floating Server Announcement Banner -->
-  <div class="server-announcement-banner hidden" id="server-announcement-banner">
-    <div class="announcement-content">
-      <span class="announcement-icon">📢</span>
-      <div class="announcement-text-wrap">
-        <strong id="announcement-sender">ADMIN ANNOUNCEMENT</strong>
-        <span id="announcement-msg">System message goes here</span>
-      </div>
-    </div>
-    <button class="announcement-close-btn" id="announcement-close-btn" type="button">✕</button>
-  </div>
 
   <!-- DIVISION TIERS BREAKDOWN MODAL -->
   <div class="modal-overlay hidden" id="tier-info-modal">
@@ -8437,15 +8426,13 @@
       }
     });
 
-    socket.on('serverAnnouncement', ({ sender, message }) => {
-      if (serverAnnouncementBanner && announcementMsg) {
-        if (announcementSender) announcementSender.textContent = `📢 ADMIN ANNOUNCEMENT (${sender})`;
-        announcementMsg.textContent = message;
-        serverAnnouncementBanner.classList.remove('hidden');
-        setTimeout(() => {
-          serverAnnouncementBanner.classList.add('hidden');
-        }, 8000);
-      }
+    // Global Backdrop Click Handler: Click outside any modal card to close it
+    document.querySelectorAll('.modal-overlay').forEach((overlay) => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.classList.add('hidden');
+        }
+      });
     });
 
     // Handle Authentication & Auto-load User Data & History
