@@ -3417,7 +3417,8 @@
       if (headerFlag) headerFlag.textContent = c.flag;
       if (headerCountryCode) headerCountryCode.textContent = c.code;
       if (headerCountryBtn) headerCountryBtn.title = `Country: ${c.name} (${c.code}) - Click to change`;
-      if (accountCountry) accountCountry.value = c.code;
+      const accCountryEl = document.querySelector('#account-country');
+      if (accCountryEl) accCountryEl.value = c.code;
       if (profileEditCountrySelect) profileEditCountrySelect.value = c.code;
       if (modalProfileUsername && userProfile) {
         modalProfileUsername.innerHTML = `${renderCountryBadge(userCountry)} ${escapeHtml(userProfile.username)}`;
@@ -3428,7 +3429,8 @@
     // Populate Country Select dropdowns
     function populateCountrySelects() {
       const optionsHtml = COUNTRIES.map((c) => `<option value="${c.code}">${c.flag} ${c.name} (${c.code})</option>`).join('');
-      if (accountCountry) accountCountry.innerHTML = optionsHtml;
+      const accCountryEl = document.querySelector('#account-country');
+      if (accCountryEl) accCountryEl.innerHTML = optionsHtml;
       if (profileEditCountrySelect) profileEditCountrySelect.innerHTML = optionsHtml;
       updateCountryUI(userCountry);
     }
