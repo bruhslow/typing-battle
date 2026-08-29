@@ -1,7 +1,7 @@
 {
-  "name": "typing-battle",
+  "name": "typendo",
   "version": "1.0.0",
-  "description": "Multiplayer Real-time Typing Battle Game",
+  "description": "Typendo — Real-Time Multiplayer Competitive Typing Duels",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
