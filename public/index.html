@@ -183,12 +183,20 @@
       line-height: 0;
     }
 
-    .header-tools {
+    .header-top-bar {
+      display: contents;
+    }
+
+    .header-tools-bar {
       display: flex;
       align-items: center;
       gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
+    }
+
+    .header-auth-slot {
+      display: flex;
+      align-items: center;
+      order: 3;
     }
 
     /* EDITABLE USERNAME BOX */
@@ -2375,17 +2383,59 @@
       .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; }
       .stat-strip-card { padding: 8px 10px; }
       .stat-strip-card:nth-child(5) { grid-column: span 2; }
-      header { padding: 8px 14px; border-radius: var(--radius-lg); gap: 8px; margin-bottom: 4px; }
-      .brand { font-size: 17px; gap: 8px; }
+      
+      /* Mobile Balanced Dual-Row Header */
+      header {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px 12px;
+        border-radius: var(--radius-lg);
+        gap: 9px;
+        margin-bottom: 4px;
+      }
+
+      .header-top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 8px;
+      }
+
+      .header-tools-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 8px;
+      }
+
+      .brand { font-size: 18px; gap: 8px; }
       .brand-svg-mark { width: 32px; height: 32px; border-radius: 9px; }
-      .header-tools { gap: 6px; }
-      .profile-box { padding: 3px 8px 3px 4px; gap: 5px; }
+
+      .header-auth-slot {
+        order: unset;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .profile-box {
+        flex: 1;
+        min-width: 0;
+        padding: 3px 8px 3px 4px;
+        gap: 6px;
+      }
+
       .profile-avatar { width: 24px; height: 24px; font-size: 10px; }
-      .profile-input { width: 70px; font-size: 12px; }
-      .profile-elo-tag { font-size: 10px; padding: 2px 5px; }
+      .profile-field-wrap { flex: 1; min-width: 0; }
+      .profile-input { width: 100%; min-width: 35px; font-size: 12px; }
+      .profile-elo-tag { font-size: 10px; padding: 2px 6px; }
       .profile-country-btn { padding: 2px 5px; font-size: 10px; }
-      .code-pill { padding: 4px 8px; font-size: 10px; gap: 4px; }
+      .code-pill { padding: 4px 8px; font-size: 10px; gap: 4px; flex-shrink: 0; }
       .account-btn { padding: 6px 12px; font-size: 11px; }
+      .auth-btn-group { gap: 6px; }
       .home-grid { grid-template-columns: 1fr; gap: 12px; }
       .battle-deck { padding: 18px 14px; border-radius: var(--radius-lg); gap: 12px; }
       .deck-header h1 { font-size: 22px; }
@@ -2423,11 +2473,14 @@
 
     @media (max-width: 420px) {
       .shell { padding: 8px 8px 14px; }
-      header { flex-direction: column; align-items: stretch; border-radius: var(--radius-md); padding: 10px 12px; gap: 8px; }
-      .brand { justify-content: center; }
-      .header-tools { justify-content: center; flex-wrap: wrap; }
-      .profile-box { flex: 1; justify-content: space-between; }
-      .profile-input { width: 100%; min-width: 45px; }
+      header { padding: 8px 10px; gap: 7px; }
+      .brand { font-size: 16px; gap: 6px; }
+      .brand-svg-mark { width: 28px; height: 28px; border-radius: 8px; }
+      .account-btn { padding: 5px 10px; font-size: 11px; }
+      .profile-box { padding: 3px 6px 3px 3px; gap: 4px; }
+      .profile-country-btn { padding: 2px 4px; font-size: 9px; }
+      .profile-elo-tag { font-size: 9px; padding: 2px 5px; }
+      .code-pill { padding: 3px 6px; font-size: 9px; }
       .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 6px; }
       .stat-strip-card { padding: 7px 8px; gap: 6px; }
       .stat-icon-wrap { width: 28px; height: 28px; font-size: 13px; }
@@ -2442,25 +2495,44 @@
     <div class="viewport-screen">
       <!-- HEADER -->
       <header>
-        <a class="brand" id="home-link" href="/" aria-label="Typendo Home">
-          <div class="brand-svg-mark">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"/>
-              <path d="M6 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"/>
-              <path d="M6 12h12"/>
-            </svg>
-          </div>
-          <span class="brand-title">TYPENDO<span class="brand-dot">.</span></span>
-        </a>
+        <!-- Top Bar (Brand on Left, Auth Buttons on Right on Mobile) -->
+        <div class="header-top-bar">
+          <a class="brand" id="home-link" href="/" aria-label="Typendo Home">
+            <div class="brand-svg-mark">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"/>
+                <path d="M6 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"/>
+                <path d="M6 12h12"/>
+              </svg>
+            </div>
+            <span class="brand-title">TYPENDO<span class="brand-dot">.</span></span>
+          </a>
 
-        <div class="header-tools">
-          <!-- Room Code Pill -->
-          <div class="code-pill" id="code-pill-wrap" title="Your private room code">
-            <span>CODE</span>
-            <strong id="friend-id">...</strong>
-            <button id="reset-code" type="button" title="Get a new room code">↻</button>
-          </div>
+          <div class="header-auth-slot">
+            <!-- Auth Controls (Clerk Log In & Sign Up) -->
+            <div class="auth-btn-group" id="header-auth-logged-out">
+              <button class="account-btn" id="clerk-open-login-btn" type="button" title="Log In with Google or Email via Clerk">
+                <span>🔑</span>
+                <span>Log In</span>
+              </button>
+              <button class="account-btn signup-accent-btn" id="clerk-open-signup-btn" type="button" title="Sign Up with Google or Email via Clerk">
+                <span>✨</span>
+                <span>Sign Up</span>
+              </button>
+            </div>
 
+            <!-- Logged In User Profile Trigger -->
+            <div class="account-wrapper hidden" id="header-auth-logged-in">
+              <button class="account-btn is-logged-in" id="account-button" type="button" title="View Profile & Stats">
+                <span id="account-btn-icon">👤</span>
+                <span id="account-btn-text">Player</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Bar (Player Profile & Room Code on Mobile) -->
+        <div class="header-tools-bar">
           <!-- PROMINENT USERNAME PILL WITH COUNTRY BADGE -->
           <div class="profile-box" title="Your player profile & country">
             <button class="profile-country-btn" id="header-country-btn" type="button" title="Click to change your country">
@@ -2475,24 +2547,11 @@
             <div class="profile-elo-tag" id="header-elo" title="Click to view ELO Division Tiers">1000 ELO</div>
           </div>
 
-          <!-- Auth Controls (Clerk Log In & Sign Up) -->
-          <div class="auth-btn-group" id="header-auth-logged-out">
-            <button class="account-btn" id="clerk-open-login-btn" type="button" title="Log In with Google or Email via Clerk">
-              <span>🔑</span>
-              <span>Log In</span>
-            </button>
-            <button class="account-btn signup-accent-btn" id="clerk-open-signup-btn" type="button" title="Sign Up with Google or Email via Clerk">
-              <span>✨</span>
-              <span>Sign Up</span>
-            </button>
-          </div>
-
-          <!-- Logged In User Profile Trigger -->
-          <div class="account-wrapper hidden" id="header-auth-logged-in">
-            <button class="account-btn is-logged-in" id="account-button" type="button" title="View Profile & Stats">
-              <span id="account-btn-icon">👤</span>
-              <span id="account-btn-text">Player</span>
-            </button>
+          <!-- Room Code Pill -->
+          <div class="code-pill" id="code-pill-wrap" title="Your private room code">
+            <span>CODE</span>
+            <strong id="friend-id">...</strong>
+            <button id="reset-code" type="button" title="Get a new room code">↻</button>
           </div>
         </div>
       </header>
