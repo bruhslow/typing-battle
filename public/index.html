@@ -4477,6 +4477,7 @@
       </div>
     </div>
   </div>
+  </div>
 
   <div class="toast hidden" id="toast" role="status" aria-live="polite">
     <div class="toast-dot"></div>
@@ -4733,10 +4734,7 @@
     const paneEloHist = document.querySelector('#pane-elo-hist');
     const paneHallFame = document.querySelector('#pane-hall-fame');
 
-    // Warmup Drill Elements
-    const warmupInput = document.querySelector('#warmup-input');
-    const warmupQuote = document.querySelector('#warmup-quote');
-    const warmupSpeedTag = document.querySelector('#warmup-speed-tag');
+    // Mode Perks Element
     const modePerksList = document.querySelector('#mode-perks-list');
 
     // State Variables
@@ -4790,8 +4788,6 @@
       if (headerFlag) headerFlag.textContent = c.flag;
       if (headerCountryCode) headerCountryCode.textContent = c.code;
       if (headerCountryBtn) headerCountryBtn.title = `Country: ${c.name} (${c.code}) - Click to change`;
-      const accCountryEl = document.querySelector('#account-country');
-      if (accCountryEl) accCountryEl.value = c.code;
       if (profileEditCountrySelect) profileEditCountrySelect.value = c.code;
       if (modalProfileUsername && userProfile) {
         modalProfileUsername.innerHTML = `${renderCountryBadge(userCountry)} ${escapeHtml(userProfile.username)}`;
@@ -4802,8 +4798,6 @@
     // Populate Country Select dropdowns
     function populateCountrySelects() {
       const optionsHtml = COUNTRIES.map((c) => `<option value="${c.code}">${c.flag} ${c.name} (${c.code})</option>`).join('');
-      const accCountryEl = document.querySelector('#account-country');
-      if (accCountryEl) accCountryEl.innerHTML = optionsHtml;
       if (profileEditCountrySelect) profileEditCountrySelect.innerHTML = optionsHtml;
       updateCountryUI(userCountry);
     }
@@ -6262,6 +6256,7 @@
     startRoomButton.addEventListener('click', () => socket.emit('startRoom'));
 
     document.querySelector('#cancel-button').addEventListener('click', () => {
+      socket.emit('cancelMatch');
       socket.emit('leaveRoom');
       resetRaceState();
       showScreen(joinScreen);
@@ -6295,6 +6290,7 @@
     const eloHistoryList = document.querySelector('#elo-history-list');
 
     function formatTimeAgo(timestamp) {
+      if (!timestamp) return 'Just now';
       const sec = Math.floor((Date.now() - timestamp) / 1000);
       if (sec < 60) return 'Just now';
       const min = Math.floor(sec / 60);
@@ -6316,7 +6312,7 @@
       const totalMatches = duelHistory.length;
       const totalErrors = duelHistory.reduce((acc, d) => acc + (d.errors || 0), 0);
       const estimatedChars = duelHistory.reduce((acc, d) => acc + (d.wpm ? d.wpm * 5 : 50), 0);
-      const accPct = estimatedChars > 0 ? Math.max(85, Math.round(((estimatedChars - totalErrors) / estimatedChars) * 100)) : 100;
+      const accPct = estimatedChars > 0 ? Math.max(0, Math.min(100, Math.round(((estimatedChars - totalErrors) / estimatedChars) * 100))) : 100;
       statAccuracy.textContent = `${accPct}%`;
       if (modalStatAcc) modalStatAcc.textContent = `${accPct}%`;
 
@@ -7080,6 +7076,68 @@
       startRoomButton.classList.toggle('hidden', !isHost || playerCount < 2);
       renderLobbyMembers(players, hostId);
       renderSidebarProgress();
+    });
+
+    socket.on('sessionRestored', ({ friendId, roomId, roomName, isPublic, typingMode, mode, started, difficulty, players, hostId, playerCount, maxPlayers }) => {
+      currentRoomId = roomId;
+      isHost = socket.id === hostId;
+      activePlayers = players || [];
+      roomConfigDiff = difficulty || 'medium';
+      roomConfigMode = typingMode || 'standard';
+      roomConfigPublic = Boolean(isPublic);
+
+      showScreen(raceScreen);
+      raceStatus.textContent = (roomName || 'CUSTOM LOBBY').toUpperCase();
+      document.querySelector('#room-label').textContent = `CODE: ${friendId || roomId.replace('room-', '')}`;
+      document.querySelector('#room-label').classList.remove('hidden');
+      document.querySelector('#code-pill-wrap').classList.remove('hidden');
+      
+      hostSettingsPanel.classList.toggle('hidden', !isHost);
+      updateHostPillVisuals(roomConfigDiff, roomConfigMode, roomConfigPublic);
+      startRoomButton.classList.toggle('hidden', !isHost || (playerCount || 0) < 2);
+
+      renderLobbyMembers(activePlayers, hostId);
+      showToast('Session restored! Reconnected to lobby.');
+    });
+
+    socket.on('queueUpdate', ({ position, waiting: queueWaiting, mode, platform }) => {
+      if (waitingMessage && selectedMode === mode) {
+        waitingMessage.textContent = `Queue position: #${position} (${queueWaiting} typist${queueWaiting === 1 ? '' : 's'} waiting)...`;
+      }
+    });
+
+    socket.on('playerReadyStatus', ({ playerId, readyCount, totalCount }) => {
+      if (playerId === socket.id) {
+        readyButton.textContent = `READY (${readyCount}/${totalCount})`;
+        readyButton.classList.add('is-ready');
+      }
+      if (readyOpponentStatus) {
+        readyOpponentStatus.innerHTML = `<span style="color: var(--primary); font-weight: 800;">${readyCount}/${totalCount} Players Ready</span>`;
+      }
+    });
+
+    socket.on('matchmakingCancelled', () => {
+      setSearching(false);
+      showScreen(joinScreen);
+      showToast('Matchmaking cancelled.');
+    });
+
+    socket.on('loggedOut', () => {
+      handleLocalLogout();
+    });
+
+    socket.on('authSignedOut', () => {
+      handleLocalLogout();
+    });
+
+    socket.on('usernameUpdated', (name) => {
+      if (usernameInput) usernameInput.value = name;
+      if (headerAvatar && (!userProfile || !userProfile.imageUrl)) headerAvatar.textContent = name.slice(0, 1).toUpperCase();
+      localStorage.setItem('typendoUsername', name);
+    });
+
+    socket.on('otpSent', ({ message }) => {
+      showToast(message || 'Verification code sent.');
     });
 
     socket.on('rankedBanned', ({ seconds }) => {

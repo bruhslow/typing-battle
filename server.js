@@ -62,6 +62,21 @@ if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
 // In-memory Pending OTPs: Map<email, { otp, expiresAt, lastSentAt, attempts, username, country } >
 const pendingOtps = new Map();
 
+// Periodic cleanup of expired OTP records and abandoned sessions to prevent memory leaks
+setInterval(() => {
+  const now = Date.now();
+  for (const [email, record] of pendingOtps.entries()) {
+    if (record.expiresAt < now) {
+      pendingOtps.delete(email);
+    }
+  }
+  for (const [friendId, sess] of sessions.entries()) {
+    if (sess.expiresAt < now) {
+      sessions.delete(friendId);
+    }
+  }
+}, 60000);
+
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
@@ -165,17 +180,17 @@ function formatAccountResponse(acc, accountKey) {
   const isAdmin = isAccountAdmin(acc);
   return {
     clerkId: acc.clerkId || '',
-    username: acc.username,
-    email: acc.email,
+    username: acc.username || 'Player',
+    email: acc.email || '',
     country: acc.country || 'IND',
     imageUrl: acc.imageUrl || '',
-    rating: acc.rating || 1000,
+    rating: typeof acc.rating === 'number' ? acc.rating : 1000,
     role: isAdmin ? 'admin' : (acc.role || 'user'),
     isAdmin,
-    accountKey: accountKey || acc.username.toLowerCase(),
+    accountKey: accountKey || (acc.username ? acc.username.toLowerCase() : ''),
     createdAt: acc.createdAt || Date.now(),
-    duelHistory: acc.duelHistory || [],
-    eloHistory: acc.eloHistory || [],
+    duelHistory: Array.isArray(acc.duelHistory) ? acc.duelHistory : [],
+    eloHistory: Array.isArray(acc.eloHistory) ? acc.eloHistory : [],
   };
 }
 
@@ -191,16 +206,16 @@ function saveAccounts() {
 function getGlobalLeaderboard() {
   const list = [];
   accounts.forEach((acc) => {
-    const duelHistory = acc.duelHistory || [];
-    const pb = duelHistory.length > 0 ? Math.max(...duelHistory.map((d) => d.wpm || 0)) : 0;
-    const wins = duelHistory.filter((d) => d.isWin).length;
+    const duelHistory = Array.isArray(acc.duelHistory) ? acc.duelHistory : [];
+    const pb = duelHistory.length > 0 ? Math.max(0, ...duelHistory.map((d) => (typeof d?.wpm === 'number' && !isNaN(d.wpm) ? d.wpm : 0))) : 0;
+    const wins = duelHistory.filter((d) => d && d.isWin).length;
     const matches = duelHistory.length;
     const isAdmin = isAccountAdmin(acc);
 
     list.push({
-      username: acc.username,
+      username: acc.username || 'Player',
       country: acc.country || 'IND',
-      rating: acc.rating || 1000,
+      rating: typeof acc.rating === 'number' ? acc.rating : 1000,
       role: isAdmin ? 'admin' : 'user',
       isAdmin,
       pb,
@@ -452,8 +467,15 @@ function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
 }
 
 function passwordMatches(password, account) {
-  const attempted = Buffer.from(hashPassword(password, account.salt).hash, 'hex');
-  return crypto.timingSafeEqual(attempted, Buffer.from(account.hash, 'hex'));
+  if (!account || !account.salt || !account.hash || typeof password !== 'string') return false;
+  try {
+    const attempted = Buffer.from(hashPassword(password, account.salt).hash, 'hex');
+    const actual = Buffer.from(account.hash, 'hex');
+    if (attempted.length !== actual.length) return false;
+    return crypto.timingSafeEqual(attempted, actual);
+  } catch (e) {
+    return false;
+  }
 }
 
 function applyRankedPenalty(socket) {
@@ -634,19 +656,20 @@ function handleReadyTimeout(roomId) {
     if (!socket) return;
     if (readyState.ready.has(playerId)) {
       socket.emit('matchCancelled', { message: 'Opponent did not ready up in time. Searching again...' });
-      const mode = readyState.mode;
-      const platform = socket.data?.device || socket.data?.platform || 'pc';
-      const queuePlatform = mode === 'ranked' ? socket.data?.device || 'pc' : socket.data?.platform || 'pc';
-      matchmakingQueues[mode][queuePlatform].unshift(socket.id);
-      socket.data.queued = true;
-      socket.emit('matchmaking', {
-        position: 1,
-        mode,
-        platform: socket.data.platform,
-        queuePlatform,
-        rating: getRating(socket.id),
-      });
-      createMatch(mode, queuePlatform);
+      const mode = readyState.mode || 'quick';
+      const queuePlatform = mode === 'ranked' ? (socket.data?.device === 'phone' ? 'phone' : 'pc') : (['pc', 'phone', 'cross'].includes(socket.data?.platform) ? socket.data.platform : 'pc');
+      if (matchmakingQueues[mode] && matchmakingQueues[mode][queuePlatform]) {
+        matchmakingQueues[mode][queuePlatform].unshift(socket.id);
+        socket.data.queued = true;
+        socket.emit('matchmaking', {
+          position: 1,
+          mode,
+          platform: socket.data.platform,
+          queuePlatform,
+          rating: getRating(socket.id),
+        });
+        createMatch(mode, queuePlatform);
+      }
     } else {
       socket.emit('matchCancelled', { message: 'You failed to accept the match in time.' });
       socket.leave(roomId);
@@ -660,7 +683,7 @@ function handleReadyTimeout(roomId) {
 
 function createQuickMatch() {
   const queuedPlayers = Object.entries(matchmakingQueues.quick).flatMap(([platform, queue]) =>
-    queue.map((socketId) => ({ socketId, platform }))
+    (queue || []).map((socketId) => ({ socketId, platform }))
   );
   queuedPlayers.sort((first, second) =>
     (io.sockets.sockets.get(first.socketId)?.data?.queuedAt || 0) - (io.sockets.sockets.get(second.socketId)?.data?.queuedAt || 0)
@@ -672,8 +695,10 @@ function createQuickMatch() {
     if (!firstPlayer) {
       queuedPlayers.shift();
       const q = matchmakingQueues.quick[first.platform];
-      const idx = q.indexOf(first.socketId);
-      if (idx !== -1) q.splice(idx, 1);
+      if (q) {
+        const idx = q.indexOf(first.socketId);
+        if (idx !== -1) q.splice(idx, 1);
+      }
       continue;
     }
 
@@ -717,12 +742,14 @@ function createQuickMatch() {
 
     [first, second].forEach((item) => {
       const queue = matchmakingQueues.quick[item.platform];
-      const idx = queue.indexOf(item.socketId);
-      if (idx !== -1) queue.splice(idx, 1);
+      if (queue) {
+        const idx = queue.indexOf(item.socketId);
+        if (idx !== -1) queue.splice(idx, 1);
+      }
     });
 
     if (!secondPlayer) {
-      if (firstPlayer) {
+      if (firstPlayer && matchmakingQueues.quick[first.platform]) {
         matchmakingQueues.quick[first.platform].unshift(first.socketId);
       }
       continue;
@@ -770,7 +797,9 @@ function createMatch(mode, platform) {
     createQuickMatch();
     return;
   }
-  const queue = matchmakingQueues[mode][platform];
+  const queue = matchmakingQueues[mode]?.[platform];
+  if (!queue) return;
+
   while (queue.length >= 2) {
     const firstId = queue.shift();
     const secondId = queue.shift();
@@ -825,7 +854,8 @@ function createMatch(mode, platform) {
 }
 
 function broadcastQueue(mode, platform) {
-  const queue = matchmakingQueues[mode][platform];
+  const queue = matchmakingQueues[mode]?.[platform];
+  if (!queue) return;
   queue.forEach((socketId, index) => {
     const player = io.sockets.sockets.get(socketId);
     if (player) player.emit('queueUpdate', { position: index + 1, waiting: queue.length, mode, platform });
@@ -916,7 +946,7 @@ function restoreSession(socket, friendId) {
       paragraph: room.paragraph,
       difficulty: room.difficulty,
       typingMode: room.typingMode,
-      maxDurationSec: MAX_RACE_DURATION_SEC,
+      maxDurationSec: getRoomMaxDurationSec(room),
       startTime: room.startedAt,
       countdownMs: 0,
       players: playersList,
@@ -927,8 +957,15 @@ function restoreSession(socket, friendId) {
 }
 
 function leaveRoom(socket) {
+  removeFromQueue(socket);
   const roomId = socket.data?.roomId;
   if (!roomId) return;
+
+  const readyState = readyMatches.get(roomId);
+  if (readyState) {
+    clearTimeout(readyState.timeout);
+    readyMatches.delete(roomId);
+  }
 
   const room = rooms.get(roomId);
   if (room) {
@@ -1186,7 +1223,7 @@ io.on('connection', (socket) => {
     }
 
     // Check if email is already registered
-    const emailExists = [...accounts.values()].some((a) => a.email.toLowerCase() === cleanEmail);
+    const emailExists = [...accounts.values()].some((a) => a.email && a.email.toLowerCase() === cleanEmail);
     if (emailExists) {
       socket.emit('authError', 'This email is already registered. Please use the Log In tab.');
       return;
@@ -1355,7 +1392,7 @@ io.on('connection', (socket) => {
 
     let account = accounts.get(lowerIdentifier);
     if (!account) {
-      account = [...accounts.values()].find((acc) => acc.email.toLowerCase() === lowerIdentifier || acc.username.toLowerCase() === lowerIdentifier);
+      account = [...accounts.values()].find((acc) => (acc.email && acc.email.toLowerCase() === lowerIdentifier) || (acc.username && acc.username.toLowerCase() === lowerIdentifier));
     }
     if (!account || !passwordMatches(password, account)) {
       socket.emit('authError', 'Incorrect username/email or password.');
@@ -1784,7 +1821,7 @@ io.on('connection', (socket) => {
     const elapsedMs = Number.isFinite(stats.elapsedMs) ? Math.max(1, stats.elapsedMs) : Math.max(1, Date.now() - room.startedAt);
     const wpm = Number.isFinite(stats.wpm) ? Math.max(0, Math.min(300, stats.wpm)) : 0;
     const errors = Number.isFinite(stats.errors) ? Math.max(0, Math.floor(stats.errors)) : 0;
-    const isSuspicious = (elapsedMs < 2000 && room.paragraph.length > 30) || wpm > 260;
+    const isSuspicious = (elapsedMs < 2000 && room.paragraph && room.paragraph.length > 30) || wpm > 260;
 
     room.finishData.set(socket.id, {
       wpm,
