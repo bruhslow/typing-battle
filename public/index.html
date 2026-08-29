@@ -3699,49 +3699,72 @@
       .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; }
       .stat-strip-card { padding: 8px 10px; }
       .stat-strip-card:nth-child(5) { grid-column: span 2; }
-      
-      /* Mobile Balanced Dual-Row Header (Mobile Only) */
+
+      /* ── Mobile Header: single row, logo left, tools right ── */
       header {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         align-items: center;
         justify-content: space-between;
         padding: 8px 12px;
         border-radius: var(--radius-lg);
-        gap: 8px 10px;
+        gap: 8px;
         margin-bottom: 4px;
         width: 100%;
         box-sizing: border-box;
+        overflow: hidden;
       }
 
+      /* Logo: locked to the left, never wraps */
       .brand {
-        order: 1;
+        flex-shrink: 0;
         font-size: 16px;
         gap: 6px;
-        flex-shrink: 0;
+        order: 1;
       }
       .brand-svg-mark { width: 28px; height: 28px; border-radius: 8px; }
       .brand-title { font-size: 15px; }
 
+      /* Tools wrapper: flex row pushed right */
       .header-tools {
-        display: contents;
-      }
-
-      /* Top Right Auth Pill Group on Mobile */
-      #header-auth-logged-out,
-      #header-auth-logged-in {
-        order: 2;
         display: flex;
+        flex-direction: row;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
         margin-left: auto;
         flex-shrink: 0;
+        order: 2;
+        min-width: 0;
       }
 
-      .auth-btn-group {
+      /* Profile box: compact but stays in the row */
+      .profile-box {
+        padding: 3px 8px 3px 4px;
+        gap: 5px;
+        height: 32px;
+        min-width: 0;
+        flex-shrink: 1;
+        max-width: 140px;
+      }
+      .profile-field-label { display: none !important; }
+      .profile-avatar { width: 22px; height: 22px; font-size: 10px; flex-shrink: 0; }
+      .profile-field-wrap { flex: 1; min-width: 0; }
+      .profile-input { width: 100%; min-width: 28px; font-size: 11px; font-weight: 700; height: 22px; }
+      .profile-elo-tag { display: none; } /* hide ELO tag on mobile to save space */
+      .profile-country-btn { padding: 2px 4px; font-size: 10px; }
+
+      /* Room code pill: compact */
+      #code-pill-wrap {
+        padding: 3px 7px;
+        font-size: 10px;
         gap: 4px;
+        flex-shrink: 0;
+        height: 30px;
       }
+      #friend-id { font-size: 11px; }
 
+      /* Auth buttons: compact */
+      .auth-btn-group { gap: 4px; }
       .account-btn {
         padding: 4px 8px;
         font-size: 11px;
@@ -3749,42 +3772,29 @@
         border-radius: 999px;
         gap: 4px;
       }
+      .account-btn span { white-space: nowrap; }
 
-      .account-btn span {
-        white-space: nowrap;
-      }
-
-      /* Bottom Row: Player Profile (Left) & Room Code (Right) */
-      .profile-box {
-        order: 3;
-        flex: 1 1 auto;
-        min-width: 0;
-        padding: 3px 8px 3px 4px;
-        gap: 5px;
-        height: 32px;
-      }
-
-      .profile-field-label {
-        display: none !important; /* Remove label clutter on mobile so player name is clear */
-      }
-
-      .profile-avatar { width: 22px; height: 22px; font-size: 10px; }
-      .profile-field-wrap { flex: 1; min-width: 0; }
-      .profile-input { width: 100%; min-width: 30px; font-size: 12px; font-weight: 700; height: 24px; }
-      .profile-elo-tag { font-size: 9px; padding: 2px 5px; white-space: nowrap; }
-      .profile-country-btn { padding: 2px 4px; font-size: 10px; }
-
-      #code-pill-wrap {
-        order: 4;
-        padding: 3px 8px;
-        font-size: 10px;
+      /* Auth logged-in wrapper */
+      #header-auth-logged-out,
+      #header-auth-logged-in {
+        display: flex;
+        align-items: center;
         gap: 4px;
         flex-shrink: 0;
-        height: 32px;
       }
 
-      #friend-id { font-size: 11px; }
+      /* Mute button: always at far right, small */
+      .sound-toggle-btn {
+        flex-shrink: 0;
+        padding: 4px 7px;
+        font-size: 10px;
+        height: 30px;
+        gap: 3px;
+        border-radius: var(--radius-sm);
+      }
+      .sound-btn-label { display: none; } /* just show the icon on mobile */
 
+      /* Main content grids */
       .home-grid { grid-template-columns: 1fr; gap: 12px; }
       .battle-deck { padding: 18px 14px; border-radius: var(--radius-lg); gap: 12px; }
       .deck-header h1 { font-size: 22px; }
@@ -3823,22 +3833,23 @@
 
     @media (max-width: 420px) {
       .shell { padding: 6px 6px 12px; }
-      header { padding: 7px 9px; gap: 6px 8px; }
-      .brand { font-size: 14px; gap: 5px; }
-      .brand-title { font-size: 14px; }
-      .brand-svg-mark { width: 24px; height: 24px; border-radius: 6px; }
-      
-      /* Top Right Auth Corner optimization */
+      header { padding: 6px 8px; gap: 5px; }
+      .brand { font-size: 13px; gap: 4px; }
+      .brand-title { font-size: 13px; }
+      .brand-svg-mark { width: 22px; height: 22px; border-radius: 6px; }
+
+      /* Tighten right-side tools on very small screens */
+      .header-tools { gap: 4px; }
       .account-btn { padding: 3px 6px; font-size: 10px; height: 26px; }
       .auth-btn-group { gap: 3px; }
 
-      .profile-box { padding: 2px 5px 2px 2px; gap: 3px; height: 28px; }
+      .profile-box { padding: 2px 5px 2px 2px; gap: 3px; height: 28px; max-width: 120px; }
       .profile-country-btn { padding: 1px 3px; font-size: 8.5px; }
       .profile-avatar { width: 18px; height: 18px; font-size: 9px; }
-      .profile-input { font-size: 11px; }
-      .profile-elo-tag { font-size: 8.5px; padding: 1px 4px; }
+      .profile-input { font-size: 10px; }
       .code-pill { padding: 2px 5px; font-size: 8.5px; height: 28px; }
-      
+      .sound-toggle-btn { padding: 3px 5px; height: 26px; font-size: 12px; }
+
       .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 6px; }
       .stat-strip-card { padding: 7px 8px; gap: 6px; }
       .stat-icon-wrap { width: 28px; height: 28px; font-size: 13px; }
@@ -6140,7 +6151,11 @@
     if (closeSetupModalBtn) {
       closeSetupModalBtn.addEventListener('click', () => {
         if (setupCredentialsModal) setupCredentialsModal.classList.add('hidden');
-        sessionStorage.setItem('typendoSetupDismissed', 'true');
+        // Suppress forever for this account so server reloads don't re-trigger it
+        sessionStorage.setItem('typendoSetupDismissed', '1');
+        if (userProfile?.accountKey) {
+          localStorage.setItem('typendoSetupDone_' + userProfile.accountKey, '1');
+        }
       });
     }
 
@@ -6172,6 +6187,11 @@
         }
 
         socket.emit('setupCredentials', { username, password, country });
+        // Mark setup as done permanently so it never pops again
+        if (userProfile?.accountKey) {
+          localStorage.setItem('typendoSetupDone_' + userProfile.accountKey, '1');
+        }
+        sessionStorage.setItem('typendoSetupDismissed', '1');
       });
     }
 
@@ -7962,11 +7982,15 @@
       socket.emit('getLeaderboard');
       showToast(`Welcome, ${username}! (${rating} ELO)`);
 
-      // If user registered with Google/Email without password yet, prompt setup credentials popup!
-      if (hasPassword === false && !sessionStorage.getItem('typendoSetupDismissed')) {
-        setTimeout(() => {
-          openSetupCredentialsModal(username, userCountry);
-        }, 400);
+      // If user signed in via Google/Clerk and has never set a password,
+      // prompt setup credentials ONCE — only on first-ever login, not on every page reload.
+      if (hasPassword === false) {
+        const alreadySetup = localStorage.getItem('typendoSetupDone_' + accountKey);
+        if (!alreadySetup && !sessionStorage.getItem('typendoSetupDismissed')) {
+          setTimeout(() => {
+            openSetupCredentialsModal(username, userCountry);
+          }, 400);
+        }
       }
     });
 
