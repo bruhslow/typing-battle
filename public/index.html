@@ -3,9 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>TYPENDO — Real-Time Competitive Typing Battles</title>
   <!-- Clerk Authentication SDK -->
-  <script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_c3dlZXQtbW90aC03NjMwLmNsZXJrLmFjY291bnRzLmRldiQ" data-clerk-frontend-api="https://sweet-moth-7630.clerk.accounts.dev" src="https://sweet-moth-7630.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" type="text/javascript"></script>
+  <script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_c3dlZXQtbW90aC03NjMwLmNsZXJrLmFjY291bnRzLmRldiQ" src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js" type="text/javascript"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
@@ -3626,28 +3625,24 @@
     }
 
     async function openClerkAuth(mode = 'signIn') {
-      showToast('Opening authentication...');
       try {
-        const clerk = await ensureClerkLoaded();
-        if (clerk) {
-          if (mode === 'signUp' && typeof clerk.openSignUp === 'function') {
-            clerk.openSignUp();
+        if (window.Clerk && typeof window.Clerk.openSignIn === 'function') {
+          if (mode === 'signUp' && typeof window.Clerk.openSignUp === 'function') {
+            window.Clerk.openSignUp();
             return;
           }
-          if (typeof clerk.openSignIn === 'function') {
-            clerk.openSignIn();
-            return;
-          }
+          window.Clerk.openSignIn();
+          return;
         }
-        window.location.href = mode === 'signUp'
-          ? `${CLERK_FRONTEND_API}/sign-up`
-          : `${CLERK_FRONTEND_API}/sign-in`;
-      } catch (err) {
-        console.error('Clerk open error:', err);
-        window.location.href = mode === 'signUp'
-          ? `${CLERK_FRONTEND_API}/sign-up`
-          : `${CLERK_FRONTEND_API}/sign-in`;
+      } catch (e) {
+        console.warn('Clerk modal open exception:', e);
       }
+
+      const targetUrl = mode === 'signUp'
+        ? `${CLERK_FRONTEND_API}/sign-up?redirect_url=${encodeURIComponent(window.location.href)}`
+        : `${CLERK_FRONTEND_API}/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`;
+      
+      window.location.href = targetUrl;
     }
 
     if (clerkOpenLoginBtn) {
