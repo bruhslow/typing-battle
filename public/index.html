@@ -263,6 +263,21 @@
       text-overflow: ellipsis;
     }
 
+    .username-readonly-wrap {
+      border-left: 1.5px solid var(--border-subtle);
+      padding-left: 8px;
+      margin-left: 2px;
+    }
+
+    .readonly-handle-input {
+      width: 90px !important;
+      color: var(--text-dim) !important;
+      font-weight: 700;
+      cursor: default !important;
+      user-select: none;
+      opacity: 0.85;
+    }
+
     .profile-elo-tag {
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
@@ -4458,8 +4473,12 @@
             </button>
             <div class="profile-avatar" id="header-avatar">P</div>
             <div class="profile-field-wrap">
-              <span class="profile-field-label">PLAYER NAME</span>
-              <input class="profile-input" id="username-input" maxlength="20" placeholder="Your Name" autocomplete="nickname">
+              <span class="profile-field-label">NICKNAME</span>
+              <input class="profile-input" id="username-input" maxlength="20" placeholder="Your Nickname" title="Your editable display nickname" autocomplete="nickname">
+            </div>
+            <div class="profile-field-wrap username-readonly-wrap">
+              <span class="profile-field-label">USERNAME</span>
+              <input class="profile-input readonly-handle-input" id="handle-display-input" readonly placeholder="@guest" value="@guest" tabindex="-1" title="Fixed account username handle (cannot be changed)">
             </div>
             <div class="profile-elo-tag" id="header-elo" title="Click to view ELO Division Tiers">1000 ELO</div>
           </div>
@@ -6271,16 +6290,23 @@
     const CLERK_PUBLISHABLE_KEY = 'pk_test_c3dlZXQtbW90aC03NjMwLmNsZXJrLmFjY291bnRzLmRldiQ';
     const CLERK_FRONTEND_API = 'https://sweet-moth-7630.clerk.accounts.dev';
 
-    function updateAuthHeaderUI(isLoggedIn, name = 'Player') {
+    const handleDisplayInput = document.querySelector('#handle-display-input');
+
+    function updateAuthHeaderUI(isLoggedIn, nickname = 'Player', usernameHandle = '') {
       const loggedOutGroup = document.querySelector('#header-auth-logged-out');
       const loggedInGroup = document.querySelector('#header-auth-logged-in');
       if (isLoggedIn) {
         if (loggedOutGroup) loggedOutGroup.classList.add('hidden');
         if (loggedInGroup) loggedInGroup.classList.remove('hidden');
-        if (accountBtnText) accountBtnText.textContent = name;
+        if (accountBtnText) accountBtnText.textContent = nickname;
+        if (handleDisplayInput) {
+          const handle = usernameHandle || userProfile?.username || '';
+          handleDisplayInput.value = handle ? `@${handle}` : '@registered';
+        }
       } else {
         if (loggedOutGroup) loggedOutGroup.classList.remove('hidden');
         if (loggedInGroup) loggedInGroup.classList.add('hidden');
+        if (handleDisplayInput) handleDisplayInput.value = '@guest';
       }
     }
 
@@ -6688,7 +6714,7 @@
       if (!userProfile?.imageUrl) {
         headerAvatar.textContent = display.slice(0, 1).toUpperCase();
       }
-      updateAuthHeaderUI(true, display);
+      updateAuthHeaderUI(true, display, username);
       localStorage.setItem('typendoUsername', display);
       if (accountKey) localStorage.setItem('typendoAccountKey', accountKey);
       profileModalMsg.textContent = '✔ Profile display name successfully updated!';
@@ -7471,17 +7497,24 @@
         const wpm = p.wpm || 0;
         const color = p.color?.hex || '#215e45';
         const racer = getRacerForPlayer(p, idx);
+        const handle = p.username || 'player';
+        const nickname = p.nickname || p.username || 'Player';
         return `
           <div class="sidebar-player-card">
-            <div class="sidebar-player-header">
-              <span style="display: flex; align-items: center; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                <span>${racer.icon}</span>
-                <strong style="color: ${color};">●</strong>
-                ${renderCountryBadge(p.country, 'badge-sm')}
-                <strong>${escapeHtml(p.username)}</strong>
-                ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(You)</span>' : ''}
-              </span>
-              <span style="font-size: 11px; white-space: nowrap;">${pct}% • ${wpm} WPM</span>
+            <div class="sidebar-player-header" style="align-items: flex-start;">
+              <div style="display: flex; flex-direction: column; overflow: hidden;">
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <span>${racer.icon}</span>
+                  <strong style="color: ${color};">●</strong>
+                  ${renderCountryBadge(p.country, 'badge-sm')}
+                  <strong style="font-size: 12px; font-weight: 800; color: var(--text-main);">@${escapeHtml(handle)}</strong>
+                  ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(You)</span>' : ''}
+                </div>
+                <div style="font-size: 11px; font-weight: 700; color: var(--primary); margin-left: 20px; margin-top: 1px;">
+                  ${escapeHtml(nickname)}
+                </div>
+              </div>
+              <span style="font-size: 11px; white-space: nowrap; font-weight: 800; font-family: 'JetBrains Mono', monospace;">${pct}% • ${wpm} WPM</span>
             </div>
             <div class="sidebar-progress-track">
               <div class="sidebar-progress-fill" style="width: ${pct}%; background: ${color};"></div>
@@ -8144,21 +8177,34 @@
       const selfName = userProfile?.username || usernameInput.value.trim();
 
       hallFameList.innerHTML = leaderboard.map((player, index) => {
-        const isSelf = loggedIn && selfName && player.username.toLowerCase() === selfName.toLowerCase();
+        const handle = player.username || 'player';
+        const nickname = player.nickname || player.username || 'Player';
+        const isSelf = loggedIn && selfName && (
+          (player.username && player.username.toLowerCase() === selfName.toLowerCase()) ||
+          (player.nickname && player.nickname.toLowerCase() === selfName.toLowerCase())
+        );
         let rankBadge = `#${index + 1}`;
         if (index === 0) rankBadge = '👑';
         else if (index === 1) rankBadge = '🥈';
         else if (index === 2) rankBadge = '🥉';
+
+        const addFriendBtn = (!isSelf)
+          ? `<button type="button" class="quick-add-friend-btn" onclick="quickAddFriend('${escapeHtml(handle)}')" title="Add @${escapeHtml(handle)} as friend">➕ Friend</button>`
+          : '';
 
         return `
           <div class="top-typist-item ${isSelf ? 'my-rank-item' : ''}">
             <div class="top-typist-left">
               <span class="rank-number">${rankBadge}</span>
               <div>
-                <div style="display: flex; align-items: center; gap: 5px;">
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                   ${renderCountryBadge(player.country, isSelf ? 'badge-highlight' : '')}
-                  <strong>${escapeHtml(player.username)}</strong>
+                  <strong style="font-size: 13px; font-weight: 800; color: var(--text-main);">@${escapeHtml(handle)}</strong>
                   ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(YOU)</span>' : ''}
+                  ${addFriendBtn}
+                </div>
+                <div style="font-size: 11px; font-weight: 700; color: var(--primary); margin-top: 1px;">
+                  ${escapeHtml(nickname)}
                 </div>
                 <div style="font-size: 10px; color: var(--text-dim); margin-top: 1px;">${player.wins || 0}W • ${player.matches || 0} duels</div>
               </div>
@@ -8360,7 +8406,7 @@
         headerAvatar.textContent = displayNickname.slice(0, 1).toUpperCase();
       }
       headerElo.textContent = rating + ' ELO';
-      updateAuthHeaderUI(true, displayNickname);
+      updateAuthHeaderUI(true, displayNickname, username);
       applyAdminUI(isAdmin);
 
       if (accountKey) localStorage.setItem('typendoAccountKey', accountKey);
@@ -8535,18 +8581,30 @@
     function renderLobbyMembers(players, hostId) {
       lobbyMembers.innerHTML = players.map((p) => {
         const isPlayerHost = p.id === hostId;
+        const isSelf = p.id === socket.id;
         const color = p.color?.hex || '#215e45';
         const statusTag = p.isRanked ? '✔ Registered' : 'Guest';
+        const handle = p.username || 'player';
+        const nickname = p.nickname || p.username || 'Player';
+        const addFriendBtn = (!isSelf && p.username)
+          ? `<button type="button" class="quick-add-friend-btn" style="margin-left:auto; padding:3px 8px; font-size:10.5px;" onclick="quickAddFriend('${escapeHtml(handle)}')" title="Add @${escapeHtml(handle)} as friend">➕ Friend</button>`
+          : '';
+
         return `
           <div class="lobby-player-card">
-            <div class="player-chip-avatar" style="background: ${color};">${escapeHtml(p.username.slice(0, 2).toUpperCase())}</div>
-            <div class="player-chip-info">
+            <div class="player-chip-avatar" style="background: ${color};">${escapeHtml(nickname.slice(0, 2).toUpperCase())}</div>
+            <div class="player-chip-info" style="flex:1;">
               <div style="display: flex; align-items: center; gap: 5px;">
                 ${renderCountryBadge(p.country, 'badge-sm')}
-                <strong>${escapeHtml(p.username)}</strong>
+                <strong style="font-size: 13px; font-weight: 800; color: var(--text-main);">@${escapeHtml(handle)}</strong>
+                ${isPlayerHost ? '👑 HOST' : ''}
               </div>
-              <small>${isPlayerHost ? '👑 HOST • ' : ''}${statusTag} • ${(p.platform || 'pc').toUpperCase()}</small>
+              <div style="font-size: 11px; font-weight: 700; color: var(--primary); margin-top: 1px;">
+                ${escapeHtml(nickname)}
+              </div>
+              <small style="font-size: 10px; color: var(--text-dim);">${statusTag} • ${(p.platform || 'pc').toUpperCase()}</small>
             </div>
+            ${addFriendBtn}
           </div>
         `;
       }).join('');
