@@ -47,6 +47,33 @@ function saveAccounts() {
   }
 }
 
+function getGlobalLeaderboard() {
+  const list = [];
+  accounts.forEach((acc) => {
+    const duelHistory = acc.duelHistory || [];
+    const pb = duelHistory.length > 0 ? Math.max(...duelHistory.map((d) => d.wpm || 0)) : 0;
+    const wins = duelHistory.filter((d) => d.isWin).length;
+    const matches = duelHistory.length;
+
+    list.push({
+      username: acc.username,
+      rating: acc.rating || 1000,
+      pb,
+      wins,
+      matches,
+      createdAt: acc.createdAt || Date.now(),
+    });
+  });
+
+  // Sort by rating descending, then wins, then PB
+  list.sort((a, b) => (b.rating - a.rating) || (b.wins - a.wins) || (b.pb - a.pb));
+  return list.slice(0, 50);
+}
+
+function broadcastLeaderboard() {
+  io.emit('leaderboardUpdate', getGlobalLeaderboard());
+}
+
 const PLAYER_COLORS = [
   { name: 'Mint Green', hex: '#2d8a62', bg: '#eaf7f0' },
   { name: 'Coral Red', hex: '#bd5945', bg: '#fdf0ed' },
@@ -174,6 +201,7 @@ function applyRankedPenalty(socket) {
   setRating(socket.id, Math.max(0, currentRating - penalty));
   bannedUntil.set(socket.id, until);
   socket.emit('rankedPenalty', { rating: getRating(socket.id), bannedUntil: until, seconds: 60 });
+  broadcastLeaderboard();
 }
 
 function startRace(roomId, countdownMs = 3500) {
@@ -210,7 +238,6 @@ function startRace(roomId, countdownMs = 3500) {
 
   broadcastServerStats();
 
-  // Max 90-second duration timeout
   room.maxDurationTimer = setTimeout(() => {
     finishRace(roomId, true, 'Time limit reached (90s)');
   }, countdownMs + (MAX_RACE_DURATION_SEC * 1000));
@@ -248,7 +275,6 @@ function finishRace(roomId, force = false, reason = '') {
 
   room.finished = true;
 
-  // Mark unfinished players as DNF
   room.players.forEach((playerId) => {
     if (!room.finishData.has(playerId)) {
       const socket = io.sockets.sockets.get(playerId);
@@ -327,6 +353,7 @@ function finishRace(roomId, force = false, reason = '') {
 
   io.to(roomId).emit('raceFinished', { winnerId, results, mode: room.mode, reason });
   broadcastServerStats();
+  broadcastLeaderboard();
 }
 
 function handleReadyTimeout(roomId) {
@@ -681,8 +708,13 @@ io.on('connection', (socket) => {
   socket.data.friendId = friendId;
   socket.emit('friendId', friendId);
 
-  // Send real live online statistics
+  // Send real live online statistics & real global leaderboard
   broadcastServerStats();
+  socket.emit('leaderboardUpdate', getGlobalLeaderboard());
+
+  socket.on('getLeaderboard', () => {
+    socket.emit('leaderboardUpdate', getGlobalLeaderboard());
+  });
 
   socket.on('restoreSession', ({ friendId: savedFriendId, username, accountKey }) => {
     if (accountKey && accounts.has(accountKey)) {
@@ -739,6 +771,8 @@ io.on('connection', (socket) => {
       duelHistory: [],
       eloHistory: [],
     });
+
+    broadcastLeaderboard();
   });
 
   socket.on('login', ({ identifier, username, email, password }) => {
@@ -780,7 +814,6 @@ io.on('connection', (socket) => {
 
     const account = accounts.get(accountKey);
 
-    // Update username if requested
     if (newUsername && typeof newUsername === 'string') {
       const cleanName = newUsername.trim();
       if (!/^[a-zA-Z0-9_ ]{3,24}$/.test(cleanName)) {
@@ -802,7 +835,6 @@ io.on('connection', (socket) => {
       socket.data.username = cleanName;
     }
 
-    // Update password if requested
     if (newPassword) {
       if (typeof currentPassword !== 'string' || !passwordMatches(currentPassword, account)) {
         socket.emit('profileError', 'Current password does not match.');
@@ -824,6 +856,8 @@ io.on('connection', (socket) => {
       rating: account.rating,
       accountKey: socket.data.accountKey,
     });
+
+    broadcastLeaderboard();
   });
 
   socket.on('logout', () => {
@@ -947,7 +981,7 @@ io.on('connection', (socket) => {
 
     sessions.set(socket.data.friendId, {
       socketId: socket.id,
-      roomId,
+      roomId: finalRoomId,
       username: socket.data.username || 'Player',
       platform: socket.data.platform,
       expiresAt: Date.now() + 10 * 60 * 1000,
