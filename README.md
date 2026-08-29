@@ -92,35 +92,170 @@ typendo/
 
 ## 🏗️ System Architecture
 
-```
-[Browser Client] ←── WebSocket (Socket.io) ──→ [Node.js + Express Server]
-                                                          ↕
-                                                  [accounts.json]
-                                                  (Users, ELO, Friends)
-```
+Typendo is built on a **3-layer full-stack architecture** combining a persistent HTTP server, a real-time WebSocket engine, and a JSON-backed data store — all running on a single Node.js process.
 
-- **Express.js** serves the frontend and handles REST API routes (login, signup)
-- **Socket.io** maintains persistent connections for real-time game state sync
-- **Clerk** handles all authentication — Google SSO, Email OTP, session tokens
-- **accounts.json** stores all persistent data — accounts, ELO ratings, friend lists
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        CLIENT LAYER                             │
+│                      (Browser / Mobile)                         │
+│                                                                 │
+│   index.html — Vanilla JS + CSS                                 │
+│   ├── Socket.io Client  →  real-time game events               │
+│   ├── Clerk Frontend SDK →  Google SSO / OTP auth              │
+│   ├── Web Audio API     →  synthesized sound engine            │
+│   ├── Friends Drawer    →  live friend status & invites        │
+│   └── Solo Speed Lab    →  endless random word stream          │
+└────────────────────┬────────────────────────────────────────────┘
+                     │
+          ┌──────────┴──────────┐
+          │   HTTP (REST)       │   WebSocket (Socket.io)
+          │   /login /signup    │   persistent full-duplex
+          │   /api/friends      │   bi-directional connection
+          └──────────┬──────────┘
+                     │
+┌────────────────────▼────────────────────────────────────────────┐
+│                       SERVER LAYER                              │
+│                    (Node.js + Express)                          │
+│                                                                 │
+│   server.js                                                     │
+│   ├── Express.js                                                │
+│   │   ├── Serves static index.html                             │
+│   │   ├── REST API routes (auth, friends, leaderboard)        │
+│   │   └── Clerk middleware (verifies session tokens)           │
+│   │                                                             │
+│   ├── Socket.io Server                                          │
+│   │   ├── Room Manager     → creates/destroys game rooms       │
+│   │   ├── Matchmaking      → pairs ranked players by ELO       │
+│   │   ├── Game Engine      → syncs progress, declares winner   │
+│   │   ├── Friends Engine   → live status, invites, requests    │
+│   │   └── Anti-Cheat       → keystroke velocity analysis       │
+│   │                                                             │
+│   └── ELO Calculator       → updates ratings post-match        │
+└────────────────────┬────────────────────────────────────────────┘
+                     │
+┌────────────────────▼────────────────────────────────────────────┐
+│                      DATA LAYER                                 │
+│                   (JSON File Storage)                           │
+│                                                                 │
+│   data/accounts.json                                            │
+│   ├── User accounts (username, credentials)                    │
+│   ├── ELO ratings & tier rankings                              │
+│   ├── Friends lists (accepted connections)                      │
+│   └── Pending friend requests                                   │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 👥 Friends & Invite Flow
+### 🔄 Match Lifecycle — Step by Step
 
 ```
-Player A sends friend request
-        ↓
-Server saves pending request to accounts.json
-        ↓
-Player B receives live notification via Socket.io
-        ↓
-Player B accepts → both added as friends
-        ↓
-Player A can now send a live ⚔️ Duel invite
-        ↓
-Private room created → both players race
+1. AUTHENTICATION
+   Player opens app → Clerk verifies identity → session token issued
+   Server validates token on every request via Clerk Express middleware
+
+2. MATCHMAKING
+   Player clicks "Find Match" → socket emits join-queue event
+   Server checks ELO rating → pairs with closest-ranked opponent
+   Both players assigned to a shared Socket.io room (unique room ID)
+
+3. GAME START
+   Server selects random paragraph → emits game-start to both sockets
+   Synchronized 3-second countdown pushed to both clients simultaneously
+
+4. LIVE SYNC (per keystroke)
+   Player types → client calculates progress % and WPM
+   socket.emit('progress', { percent, wpm }) → hits server instantly
+   Server runs anti-cheat check on velocity
+   socket.to(roomId).emit('opponent-progress', data) → opponent updates
+
+5. FINISH & ELO UPDATE
+   First player completes paragraph → server declares winner
+   ELO delta calculated using standard ELO formula
+   Both players' ratings updated in accounts.json
+   Results screen emitted to both clients simultaneously
+
+6. CLEANUP
+   Room destroyed, sockets released
+   Player stats updated in persistent storage
 ```
+
+---
+
+### 👥 Friends System Flow
+
+```
+SEND REQUEST
+User A searches username/friendcode → server saves pending entry
+Socket.io pushes live notification to User B if online
+
+ACCEPT REQUEST
+User B clicks Accept → entry moves from pending to accepted
+Both users' friend lists updated simultaneously in accounts.json
+Socket.io emits friend-online status to User A instantly
+
+DUEL INVITE
+User A clicks ⚔️ Duel on online friend
+Server creates a private room → emits invite-banner to User B
+User B has 30 seconds to Accept or Decline
+If accepted → both enter private room → game starts
+```
+
+---
+
+### 🔐 Authentication Flow (Clerk)
+
+```
+User clicks "Sign in with Google"
+        ↓
+Clerk SDK redirects to Google OAuth
+        ↓
+Google verifies identity → returns token to Clerk
+        ↓
+Clerk issues a signed session token to the browser
+        ↓
+Every API request carries this token in the header
+        ↓
+Clerk Express middleware on server verifies the token
+        ↓
+Server trusts the request → creates/fetches account in accounts.json
+```
+
+---
+
+### 🛡️ Anti-Cheat Engine
+
+```
+Every keystroke emits a timestamp to the server
+Server maintains a rolling window of the last 10 keystrokes
+Calculates instantaneous CPM (characters per minute)
+Human ceiling ≈ 800 CPM (world record ~900 CPM)
+If CPM spike exceeds threshold → player flagged
+On second violation → auto-disqualified, match awarded to opponent
+```
+
+---
+
+### 📡 WebSocket Event Map
+
+| Event (Client → Server) | Purpose |
+|--------------------------|---------|
+| `join-queue` | Enter ranked matchmaking |
+| `join-room` | Join a private room by code |
+| `progress` | Send typing progress update |
+| `finish` | Signal race completion |
+| `friend-request` | Send a friend request |
+| `duel-invite` | Invite a friend to race |
+| `accept-invite` | Accept a duel invitation |
+
+| Event (Server → Client) | Purpose |
+|--------------------------|---------|
+| `game-start` | Match found, send paragraph |
+| `opponent-progress` | Relay opponent's progress |
+| `game-over` | Declare winner, send ELO delta |
+| `friend-online` | Notify friend came online |
+| `incoming-invite` | Show duel invite banner |
+| `opponent-left` | Opponent disconnected |
 
 ---
 
@@ -136,14 +271,6 @@ Private room created → both players race
 | 👑 Grandmaster | 2000+ |
 
 Win against stronger players = more ELO gained. Lose against weaker players = more ELO lost.
-
----
-
-## 🛡️ Anti-Cheat System
-
-- Tracks keystroke velocity in real time
-- Flags and disqualifies players typing above human-possible speeds
-- Protects ranked integrity from macros and bots
 
 ---
 
