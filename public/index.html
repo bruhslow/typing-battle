@@ -487,6 +487,18 @@
     }
     .account-btn:hover { background: #2c3230; transform: translateY(-1px); box-shadow: var(--shadow-md); }
 
+    #account-button {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      opacity: 0 !important;
+      width: 0 !important;
+      height: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border: 0 !important;
+    }
+
     .account-btn.is-logged-in {
       background: rgba(236, 231, 217, 0.7);
       border: 1.5px solid var(--border-subtle);
@@ -6333,13 +6345,16 @@
       const loggedOutGroup = document.querySelector('#header-auth-logged-out');
       const loggedInGroup = document.querySelector('#header-auth-logged-in');
       const handleInput = document.querySelector('#handle-display-input');
+      const accountBtn = document.querySelector('#account-button');
+      if (accountBtn) {
+        accountBtn.style.display = 'none';
+      }
       if (handleInput) {
         handleInput.value = usernameHandle ? `@${usernameHandle.replace(/^@/, '')}` : (isLoggedIn ? '@player' : '@guest');
       }
       if (isLoggedIn) {
         if (loggedOutGroup) loggedOutGroup.classList.add('hidden');
         if (loggedInGroup) loggedInGroup.classList.remove('hidden');
-        if (accountBtnText) accountBtnText.textContent = nickname;
       } else {
         if (loggedOutGroup) loggedOutGroup.classList.remove('hidden');
         if (loggedInGroup) loggedInGroup.classList.add('hidden');
