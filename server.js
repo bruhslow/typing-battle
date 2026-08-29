@@ -1,5 +1,6 @@
 const path = require('path');
 const http = require('http');
+const fs = require('fs');
 const crypto = require('crypto');
 const express = require('express');
 const { Server } = require('socket.io');
@@ -9,6 +10,8 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
+const DATA_FILE = path.join(__dirname, 'data', 'accounts.json');
+
 const rooms = new Map();
 const readyMatches = new Map();
 const matchmakingQueues = { ranked: { pc: [], phone: [] }, quick: { pc: [], phone: [], cross: [] } };
@@ -20,6 +23,29 @@ const accounts = new Map();
 const PRIVATE_ROOM_LIMIT = 10;
 const MAX_RACE_DURATION_SEC = 90; // 1.5 minutes maximum per round
 const RACE_FINISH_GRACE_MS = 15000;
+
+// Load persisted accounts if available
+try {
+  if (fs.existsSync(DATA_FILE)) {
+    const raw = fs.readFileSync(DATA_FILE, 'utf8');
+    const parsed = JSON.parse(raw);
+    Object.entries(parsed).forEach(([key, acc]) => {
+      accounts.set(key, acc);
+    });
+    console.log(`Loaded ${accounts.size} persisted user accounts.`);
+  }
+} catch (e) {
+  console.error('Error reading accounts file:', e);
+}
+
+function saveAccounts() {
+  try {
+    const obj = Object.fromEntries(accounts);
+    fs.writeFileSync(DATA_FILE, JSON.stringify(obj, null, 2), 'utf8');
+  } catch (e) {
+    console.error('Error saving accounts file:', e);
+  }
+}
 
 const PLAYER_COLORS = [
   { name: 'Mint Green', hex: '#2d8a62', bg: '#eaf7f0' },
@@ -62,6 +88,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 function getRandomParagraph(difficulty = 'medium') {
   const list = paragraphs[difficulty] || paragraphs.medium;
   return list[Math.floor(Math.random() * list.length)];
+}
+
+function broadcastServerStats() {
+  const onlineCount = io.engine.clientsCount || io.sockets.sockets.size;
+  const activeMatches = [...rooms.values()].filter((r) => r.started && !r.finished).length;
+  io.emit('serverStats', { onlineCount, activeMatches });
 }
 
 function removeFromQueue(socket) {
@@ -120,6 +152,7 @@ function setRating(socketId, rating) {
   const socket = io.sockets.sockets.get(socketId);
   if (socket?.data?.accountKey && accounts.has(socket.data.accountKey)) {
     accounts.get(socket.data.accountKey).rating = rating;
+    saveAccounts();
   } else {
     ratings.set(socketId, rating);
   }
@@ -167,13 +200,15 @@ function startRace(roomId, countdownMs = 3500) {
   io.to(roomId).emit('raceStarted', {
     paragraph: room.paragraph,
     difficulty: room.difficulty,
-    typingMode: room.typingMode || 'jam',
+    typingMode: room.typingMode || 'standard',
     maxDurationSec: MAX_RACE_DURATION_SEC,
     startTime,
     countdownMs,
     players: playersList,
     mode: room.mode,
   });
+
+  broadcastServerStats();
 
   // Max 90-second duration timeout
   room.maxDurationTimer = setTimeout(() => {
@@ -191,7 +226,6 @@ function finishRace(roomId, force = false, reason = '') {
   const activeCount = room.players.size;
 
   if (!force && finishedCount < activeCount) {
-    // If 1st player finished and others are still typing, start 15s grace timer
     if (!room.finishTimer && finishedCount >= 1) {
       io.to(roomId).emit('finishGraceStarted', {
         seconds: Math.round(RACE_FINISH_GRACE_MS / 1000),
@@ -255,7 +289,44 @@ function finishRace(roomId, force = false, reason = '') {
     });
   }
 
+  // Persist history & stats to accounts of participants
+  results.forEach((res) => {
+    const pSocket = io.sockets.sockets.get(res.id);
+    const accountKey = pSocket?.data?.accountKey;
+    if (accountKey && accounts.has(accountKey)) {
+      const acc = accounts.get(accountKey);
+      if (!acc.duelHistory) acc.duelHistory = [];
+      if (!acc.eloHistory) acc.eloHistory = [];
+      
+      const isWinner = res.id === winnerId;
+      const otherPlayer = results.find((r) => r.id !== res.id);
+
+      acc.duelHistory.unshift({
+        mode: room.mode || 'quick',
+        isWin: isWinner,
+        wpm: res.wpm || 0,
+        errors: res.errors || 0,
+        opponent: otherPlayer?.username || 'Opponent',
+        timestamp: Date.now(),
+      });
+      if (acc.duelHistory.length > 50) acc.duelHistory.pop();
+
+      if (res.ratingChange !== undefined) {
+        acc.eloHistory.unshift({
+          delta: res.ratingChange,
+          rating: res.rating,
+          opponent: otherPlayer?.username || 'Rival',
+          timestamp: Date.now(),
+        });
+        if (acc.eloHistory.length > 50) acc.eloHistory.pop();
+      }
+
+      saveAccounts();
+    }
+  });
+
   io.to(roomId).emit('raceFinished', { winnerId, results, mode: room.mode, reason });
+  broadcastServerStats();
 }
 
 function handleReadyTimeout(roomId) {
@@ -267,7 +338,6 @@ function handleReadyTimeout(roomId) {
     const socket = io.sockets.sockets.get(playerId);
     if (!socket) return;
     if (readyState.ready.has(playerId)) {
-      // Re-queue the ready player
       socket.emit('matchCancelled', { message: 'Opponent did not ready up in time. Searching again...' });
       const mode = readyState.mode;
       const platform = socket.data?.device || socket.data?.platform || 'pc';
@@ -290,6 +360,7 @@ function handleReadyTimeout(roomId) {
   });
 
   rooms.delete(roomId);
+  broadcastServerStats();
 }
 
 function createQuickMatch() {
@@ -351,7 +422,7 @@ function createQuickMatch() {
       started: false,
       mode: 'quick',
       difficulty: 'medium',
-      typingMode: 'standard', // Quick match defaults to normal standard typing
+      typingMode: 'standard',
     };
     rooms.set(roomId, room);
 
@@ -361,7 +432,6 @@ function createQuickMatch() {
       player.join(roomId);
     });
 
-    // Initiate 10-second Ready Check
     const timeout = setTimeout(() => handleReadyTimeout(roomId), 10000);
     readyMatches.set(roomId, {
       roomId,
@@ -414,7 +484,7 @@ function createMatch(mode, platform) {
       started: false,
       mode,
       difficulty: 'medium',
-      typingMode: 'word_strict', // Ranked defaults to Word Strict mode
+      typingMode: 'word_strict',
     };
     rooms.set(roomId, room);
 
@@ -424,7 +494,6 @@ function createMatch(mode, platform) {
       player.join(roomId);
     });
 
-    // Initiate 10-second Ready Check
     const timeout = setTimeout(() => handleReadyTimeout(roomId), 10000);
     readyMatches.set(roomId, {
       roomId,
@@ -555,13 +624,11 @@ function leaveRoom(socket) {
       if (room.maxDurationTimer) clearTimeout(room.maxDurationTimer);
       rooms.delete(roomId);
     } else {
-      // Reassign host if host left
       if (room.hostId === socket.id) {
         room.hostId = room.players.values().next().value;
       }
       const playersList = roomPlayers(room);
 
-      // Check if during an active race only 1 player remains -> Automatic Victory!
       if (room.started && !room.finished && room.players.size === 1) {
         const lastPlayerId = room.players.values().next().value;
         const lastSocket = io.sockets.sockets.get(lastPlayerId);
@@ -598,6 +665,7 @@ function leaveRoom(socket) {
 
   socket.leave(roomId);
   delete socket.data.roomId;
+  broadcastServerStats();
 }
 
 function leaveRoomIntentionally(socket) {
@@ -613,11 +681,23 @@ io.on('connection', (socket) => {
   socket.data.friendId = friendId;
   socket.emit('friendId', friendId);
 
+  // Send real live online statistics
+  broadcastServerStats();
+
   socket.on('restoreSession', ({ friendId: savedFriendId, username, accountKey }) => {
     if (accountKey && accounts.has(accountKey)) {
+      const acc = accounts.get(accountKey);
       socket.data.accountKey = accountKey;
-      socket.data.username = accounts.get(accountKey).username;
-      socket.emit('authSuccess', { username: socket.data.username, rating: accounts.get(accountKey).rating, accountKey });
+      socket.data.username = acc.username;
+      socket.emit('authSuccess', {
+        username: acc.username,
+        email: acc.email,
+        rating: acc.rating,
+        accountKey,
+        createdAt: acc.createdAt || Date.now(),
+        duelHistory: acc.duelHistory || [],
+        eloHistory: acc.eloHistory || [],
+      });
     }
     if (restoreSession(socket, savedFriendId)) return;
     if (typeof username === 'string' && username.trim()) socket.data.username = username.trim().slice(0, 24);
@@ -636,10 +716,29 @@ io.on('connection', (socket) => {
       return;
     }
     const credentials = hashPassword(password);
-    accounts.set(accountKey, { username: accountName, email: accountEmail, ...credentials, rating: 1000 });
+    const newAccount = {
+      username: accountName,
+      email: accountEmail,
+      ...credentials,
+      rating: 1000,
+      createdAt: Date.now(),
+      duelHistory: [],
+      eloHistory: [],
+    };
+    accounts.set(accountKey, newAccount);
+    saveAccounts();
+
     socket.data.accountKey = accountKey;
     socket.data.username = accountName;
-    socket.emit('authSuccess', { username: accountName, rating: 1000, accountKey });
+    socket.emit('authSuccess', {
+      username: accountName,
+      email: accountEmail,
+      rating: 1000,
+      accountKey,
+      createdAt: newAccount.createdAt,
+      duelHistory: [],
+      eloHistory: [],
+    });
   });
 
   socket.on('login', ({ identifier, username, email, password }) => {
@@ -660,7 +759,71 @@ io.on('connection', (socket) => {
     socket.data.accountKey = accountKey;
     socket.data.username = account.username;
     rotateFriendId(socket);
-    socket.emit('authSuccess', { username: account.username, rating: account.rating, accountKey });
+    socket.emit('authSuccess', {
+      username: account.username,
+      email: account.email,
+      rating: account.rating,
+      accountKey,
+      createdAt: account.createdAt || Date.now(),
+      duelHistory: account.duelHistory || [],
+      eloHistory: account.eloHistory || [],
+    });
+  });
+
+  // Profile update handler: change display name and/or password
+  socket.on('updateProfile', ({ newUsername, currentPassword, newPassword }) => {
+    const accountKey = socket.data.accountKey;
+    if (!accountKey || !accounts.has(accountKey)) {
+      socket.emit('profileError', 'You must be logged in to update your profile.');
+      return;
+    }
+
+    const account = accounts.get(accountKey);
+
+    // Update username if requested
+    if (newUsername && typeof newUsername === 'string') {
+      const cleanName = newUsername.trim();
+      if (!/^[a-zA-Z0-9_ ]{3,24}$/.test(cleanName)) {
+        socket.emit('profileError', 'Username must be 3-24 alphanumeric characters.');
+        return;
+      }
+      const newKey = cleanName.toLowerCase();
+      if (newKey !== accountKey && accounts.has(newKey)) {
+        socket.emit('profileError', 'That username is already taken.');
+        return;
+      }
+
+      account.username = cleanName;
+      if (newKey !== accountKey) {
+        accounts.delete(accountKey);
+        accounts.set(newKey, account);
+        socket.data.accountKey = newKey;
+      }
+      socket.data.username = cleanName;
+    }
+
+    // Update password if requested
+    if (newPassword) {
+      if (typeof currentPassword !== 'string' || !passwordMatches(currentPassword, account)) {
+        socket.emit('profileError', 'Current password does not match.');
+        return;
+      }
+      if (typeof newPassword !== 'string' || newPassword.length < 6) {
+        socket.emit('profileError', 'New password must be at least 6 characters.');
+        return;
+      }
+      const credentials = hashPassword(newPassword);
+      account.salt = credentials.salt;
+      account.hash = credentials.hash;
+    }
+
+    saveAccounts();
+    socket.emit('profileUpdated', {
+      username: account.username,
+      email: account.email,
+      rating: account.rating,
+      accountKey: socket.data.accountKey,
+    });
   });
 
   socket.on('logout', () => {
@@ -677,7 +840,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Ready Check confirmation for Quick / Ranked match
   socket.on('playerReady', ({ roomId }) => {
     const readyState = readyMatches.get(roomId);
     if (!readyState || !readyState.players.has(socket.id)) return;
@@ -692,16 +854,14 @@ io.on('connection', (socket) => {
     if (readyState.ready.size === readyState.players.size) {
       clearTimeout(readyState.timeout);
       readyMatches.delete(roomId);
-      startRace(roomId, 3000); // 3-second countdown for matched races
+      startRace(roomId, 3000);
     }
   });
 
-  // Custom Room Browser API (Among Us style)
   socket.on('getPublicRooms', () => {
     socket.emit('publicRoomsList', getPublicRoomsList());
   });
 
-  // Create Room (with Public/Private and Typing Mode options)
   socket.on('createCustomRoom', ({ username, roomName, isPublic = false, difficulty = 'medium', typingMode = 'standard', platform = 'pc', device = 'pc' }) => {
     if (typeof username === 'string' && username.trim()) socket.data.username = username.trim().slice(0, 24);
     leaveRoom(socket);
@@ -751,6 +911,8 @@ io.on('connection', (socket) => {
       playerCount: 1,
       maxPlayers: PRIVATE_ROOM_LIMIT,
     });
+
+    broadcastServerStats();
   });
 
   socket.on('joinCustomRoom', ({ friendId: hostFriendId, roomId: targetRoomId, username, platform = 'pc', device = 'pc' }) => {
@@ -785,7 +947,7 @@ io.on('connection', (socket) => {
 
     sessions.set(socket.data.friendId, {
       socketId: socket.id,
-      roomId: finalRoomId,
+      roomId,
       username: socket.data.username || 'Player',
       platform: socket.data.platform,
       expiresAt: Date.now() + 10 * 60 * 1000,
@@ -804,6 +966,8 @@ io.on('connection', (socket) => {
       difficulty: room.difficulty,
       typingMode: room.typingMode,
     });
+
+    broadcastServerStats();
   });
 
   socket.on('updateRoomSettings', ({ difficulty, typingMode, isPublic }) => {
@@ -821,7 +985,6 @@ io.on('connection', (socket) => {
     });
   });
 
-  // Room host starts the match (5-second countdown)
   socket.on('startRoom', () => {
     const roomId = socket.data.roomId;
     const room = roomId && rooms.get(roomId);
@@ -830,7 +993,7 @@ io.on('connection', (socket) => {
       socket.emit('errorMessage', 'Wait for at least one other player to join first.');
       return;
     }
-    startRace(roomId, 5000); // 5-second countdown for custom rooms
+    startRace(roomId, 5000);
   });
 
   socket.on('findMatch', ({ username, mode = 'quick', platform = 'pc', device = 'pc' }) => {
@@ -891,7 +1054,6 @@ io.on('connection', (socket) => {
     rotateFriendId(socket);
   });
 
-  // Real-time live word and progress broadcast
   socket.on('progress', ({ progress, charIndex = 0, wordIndex = 0, wpm = 0 }) => {
     const roomId = socket.data.roomId;
     const room = roomId && rooms.get(roomId);
@@ -915,8 +1077,6 @@ io.on('connection', (socket) => {
     const elapsedMs = Number.isFinite(stats.elapsedMs) ? Math.max(1, stats.elapsedMs) : Math.max(1, Date.now() - room.startedAt);
     const wpm = Number.isFinite(stats.wpm) ? Math.max(0, Math.min(300, stats.wpm)) : 0;
     const errors = Number.isFinite(stats.errors) ? Math.max(0, Math.floor(stats.errors)) : 0;
-    
-    // Anti-cheat verification
     const isSuspicious = (elapsedMs < 2000 && room.paragraph.length > 30) || wpm > 260;
 
     room.finishData.set(socket.id, {
@@ -947,6 +1107,7 @@ io.on('connection', (socket) => {
       leaveRoom(socket);
       friendIds.delete(socket.data.friendId);
     }
+    broadcastServerStats();
   });
 });
 
