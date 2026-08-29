@@ -577,6 +577,24 @@
       transform: translateY(-1px);
     }
 
+    .auth-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .signup-accent-btn {
+      background: var(--primary) !important;
+      color: #ffffff !important;
+      border: 1px solid var(--primary-border) !important;
+    }
+
+    .signup-accent-btn:hover {
+      background: var(--primary-hover) !important;
+      color: #ffffff !important;
+      transform: translateY(-1px);
+    }
+
     .auth-divider {
       display: flex;
       align-items: center;
@@ -2458,34 +2476,24 @@
             <div class="profile-elo-tag" id="header-elo" title="Click to view ELO Division Tiers">1000 ELO</div>
           </div>
 
-          <!-- Auth & Profile Popover / Trigger -->
-          <div class="account-wrapper">
-            <button class="account-btn" id="account-button" type="button">
-              <span id="account-btn-icon">🔑</span>
-              <span id="account-btn-text">Log In</span>
+          <!-- Auth Controls (Clerk Log In & Sign Up) -->
+          <div class="auth-btn-group" id="header-auth-logged-out">
+            <button class="account-btn" id="clerk-open-login-btn" type="button" title="Log In with Google or Email via Clerk">
+              <span>🔑</span>
+              <span>Log In</span>
             </button>
-            <div class="account-panel hidden" id="account-panel">
-              <!-- CLERK 1-CLICK GOOGLE SIGN IN BUTTON -->
-              <button class="clerk-google-btn" id="clerk-google-btn" type="button">
-                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.36 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
-                <span>Continue with Google</span>
-              </button>
+            <button class="account-btn signup-accent-btn" id="clerk-open-signup-btn" type="button" title="Sign Up with Google or Email via Clerk">
+              <span>✨</span>
+              <span>Sign Up</span>
+            </button>
+          </div>
 
-              <div class="auth-divider"><span>or with player credentials</span></div>
-
-              <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">Player Name or Email</div>
-              <input id="login-identifier" maxlength="64" placeholder="Unique Name or Email" autocomplete="username">
-              
-              <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase;">Password</div>
-              <input id="login-password" type="password" placeholder="Password (6+ chars)" autocomplete="current-password">
-
-              <div style="display: flex; gap: 8px; margin-top: 10px;">
-                <button class="account-submit" id="auth-login-btn" type="button" style="flex: 1;">🔑 Log In</button>
-                <button class="account-submit" id="auth-register-btn" type="button" style="flex: 1; background: var(--bg-subtle); color: var(--text-main); border: 1px solid var(--border-strong);">✨ Register</button>
-              </div>
-
-              <p class="account-msg" id="account-message" aria-live="polite"></p>
-            </div>
+          <!-- Logged In User Profile Trigger -->
+          <div class="account-wrapper hidden" id="header-auth-logged-in">
+            <button class="account-btn is-logged-in" id="account-button" type="button" title="View Profile & Stats">
+              <span id="account-btn-icon">👤</span>
+              <span id="account-btn-text">Player</span>
+            </button>
           </div>
         </div>
       </header>
@@ -3275,36 +3283,12 @@
     const rankedDeviceNotice = document.querySelector('#ranked-device-notice');
     const randomButton = document.querySelector('#random-button');
     
-    // Auth and Profile Elements
+    // Auth & Profile Elements
     const accountButton = document.querySelector('#account-button');
     const accountBtnIcon = document.querySelector('#account-btn-icon');
     const accountBtnText = document.querySelector('#account-btn-text');
-    const accountPanel = document.querySelector('#account-panel');
-    const tabLogin = document.querySelector('#tab-login');
-    const tabSignup = document.querySelector('#tab-signup');
-    const authPaneLogin = document.querySelector('#auth-pane-login');
-    const authPaneSignup = document.querySelector('#auth-pane-signup');
-    
-    // Login & Register Elements
-    const loginIdentifier = document.querySelector('#login-identifier');
-    const loginPassword = document.querySelector('#login-password');
-    const authLoginBtn = document.querySelector('#auth-login-btn');
-    const authRegisterBtn = document.querySelector('#auth-register-btn');
-    const accountMessage = document.querySelector('#account-message');
-    const signupStepOtp = document.querySelector('#signup-step-otp');
-    const signupEmail = document.querySelector('#signup-email');
-    const signupUsername = document.querySelector('#signup-username');
-    const signupPassword = document.querySelector('#signup-password');
-    const accountCountry = document.querySelector('#account-country');
-    const authSendSignupOtpBtn = document.querySelector('#auth-send-signup-otp-btn');
-    const otpTargetEmail = document.querySelector('#otp-target-email');
-    const otpChangeEmailBtn = document.querySelector('#otp-change-email-btn');
-    const signupOtpInput = document.querySelector('#signup-otp-input');
-    const authVerifySignupBtn = document.querySelector('#auth-verify-signup-btn');
-    const authResendSignupOtpBtn = document.querySelector('#auth-resend-signup-otp-btn');
-    const otpCountdown = document.querySelector('#otp-countdown');
-    const otpDevNotice = document.querySelector('#otp-dev-notice');
-    const accountMessage = document.querySelector('#account-message');
+    const headerAuthLoggedOut = document.querySelector('#header-auth-logged-out');
+    const headerAuthLoggedIn = document.querySelector('#header-auth-logged-in');
     
     // Profile Modal Elements
     const closeProfileModalBtn = document.querySelector('#close-profile-modal');
@@ -3547,65 +3531,25 @@
     });
 
     // ══════════════════════════════════════════════════════
-    // AUTHENTICATION: LOGIN & REGISTER
+    // CLERK AUTHENTICATION (Google, Email, Socials)
     // ══════════════════════════════════════════════════════
-    if (authLoginBtn) {
-      authLoginBtn.addEventListener('click', () => {
-        const identifier = loginIdentifier.value.trim();
-        const password = loginPassword.value;
-        if (!identifier || !password) {
-          accountMessage.textContent = 'Please enter your player name and password.';
-          accountMessage.style.color = 'var(--rose)';
-          return;
-        }
-        accountMessage.textContent = 'Logging in...';
-        accountMessage.style.color = 'var(--primary)';
-        socket.emit('login', { identifier, password });
-      });
-    }
-
-    if (authRegisterBtn) {
-      authRegisterBtn.addEventListener('click', () => {
-        const username = loginIdentifier.value.trim();
-        const password = loginPassword.value;
-        if (!username || username.length < 3 || username.length > 24) {
-          accountMessage.textContent = 'Player name must be 3-24 letters, numbers, or spaces.';
-          accountMessage.style.color = 'var(--rose)';
-          loginIdentifier.focus();
-          return;
-        }
-        if (!password || password.length < 6) {
-          accountMessage.textContent = 'Password must be at least 6 characters.';
-          accountMessage.style.color = 'var(--rose)';
-          loginPassword.focus();
-          return;
-        }
-        accountMessage.textContent = 'Creating your account...';
-        accountMessage.style.color = 'var(--primary)';
-        socket.emit('register', {
-          username,
-          password,
-          country: userCountry,
-        });
-      });
-    }
-
-    if (loginIdentifier) {
-      loginIdentifier.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') loginPassword.focus();
-      });
-    }
-    if (loginPassword) {
-      loginPassword.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') authLoginBtn.click();
-      });
-    }
-
-    // ══════════════════════════════════════════════════════
-    // CLERK 1-CLICK AUTHENTICATION (Google, etc.)
-    // ══════════════════════════════════════════════════════
-    const clerkGoogleBtn = document.querySelector('#clerk-google-btn');
+    const clerkOpenLoginBtn = document.querySelector('#clerk-open-login-btn');
+    const clerkOpenSignupBtn = document.querySelector('#clerk-open-signup-btn');
     const CLERK_PUBLISHABLE_KEY = 'pk_test_c3dlZXQtbW90aC03NjMwLmNsZXJrLmFjY291bnRzLmRldiQ';
+    const CLERK_FRONTEND_API = 'https://sweet-moth-7630.clerk.accounts.dev';
+
+    function updateAuthHeaderUI(isLoggedIn, name = 'Player') {
+      const loggedOutGroup = document.querySelector('#header-auth-logged-out');
+      const loggedInGroup = document.querySelector('#header-auth-logged-in');
+      if (isLoggedIn) {
+        if (loggedOutGroup) loggedOutGroup.classList.add('hidden');
+        if (loggedInGroup) loggedInGroup.classList.remove('hidden');
+        if (accountBtnText) accountBtnText.textContent = name;
+      } else {
+        if (loggedOutGroup) loggedOutGroup.classList.remove('hidden');
+        if (loggedInGroup) loggedInGroup.classList.add('hidden');
+      }
+    }
 
     async function ensureClerkLoaded() {
       if (window.Clerk && window.Clerk.loaded) return window.Clerk;
@@ -3647,6 +3591,8 @@
         if (clerk) {
           if (clerk.user) {
             syncClerkUser(clerk.user);
+          } else {
+            updateAuthHeaderUI(false);
           }
           if (typeof clerk.addListener === 'function') {
             clerk.addListener(({ user }) => {
@@ -3679,24 +3625,42 @@
       });
     }
 
-    if (clerkGoogleBtn) {
-      clerkGoogleBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        accountPanel.classList.add('hidden');
-        showToast('Opening Google Sign-In...');
-
-        try {
-          const clerk = await ensureClerkLoaded();
-          if (clerk && typeof clerk.openSignIn === 'function') {
-            clerk.openSignIn();
-          } else {
-            window.location.href = 'https://sweet-moth-7630.clerk.accounts.dev/sign-in';
+    async function openClerkAuth(mode = 'signIn') {
+      showToast('Opening authentication...');
+      try {
+        const clerk = await ensureClerkLoaded();
+        if (clerk) {
+          if (mode === 'signUp' && typeof clerk.openSignUp === 'function') {
+            clerk.openSignUp();
+            return;
           }
-        } catch (err) {
-          console.error('Clerk openSignIn error:', err);
-          window.location.href = 'https://sweet-moth-7630.clerk.accounts.dev/sign-in';
+          if (typeof clerk.openSignIn === 'function') {
+            clerk.openSignIn();
+            return;
+          }
         }
+        window.location.href = mode === 'signUp'
+          ? `${CLERK_FRONTEND_API}/sign-up`
+          : `${CLERK_FRONTEND_API}/sign-in`;
+      } catch (err) {
+        console.error('Clerk open error:', err);
+        window.location.href = mode === 'signUp'
+          ? `${CLERK_FRONTEND_API}/sign-up`
+          : `${CLERK_FRONTEND_API}/sign-in`;
+      }
+    }
+
+    if (clerkOpenLoginBtn) {
+      clerkOpenLoginBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openClerkAuth('signIn');
+      });
+    }
+
+    if (clerkOpenSignupBtn) {
+      clerkOpenSignupBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openClerkAuth('signUp');
       });
     }
 
@@ -3707,15 +3671,7 @@
     // Header Account / Profile Button Trigger
     accountButton.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (loggedIn) {
-        openProfileModal();
-        return;
-      }
-      accountPanel.classList.toggle('hidden');
-    });
-
-    document.addEventListener('click', (event) => {
-      if (!event.target.closest('.account-wrapper')) accountPanel.classList.add('hidden');
+      openProfileModal();
     });
 
     // Open Profile Modal Function
@@ -3771,11 +3727,9 @@
       localStorage.removeItem('typendoAccountKey');
       loggedIn = false;
       userProfile = null;
-      accountButton.classList.remove('is-logged-in');
-      accountBtnIcon.textContent = '🔑';
-      accountBtnText.textContent = 'Log In';
       headerElo.textContent = '1000 ELO';
       headerAvatar.textContent = (usernameInput.value.trim() || 'P').slice(0, 1).toUpperCase();
+      updateAuthHeaderUI(false);
       profileModal.classList.add('hidden');
       updateOverallStats(1000);
       showToast('Logged out.');
@@ -4559,19 +4513,7 @@
         headerAvatar.textContent = username.slice(0, 1).toUpperCase();
       }
       headerElo.textContent = rating + ' ELO';
-      
-      accountButton.classList.add('is-logged-in');
-      accountBtnIcon.textContent = '👤';
-      accountBtnText.textContent = username;
-      accountPanel.classList.add('hidden');
-
-      // Reset auth form states
-      if (signupStepOtp) signupStepOtp.classList.add('hidden');
-      if (signupStepForm) signupStepForm.classList.remove('hidden');
-      if (signupOtpInput) signupOtpInput.value = '';
-      if (loginPassword) loginPassword.value = '';
-      if (signupPassword) signupPassword.value = '';
-      clearInterval(otpCooldownTimer);
+      updateAuthHeaderUI(true, username);
 
       if (accountKey) localStorage.setItem('typendoAccountKey', accountKey);
       localStorage.setItem('typendoUsername', username);
@@ -4594,13 +4536,12 @@
     });
 
     socket.on('authError', (msg) => {
-      accountMessage.textContent = msg;
-      accountPanel.classList.remove('hidden');
+      showToast(msg, true);
     });
 
     socket.on('authRequired', () => {
-      accountMessage.textContent = 'Log in or sign up to play Ranked.';
-      accountPanel.classList.remove('hidden');
+      showToast('Please Log In or Sign Up to play Ranked.');
+      openClerkAuth('signIn');
     });
 
     socket.on('matchmaking', ({ mode, platform, rating }) => {
