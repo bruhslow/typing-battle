@@ -3545,7 +3545,7 @@
 
         <div class="header-tools">
           <!-- Room Code Pill -->
-          <div class="code-pill" id="code-pill-wrap" title="Your private room code">
+          <div class="code-pill hidden" id="code-pill-wrap" title="Your private room code">
             <span>CODE</span>
             <strong id="friend-id">...</strong>
             <button id="reset-code" type="button" title="Get a new room code">↻</button>
@@ -6506,6 +6506,7 @@
     socket.on('friendId', (friendId) => {
       friendIdElement.textContent = friendId;
       localStorage.setItem('typendoFriendId', friendId);
+      // Don't show the pill here — only show when creating a room
     });
 
     socket.on('connect', () => {
@@ -6780,6 +6781,7 @@
       raceStatus.textContent = roomName.toUpperCase();
       document.querySelector('#room-label').textContent = `CODE: ${friendId}`;
       document.querySelector('#room-label').classList.remove('hidden');
+      document.querySelector('#code-pill-wrap').classList.remove('hidden');
       waitingMessage.textContent = 'Lobby ready! Share your code with friends or set visibility to Public.';
       
       hostSettingsPanel.classList.remove('hidden');
@@ -6852,8 +6854,9 @@
       skippedWords = new Set();
       wrongWords = new Set();
 
-      // Hide room code during active battle
+      // Hide room code and code pill during active battle
       document.querySelector('#room-label').classList.add('hidden');
+      document.querySelector('#code-pill-wrap').classList.add('hidden');
 
       readyOverlay.classList.add('hidden');
       waiting.classList.add('hidden');
