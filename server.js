@@ -209,7 +209,16 @@ const paragraphs = {
   ],
 };
 
+const CLERK_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || process.env.CLERK_PUBLISHABLE_KEY || 'pk_test_c3dlZXQtbW90aC03NjMwLmNsZXJrLmFjY291bnRzLmRldiQ';
+const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY || 'sk_test_0eGnnOm1hVz9BiwX1f6wdCarx5Y8VM0yHfvrWI99k0';
+
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/api/config', (req, res) => {
+  res.json({
+    clerkPublishableKey: CLERK_PUBLISHABLE_KEY,
+  });
+});
 
 function getRandomParagraph(difficulty = 'medium') {
   const list = paragraphs[difficulty] || paragraphs.medium;
@@ -843,6 +852,97 @@ io.on('connection', (socket) => {
     }
     if (restoreSession(socket, savedFriendId)) return;
     if (typeof username === 'string' && username.trim()) socket.data.username = username.trim();
+  });
+
+  // ══════════════════════════════════════════════════════
+  // CLERK 1-CLICK AUTHENTICATION (Google, etc.)
+  // ══════════════════════════════════════════════════════
+  socket.on('clerkAuth', ({ clerkId, email, username, firstName, lastName, imageUrl, country }) => {
+    if (!clerkId && !email) {
+      socket.emit('authError', 'Invalid Clerk authentication credentials.');
+      return;
+    }
+
+    const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    const cleanCountry = typeof country === 'string' && country.trim() ? country.trim().slice(0, 5).toUpperCase() : 'IND';
+
+    // Look for existing account by clerkId or by registered email
+    let account = null;
+    let accountKey = '';
+
+    for (const [key, acc] of accounts.entries()) {
+      if ((clerkId && acc.clerkId === clerkId) || (cleanEmail && acc.email && acc.email.toLowerCase() === cleanEmail)) {
+        account = acc;
+        accountKey = key;
+        break;
+      }
+    }
+
+    if (!account) {
+      // Determine display username
+      let chosenName = (typeof username === 'string' && username.trim()) ||
+                       (firstName && lastName ? `${firstName} ${lastName}`.trim() : '') ||
+                       firstName ||
+                       (cleanEmail ? cleanEmail.split('@')[0] : 'Player');
+
+      chosenName = chosenName.slice(0, 24).replace(/[^a-zA-Z0-9_ ]/g, '').trim();
+      if (chosenName.length < 3) chosenName = 'Player_' + Math.floor(100 + Math.random() * 900);
+
+      // Ensure username uniqueness
+      let candidateKey = chosenName.toLowerCase();
+      let uniqueName = chosenName;
+      let counter = 1;
+      while (accounts.has(candidateKey)) {
+        uniqueName = `${chosenName.slice(0, 19)}_${counter}`;
+        candidateKey = uniqueName.toLowerCase();
+        counter++;
+      }
+
+      accountKey = candidateKey;
+      account = {
+        clerkId,
+        username: uniqueName,
+        email: cleanEmail,
+        country: cleanCountry,
+        imageUrl: imageUrl || '',
+        rating: 1000,
+        createdAt: Date.now(),
+        duelHistory: [],
+        eloHistory: [],
+      };
+      accounts.set(accountKey, account);
+      saveAccounts();
+      broadcastLeaderboard();
+    } else {
+      if (clerkId && !account.clerkId) account.clerkId = clerkId;
+      if (imageUrl && !account.imageUrl) account.imageUrl = imageUrl;
+      saveAccounts();
+    }
+
+    socket.data.accountKey = accountKey;
+    socket.data.username = account.username;
+    socket.data.country = account.country || 'IND';
+    rotateFriendId(socket);
+
+    socket.emit('authSuccess', {
+      clerkId: account.clerkId,
+      username: account.username,
+      email: account.email,
+      country: account.country || 'IND',
+      imageUrl: account.imageUrl || '',
+      rating: account.rating || 1000,
+      accountKey,
+      createdAt: account.createdAt || Date.now(),
+      duelHistory: account.duelHistory || [],
+      eloHistory: account.eloHistory || [],
+    });
+  });
+
+  socket.on('clerkSignOut', () => {
+    socket.data.accountKey = null;
+    socket.data.username = 'Player_' + Math.floor(100 + Math.random() * 900);
+    rotateFriendId(socket);
+    socket.emit('authSignedOut');
   });
 
   // ══════════════════════════════════════════════════════
