@@ -661,7 +661,11 @@ function finishRace(roomId, force = false, reason = '') {
     .map(([playerId, data]) => {
       const socket = io.sockets.sockets.get(playerId);
       const info = playerInfo(socket, playerId, data);
-      return { ...info, ...data };
+      const errors = data.errors || 0;
+      const wordsTyped = data.wordsTyped || 0;
+      const excessiveErrors = errors > wordsTyped;
+      const isDisqualified = Boolean(data.disqualified || excessiveErrors);
+      return { ...info, ...data, disqualified: isDisqualified, excessiveErrors };
     })
     .sort((first, second) => {
       // 1. Disqualified / flagged players ALWAYS lose and rank last
@@ -2126,21 +2130,24 @@ io.on('connection', (socket) => {
     const completed = Boolean(stats.completed || progress >= 99);
     const wordsTyped = Number.isFinite(stats.wordsTyped) ? Math.max(0, Math.floor(stats.wordsTyped)) : (wpm > 0 ? 1 : 0);
 
+    const hasTooManyErrors = errors > wordsTyped;
     // Anti-Cheat: If finished in < 2.5s on a real paragraph (>40 chars) or impossible speed > 260 WPM
     const isSuspicious = (completed && elapsedMs < 2500 && room.paragraph && room.paragraph.length > 40) || wpm > 260;
+    const isDisqualified = isSuspicious || hasTooManyErrors;
 
     // DNF if submitted with 0 words / 0 WPM or < 5% progress without finishing
     const isDnf = !completed && (wpm === 0 || progress < 5);
 
     room.finishData.set(socket.id, {
-      wpm: isSuspicious ? 0 : wpm,
+      wpm: isDisqualified ? 0 : wpm,
       errors,
       elapsedMs,
       progress,
       completed,
       wordsTyped,
       flagged: isSuspicious,
-      disqualified: isSuspicious,
+      disqualified: isDisqualified,
+      excessiveErrors: hasTooManyErrors,
       dnf: isDnf,
       username: socket.data.username || 'Player',
       country: socket.data.country || 'IND',

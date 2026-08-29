@@ -8871,8 +8871,11 @@
         winnerBadge.textContent = selfResult?.disqualified ? '🚫' : '🥈';
         winnerScreenEl.classList.add('lost');
         document.querySelector('#winner-title').textContent = selfResult?.disqualified ? 'Disqualified' : 'Battle Concluded';
+        const disqSubtitle = selfResult?.excessiveErrors
+          ? `⚠️ Disqualified: Errors made (${selfResult.errors}) exceeded words written (${selfResult.wordsTyped || 0})!`
+          : '⚠️ Disqualified for suspicious input / inhuman speed.';
         document.querySelector('#winner-subtitle').textContent = selfResult?.disqualified
-          ? '⚠️ Disqualified for suspicious input / inhuman speed.'
+          ? disqSubtitle
           : (reason ? `Match ended: ${reason}` : 'Good duel! Keep training your precision.');
       }
 
@@ -8916,9 +8919,11 @@
         const isSelf = res.id === socket.id;
         const color = res.color?.hex || '#215e45';
         const racer = getRacerForPlayer(res, idx);
-        const statusText = res.disqualified
-          ? '<span style="color: var(--rose); font-weight: 800;">🚫 Disqualified</span>'
-          : (res.dnf ? '<span style="color: var(--text-dim);">DNF (Incomplete)</span>' : `<strong>${res.wpm || 0} WPM</strong>`);
+        const statusText = res.excessiveErrors
+          ? `<span style="color: var(--rose); font-weight: 800;">🚫 Excessive Errors (${res.errors} err / ${res.wordsTyped || 0} words)</span>`
+          : (res.disqualified
+            ? '<span style="color: var(--rose); font-weight: 800;">🚫 Disqualified</span>'
+            : (res.dnf ? '<span style="color: var(--text-dim);">DNF (Incomplete)</span>' : `<strong>${res.wpm || 0} WPM</strong>`));
 
         return `
           <div class="result-row ${idx === 0 && !res.disqualified ? 'winner-row' : ''}">
