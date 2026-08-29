@@ -8669,10 +8669,13 @@
       renderSidebarProgress();
       renderRaceLanes();
 
+      const startMoment = Date.now();
+      const totalCountdownMs = countdownMs || 3500;
       let lastBeepSec = -1;
       clearInterval(countdownInterval);
       function updateCountdown() {
-        const remMs = targetStartTime - Date.now();
+        const elapsed = Date.now() - startMoment;
+        const remMs = totalCountdownMs - elapsed;
         const remSec = Math.ceil(remMs / 1000);
 
         if (remSec > 0) {
@@ -8848,6 +8851,8 @@
       typingArea.disabled = true;
       activeMatch = false;
       clearInterval(roundTimerInterval);
+      clearInterval(countdownInterval);
+      countdownOverlay.classList.add('hidden');
 
       const winnerBadge = document.querySelector('#winner-badge');
       const winnerScreenEl = document.querySelector('#winner-screen');
@@ -8887,21 +8892,23 @@
 
     socket.on('playerLeftRoom', ({ username, playerCount, maxPlayers, hostId, players }) => {
       isHost = socket.id === hostId;
-      activePlayers = players;
+      activePlayers = players || [];
       hostSettingsPanel.classList.toggle('hidden', !isHost);
       startRoomButton.classList.toggle('hidden', !isHost || playerCount < 2);
       renderLobbyMembers(players, hostId);
       renderSidebarProgress();
+      renderRaceLanes();
       showToast(`${username} left the lobby (${playerCount}/${maxPlayers} remaining)`);
     });
 
     socket.on('roomUpdate', ({ players, playerCount, maxPlayers, hostId }) => {
       isHost = socket.id === hostId;
-      activePlayers = players;
+      activePlayers = players || [];
       hostSettingsPanel.classList.toggle('hidden', !isHost);
       startRoomButton.classList.toggle('hidden', !isHost || playerCount < 2);
       renderLobbyMembers(players, hostId);
       renderSidebarProgress();
+      renderRaceLanes();
     });
 
     socket.on('sessionRestored', ({ friendId, roomId, roomName, isPublic, typingMode, mode, started, difficulty, players, hostId, playerCount, maxPlayers }) => {
