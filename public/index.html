@@ -5145,7 +5145,7 @@
         <div class="profile-big-avatar" id="modal-profile-avatar">P</div>
         <div class="profile-meta-wrap">
           <h3 id="modal-profile-username">Player</h3>
-          <p id="modal-profile-email">player@typendo.com</p>
+          <p id="modal-profile-email">@guest</p>
           <div style="margin-top: 6px; display: flex; gap: 6px; align-items: center;">
             <span class="profile-elo-tag" id="modal-profile-elo">1000 ELO</span>
             <span style="font-size: 11px; font-weight: 700; color: var(--primary);" id="modal-profile-tier">🥉 Bronze I</span>
@@ -6642,7 +6642,7 @@
     function openProfileModal() {
       if (!userProfile) return;
       const displayNickname = userProfile.nickname || userProfile.username || 'Player';
-      const displayHandle = userProfile.username ? `@${userProfile.username}` : (userProfile.email || 'Registered Player');
+      const displayHandle = userProfile.username ? `@${userProfile.username.replace(/^@/, '')}` : '@guest';
 
       if (userProfile.imageUrl) {
         modalProfileAvatar.innerHTML = `<img src="${escapeHtml(userProfile.imageUrl)}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
