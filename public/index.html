@@ -2548,17 +2548,23 @@
 
     .cursor-pill {
       position: absolute;
-      top: -22px;
+      top: -20px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 9px;
+      font-size: 9.5px;
       font-weight: 800;
       color: #fff;
-      padding: 1px 6px;
-      border-radius: 4px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       white-space: nowrap;
       pointer-events: none;
       z-index: 10;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
       animation: pop 0.15s ease-out;
     }
 
@@ -7525,11 +7531,12 @@
         const oppData = opponentCursors.get(player.id) || { wordIndex: 0 };
         const wordEl = document.querySelector(`#word-span-${oppData.wordIndex}`);
         if (wordEl) {
-          const c = getCountry(player.country);
+          const firstInitial = (player.username || 'P').trim().slice(0, 1).toUpperCase();
           const pill = document.createElement('div');
           pill.className = 'cursor-pill';
           pill.style.background = player.color?.hex || '#c85a32';
-          pill.innerHTML = `<span style="font-size: 9px; margin-right: 2px;">${c.flag}</span> ${escapeHtml(player.username.slice(0, 8))}`;
+          pill.title = `${player.username}'s cursor position`;
+          pill.innerHTML = `<span>${firstInitial}</span>`;
           wordEl.appendChild(pill);
         }
       });
