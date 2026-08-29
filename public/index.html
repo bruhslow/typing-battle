@@ -6217,29 +6217,59 @@
       showToast(`Sending friend request to ${targetUsername}...`);
     };
 
+    let previousSavedNickname = localStorage.getItem('typendoUsername') || 'Player';
+
+    function getActiveNickname() {
+      return userProfile?.nickname || userProfile?.username || previousSavedNickname || 'Player';
+    }
+
     usernameInput.addEventListener('input', () => {
-      const name = usernameInput.value.trim() || 'Player';
-      headerAvatar.textContent = name.slice(0, 1).toUpperCase();
-      localStorage.setItem('typendoUsername', name);
-      if (loggedIn) {
-        socket.emit('updateProfile', { newUsername: name });
-      } else {
-        socket.emit('setUsername', { username: name, country: userCountry });
+      const typed = usernameInput.value;
+      if (typed.trim().length > 0) {
+        headerAvatar.textContent = typed.trim().slice(0, 1).toUpperCase();
       }
     });
 
-    usernameInput.addEventListener('change', () => {
-      const name = usernameInput.value.trim() || 'Player';
-      if (loggedIn) {
-        socket.emit('updateProfile', { newUsername: name });
-      } else {
-        localStorage.setItem('typendoUsername', name);
-        socket.emit('setUsername', { username: name, country: userCountry });
+    function commitNicknameChange() {
+      const typed = usernameInput.value.trim();
+      const currentNick = getActiveNickname();
+
+      // If user deleted all letters / left blank, revert to previous nickname
+      if (!typed) {
+        usernameInput.value = currentNick;
+        headerAvatar.textContent = currentNick.slice(0, 1).toUpperCase();
+        return;
       }
-    });
+
+      // Must be at least 2 characters to update
+      if (typed.length < 2) {
+        showToast('Nickname must be at least 2 characters.', true);
+        usernameInput.value = currentNick;
+        headerAvatar.textContent = currentNick.slice(0, 1).toUpperCase();
+        return;
+      }
+
+      // If nickname actually changed
+      if (typed !== currentNick) {
+        previousSavedNickname = typed;
+        localStorage.setItem('typendoUsername', typed);
+        if (loggedIn) {
+          socket.emit('updateProfile', { newUsername: typed });
+        } else {
+          socket.emit('setUsername', { username: typed, country: userCountry });
+        }
+      }
+    }
+
+    usernameInput.addEventListener('blur', commitNicknameChange);
 
     usernameInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
+        e.preventDefault();
+        usernameInput.blur();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        usernameInput.value = getActiveNickname();
         usernameInput.blur();
       }
     });
@@ -6710,7 +6740,9 @@
         if (country) userProfile.country = userCountry;
         if (rating) userProfile.rating = rating;
       }
-      usernameInput.value = display;
+      if (document.activeElement !== usernameInput) {
+        usernameInput.value = display;
+      }
       if (!userProfile?.imageUrl) {
         headerAvatar.textContent = display.slice(0, 1).toUpperCase();
       }
@@ -8399,7 +8431,9 @@
         updateCountryUI(userCountry);
       }
       userProfile = { username, nickname: displayNickname, email, country: userCountry, rating, accountKey, clerkId, imageUrl, hasPassword, createdAt, isAdmin };
-      usernameInput.value = displayNickname;
+      if (document.activeElement !== usernameInput) {
+        usernameInput.value = displayNickname;
+      }
       if (imageUrl) {
         headerAvatar.innerHTML = `<img src="${escapeHtml(imageUrl)}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
       } else {
