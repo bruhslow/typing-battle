@@ -216,6 +216,8 @@ function getGlobalLeaderboard() {
 
     list.push({
       username: acc.username || 'Player',
+      nickname: acc.nickname || acc.username || 'Player',
+      accountKey: acc.username ? acc.username.toLowerCase() : '',
       country: acc.country || 'IND',
       rating: typeof acc.rating === 'number' ? acc.rating : 1000,
       role: isAdmin ? 'admin' : 'user',
@@ -1760,9 +1762,15 @@ io.on('connection', (socket) => {
       let cleanName = name.trim().slice(0, 24);
       const targetKey = cleanName.toLowerCase();
       
-      // If user is already logged in with an account, preserve their registered username
+      // If user is already logged in with an account, update their nickname display name
       if (socket.data.accountKey && accounts.has(socket.data.accountKey)) {
-        cleanName = accounts.get(socket.data.accountKey).username;
+        const acc = accounts.get(socket.data.accountKey);
+        if (cleanName.length >= 2 && cleanName !== acc.username) {
+          acc.nickname = cleanName;
+          saveAccounts();
+          broadcastLeaderboard();
+        }
+        cleanName = acc.nickname || acc.username;
       } else {
         // For guests: if requested name belongs to a registered account, or another active connected guest, ensure uniqueness
         const isRegistered = accounts.has(targetKey);
@@ -2381,10 +2389,11 @@ io.on('connection', (socket) => {
       }
     }
 
-    // Also try by username field directly
+    // Also try by username or nickname field directly
     if (!targetKey) {
       for (const [k, a] of accounts.entries()) {
-        if (a.username && a.username.toLowerCase() === clean.toLowerCase()) {
+        if ((a.username && a.username.toLowerCase() === clean.toLowerCase()) ||
+            (a.nickname && a.nickname.toLowerCase() === clean.toLowerCase())) {
           targetKey = k;
           break;
         }

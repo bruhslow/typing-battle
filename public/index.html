@@ -1906,6 +1906,28 @@
       border-color: var(--primary);
     }
 
+    .quick-add-friend-btn {
+      background: rgba(33, 94, 69, 0.12);
+      color: var(--primary);
+      border: 1px solid var(--primary-glow);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 10.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .quick-add-friend-btn:hover {
+      background: var(--primary);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
     .top-typist-left {
       display: flex;
       align-items: center;
@@ -6160,11 +6182,47 @@
       });
     }
 
+    window.quickAddFriend = function(targetUsername) {
+      if (!loggedIn) {
+        openUnifiedAuthModal('login');
+        showToast('Please log in to add friends.', true);
+        return;
+      }
+      if (!targetUsername) return;
+      const selfName = userProfile?.nickname || userProfile?.username || usernameInput.value.trim();
+      if (targetUsername.toLowerCase() === selfName.toLowerCase()) {
+        showToast("You can't add yourself as a friend.", true);
+        return;
+      }
+      socket.emit('sendFriendRequest', { targetIdentifier: targetUsername });
+      showToast(`Sending friend request to ${targetUsername}...`);
+    };
+
     usernameInput.addEventListener('input', () => {
       const name = usernameInput.value.trim() || 'Player';
       headerAvatar.textContent = name.slice(0, 1).toUpperCase();
       localStorage.setItem('typendoUsername', name);
-      socket.emit('setUsername', { username: name, country: userCountry });
+      if (loggedIn) {
+        socket.emit('updateProfile', { newUsername: name });
+      } else {
+        socket.emit('setUsername', { username: name, country: userCountry });
+      }
+    });
+
+    usernameInput.addEventListener('change', () => {
+      const name = usernameInput.value.trim() || 'Player';
+      if (loggedIn) {
+        socket.emit('updateProfile', { newUsername: name });
+      } else {
+        localStorage.setItem('typendoUsername', name);
+        socket.emit('setUsername', { username: name, country: userCountry });
+      }
+    });
+
+    usernameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        usernameInput.blur();
+      }
     });
 
     function showScreen(screen) {
@@ -6554,11 +6612,20 @@
 
     closeProfileModalBtn.addEventListener('click', () => profileModal.classList.add('hidden'));
 
+    if (profileEditNameInput) {
+      profileEditNameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          saveUsernameBtn.click();
+        }
+      });
+    }
+
     // Profile Modal Edit Handlers
     saveUsernameBtn.addEventListener('click', () => {
       const newUsername = profileEditNameInput.value.trim();
       if (!newUsername) return;
-      profileModalMsg.textContent = 'Updating username...';
+      profileModalMsg.textContent = 'Updating display name...';
       socket.emit('updateProfile', { newUsername });
     });
 
@@ -6603,7 +6670,8 @@
       }
     });
 
-    socket.on('profileUpdated', ({ username, email, country, rating, accountKey }) => {
+    socket.on('profileUpdated', ({ username, nickname, email, country, rating, accountKey }) => {
+      const display = nickname || username || 'Player';
       if (country) {
         userCountry = getCountry(country).code;
         localStorage.setItem('typendoCountry', userCountry);
@@ -6611,19 +6679,28 @@
       }
       if (userProfile) {
         userProfile.username = username;
+        userProfile.nickname = display;
         if (email) userProfile.email = email;
         if (country) userProfile.country = userCountry;
         if (rating) userProfile.rating = rating;
       }
-      usernameInput.value = username;
-      headerAvatar.textContent = username.slice(0, 1).toUpperCase();
-      accountBtnText.textContent = username;
-      localStorage.setItem('typendoUsername', username);
-      localStorage.setItem('typendoAccountKey', accountKey);
-      profileModalMsg.textContent = '✔ Profile successfully updated!';
+      usernameInput.value = display;
+      if (!userProfile?.imageUrl) {
+        headerAvatar.textContent = display.slice(0, 1).toUpperCase();
+      }
+      updateAuthHeaderUI(true, display);
+      localStorage.setItem('typendoUsername', display);
+      if (accountKey) localStorage.setItem('typendoAccountKey', accountKey);
+      profileModalMsg.textContent = '✔ Profile display name successfully updated!';
       profileModalMsg.style.color = 'var(--primary)';
-      showToast('Profile updated!');
+      showToast(`Display name updated to "${display}"!`);
       updateOverallStats(rating);
+
+      const nickSpan = document.querySelector('#profile-nick-span');
+      if (nickSpan) {
+        nickSpan.textContent = display + ' ✏️';
+      }
+      socket.emit('getLeaderboard');
     });
 
     socket.on('profileError', (msg) => {
@@ -8267,26 +8344,27 @@
     });
 
     // Handle Authentication & Auto-load User Data & History
-    socket.on('authSuccess', ({ username, email, country, rating, accountKey, clerkId, imageUrl, hasPassword, duelHistory: serverDuels, eloHistory: serverElos, createdAt, isAdmin }) => {
+    socket.on('authSuccess', ({ username, nickname, email, country, rating, accountKey, clerkId, imageUrl, hasPassword, duelHistory: serverDuels, eloHistory: serverElos, createdAt, isAdmin }) => {
+      const displayNickname = nickname || username || 'Player';
       loggedIn = true;
       if (country) {
         userCountry = getCountry(country).code;
         localStorage.setItem('typendoCountry', userCountry);
         updateCountryUI(userCountry);
       }
-      userProfile = { username, email, country: userCountry, rating, accountKey, clerkId, imageUrl, hasPassword, createdAt, isAdmin };
-      usernameInput.value = username;
+      userProfile = { username, nickname: displayNickname, email, country: userCountry, rating, accountKey, clerkId, imageUrl, hasPassword, createdAt, isAdmin };
+      usernameInput.value = displayNickname;
       if (imageUrl) {
         headerAvatar.innerHTML = `<img src="${escapeHtml(imageUrl)}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
       } else {
-        headerAvatar.textContent = username.slice(0, 1).toUpperCase();
+        headerAvatar.textContent = displayNickname.slice(0, 1).toUpperCase();
       }
       headerElo.textContent = rating + ' ELO';
-      updateAuthHeaderUI(true, username);
+      updateAuthHeaderUI(true, displayNickname);
       applyAdminUI(isAdmin);
 
       if (accountKey) localStorage.setItem('typendoAccountKey', accountKey);
-      localStorage.setItem('typendoUsername', username);
+      localStorage.setItem('typendoUsername', displayNickname);
 
       // Auto-load history from server account if available
       if (Array.isArray(serverDuels) && serverDuels.length > 0) {
@@ -8311,18 +8389,7 @@
       socket.emit('getLeaderboard');
       socket.emit('getFriendsList');
       socket.emit('getFriendRequests');
-      showToast(`Welcome, ${username}! (${rating} ELO)`);
-
-      // If user signed in via Google/Clerk and has never set a password,
-      // prompt setup credentials ONCE — only on first-ever login, not on every page reload.
-      if (hasPassword === false) {
-        const alreadySetup = localStorage.getItem('typendoSetupDone_' + accountKey);
-        if (!alreadySetup && !sessionStorage.getItem('typendoSetupDismissed')) {
-          setTimeout(() => {
-            openSetupCredentialsModal(username, userCountry);
-          }, 400);
-        }
-      }
+      showToast(`Welcome, ${displayNickname}! (${rating} ELO)`);
     });
 
     socket.on('authError', (msg) => {
