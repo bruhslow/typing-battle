@@ -2897,80 +2897,6 @@
               <button class="start-cta" id="random-button" type="button">START BATTLE</button>
               <p class="status-msg" id="join-message" aria-live="polite"></p>
             </div>
-
-            <!-- TEST YOURSELF (SOLO WPM SPEED CALCULATOR) -->
-            <div class="solo-test-card" id="solo-test-card">
-              <div class="solo-test-header">
-                <div class="solo-test-title-group">
-                  <div class="solo-test-badge-icon">🎯</div>
-                  <div>
-                    <h3>Test Yourself</h3>
-                    <p>Solo Speed Practice & Instant WPM Calculator</p>
-                  </div>
-                </div>
-                <div class="solo-timer-pills" role="group" aria-label="Test Duration">
-                  <button class="solo-timer-pill active" data-duration="15" type="button">15s</button>
-                  <button class="solo-timer-pill" data-duration="30" type="button">30s</button>
-                  <button class="solo-timer-pill" data-duration="60" type="button">60s</button>
-                </div>
-              </div>
-
-              <!-- Live Metrics Strip during solo test -->
-              <div class="solo-metrics-strip" id="solo-metrics-strip">
-                <div class="solo-metric-item">
-                  <small>WPM</small>
-                  <strong id="solo-live-wpm">0</strong>
-                </div>
-                <div class="solo-metric-item">
-                  <small>ACCURACY</small>
-                  <strong id="solo-live-acc">100%</strong>
-                </div>
-                <div class="solo-metric-item">
-                  <small>TIME</small>
-                  <strong id="solo-live-time">15s</strong>
-                </div>
-                <button class="solo-refresh-btn" id="solo-refresh-btn" type="button" title="Get a new practice sentence">
-                  🔄 New Text
-                </button>
-              </div>
-
-              <!-- Solo Paragraph Display with character highlighting -->
-              <div class="solo-quote-display" id="solo-quote-display"></div>
-
-              <!-- Solo Typing Textarea / Input -->
-              <div class="solo-input-wrap">
-                <input class="solo-type-input" id="solo-type-input" placeholder="Click here and start typing to calculate your WPM..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
-              </div>
-
-              <!-- Solo Results Modal / Banner -->
-              <div class="solo-result-box hidden" id="solo-result-box">
-                <div class="solo-result-head">
-                  <span>🎉 Test Completed!</span>
-                  <span class="solo-pb-tag hidden" id="solo-pb-tag">🏆 NEW PERSONAL BEST!</span>
-                </div>
-                <div class="solo-result-grid">
-                  <div class="solo-res-stat">
-                    <span class="res-num" id="solo-res-wpm">0</span>
-                    <span class="res-lbl">Net WPM</span>
-                  </div>
-                  <div class="solo-res-stat">
-                    <span class="res-num" id="solo-res-acc">100%</span>
-                    <span class="res-lbl">Accuracy</span>
-                  </div>
-                  <div class="solo-res-stat">
-                    <span class="res-num" id="solo-res-raw">0</span>
-                    <span class="res-lbl">Raw WPM</span>
-                  </div>
-                  <div class="solo-res-stat">
-                    <span class="res-num" id="solo-res-err">0</span>
-                    <span class="res-lbl">Errors</span>
-                  </div>
-                </div>
-                <div style="display: flex; gap: 8px; margin-top: 10px;">
-                  <button class="btn-secondary" id="solo-retry-btn" type="button" style="flex: 1; padding: 7px 12px; font-size: 12px;">🔁 Try Again</button>
-                </div>
-              </div>
-            </div>
           </div>
 
           <!-- Right: Player Hub with Tabs & XP Progress -->
@@ -3016,6 +2942,80 @@
               <div class="history-scroll-box" id="hall-fame-list">
                 <div class="history-empty">No registered players yet. Sign up and play Ranked 1v1 to claim your spot!</div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STANDALONE DEDICATED SECTION: TEST YOURSELF (SOLO WPM CALCULATOR) -->
+        <div class="solo-test-card" id="solo-test-card">
+          <div class="solo-test-header">
+            <div class="solo-test-title-group">
+              <div class="solo-test-badge-icon">🎯</div>
+              <div>
+                <h3>Test Yourself</h3>
+                <p>Solo Speed Practice & Instant WPM Calculator</p>
+              </div>
+            </div>
+            <div class="solo-timer-pills" role="group" aria-label="Test Duration">
+              <button class="solo-timer-pill active" data-duration="15" type="button">15s</button>
+              <button class="solo-timer-pill" data-duration="30" type="button">30s</button>
+              <button class="solo-timer-pill" data-duration="60" type="button">60s</button>
+            </div>
+          </div>
+
+          <!-- Live Metrics Strip during solo test -->
+          <div class="solo-metrics-strip" id="solo-metrics-strip">
+            <div class="solo-metric-item">
+              <small>WPM</small>
+              <strong id="solo-live-wpm">0</strong>
+            </div>
+            <div class="solo-metric-item">
+              <small>ACCURACY</small>
+              <strong id="solo-live-acc">100%</strong>
+            </div>
+            <div class="solo-metric-item">
+              <small>TIME</small>
+              <strong id="solo-live-time">15s</strong>
+            </div>
+            <button class="solo-refresh-btn" id="solo-refresh-btn" type="button" title="Get a new practice sentence">
+              🔄 New Text
+            </button>
+          </div>
+
+          <!-- Solo Paragraph Display with character highlighting -->
+          <div class="solo-quote-display" id="solo-quote-display"></div>
+
+          <!-- Solo Typing Textarea / Input -->
+          <div class="solo-input-wrap">
+            <input class="solo-type-input" id="solo-type-input" placeholder="Click here and start typing to calculate your WPM..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+          </div>
+
+          <!-- Solo Results Modal / Banner -->
+          <div class="solo-result-box hidden" id="solo-result-box">
+            <div class="solo-result-head">
+              <span>🎉 Test Completed!</span>
+              <span class="solo-pb-tag hidden" id="solo-pb-tag">🏆 NEW PERSONAL BEST!</span>
+            </div>
+            <div class="solo-result-grid">
+              <div class="solo-res-stat">
+                <span class="res-num" id="solo-res-wpm">0</span>
+                <span class="res-lbl">Net WPM</span>
+              </div>
+              <div class="solo-res-stat">
+                <span class="res-num" id="solo-res-acc">100%</span>
+                <span class="res-lbl">Accuracy</span>
+              </div>
+              <div class="solo-res-stat">
+                <span class="res-num" id="solo-res-raw">0</span>
+                <span class="res-lbl">Raw WPM</span>
+              </div>
+              <div class="solo-res-stat">
+                <span class="res-num" id="solo-res-err">0</span>
+                <span class="res-lbl">Errors</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+              <button class="btn-secondary" id="solo-retry-btn" type="button" style="flex: 1; padding: 7px 12px; font-size: 12px;">🔁 Try Again</button>
             </div>
           </div>
         </div>
