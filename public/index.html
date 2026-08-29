@@ -6631,8 +6631,7 @@
 
       for (let w = 0; w < wordsArray.length; w++) {
         const word = wordsArray[w];
-        const initialDisplay = (activeMatchMode === 'ranked') ? (w <= 3 ? 'inline-block' : 'none') : 'inline-block';
-        html += `<span class="word-span" id="word-span-${w}" style="display: ${initialDisplay};">`;
+        html += `<span class="word-span" id="word-span-${w}">`;
         for (let c = 0; c < word.length; c++) {
           const char = word[c];
           html += `<span class="char-untyped" id="char-${charCounter}">${char === ' ' ? '&nbsp;' : escapeHtml(char)}</span>`;
@@ -6962,14 +6961,6 @@
       document.querySelectorAll('.word-span').forEach((el, idx) => {
         el.classList.toggle('word-past', idx < currentWordIndex);
         el.classList.toggle('current-word', idx === currentWordIndex);
-
-        if (activeMatchMode === 'ranked') {
-          // Ranked 2-3 Word Fog-of-War Stream: Only reveal past word, current word, and next 2-3 words
-          const isVisible = idx >= Math.max(0, currentWordIndex - 1) && idx <= (currentWordIndex + 3);
-          el.style.display = isVisible ? 'inline-block' : 'none';
-        } else {
-          el.style.display = 'inline-block';
-        }
       });
 
       // Smooth 2-line rolling conveyor: active line stays on line 1, upcoming line visible below
