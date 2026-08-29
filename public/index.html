@@ -112,10 +112,11 @@
     .shell {
       position: relative;
       z-index: 1;
-      width: min(1220px, calc(100% - 56px));
-      margin-left: max(18px, calc((100% - 1220px) / 2 - 28px));
+      width: 100%;
+      max-width: 1220px;
+      margin-left: auto;
       margin-right: auto;
-      padding: 16px 0 24px;
+      padding: 16px 20px 24px;
     }
 
     .viewport-screen {
@@ -3692,66 +3693,74 @@
 
     @media (max-width: 880px) {
       .race-layout { grid-template-columns: 1fr; }
+      .home-grid { grid-template-columns: 1fr; gap: 14px; }
     }
 
     @media (max-width: 768px) {
-      .shell { width: 100%; padding: 10px 12px 16px; max-width: 100%; }
-      .viewport-screen { gap: 12px; }
-      .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .stat-strip-card { padding: 8px 10px; }
+      .shell { width: 100%; max-width: 100%; margin-left: auto; margin-right: auto; padding: 10px 12px 16px; text-align: center; }
+      .viewport-screen { gap: 12px; align-items: center; }
+
+      .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; justify-content: center; }
+      .stat-strip-card { padding: 8px 10px; justify-content: center; text-align: center; }
       .stat-strip-card:nth-child(5) { grid-column: span 2; }
 
-      /* ── Mobile Header: single row, logo left, tools right ── */
+      /* ── Mobile Header: balanced center layout ── */
       header {
         display: flex;
-        flex-wrap: nowrap;
+        flex-direction: row;
+        flex-wrap: wrap;
         align-items: center;
-        justify-content: space-between;
-        padding: 8px 12px;
+        justify-content: center;
+        padding: 10px 12px;
         border-radius: var(--radius-lg);
-        gap: 8px;
-        margin-bottom: 4px;
+        gap: 10px;
+        margin-bottom: 6px;
         width: 100%;
         box-sizing: border-box;
-        overflow: hidden;
       }
 
-      /* Logo: locked to the left, never wraps */
+      /* Logo: centered on mobile */
       .brand {
         flex-shrink: 0;
         font-size: 16px;
         gap: 6px;
-        order: 1;
+        margin-left: auto;
+        margin-right: auto;
+        justify-content: center;
       }
       .brand-svg-mark { width: 28px; height: 28px; border-radius: 8px; }
       .brand-title { font-size: 15px; }
 
-      /* Tools wrapper: flex row pushed right */
+      /* Tools wrapper: centered flex row */
       .header-tools {
         display: flex;
         flex-direction: row;
         align-items: center;
+        justify-content: center;
         gap: 6px;
         margin-left: auto;
-        flex-shrink: 0;
-        order: 2;
+        margin-right: auto;
+        flex-shrink: 1;
         min-width: 0;
+        max-width: 100%;
+        width: 100%;
       }
 
-      /* Profile box: compact but stays in the row */
+      /* Profile box: compact & centered */
       .profile-box {
         padding: 3px 8px 3px 4px;
         gap: 5px;
         height: 32px;
         min-width: 0;
         flex-shrink: 1;
-        max-width: 140px;
+        max-width: 150px;
+        justify-content: center;
       }
       .profile-field-label { display: none !important; }
       .profile-avatar { width: 22px; height: 22px; font-size: 10px; flex-shrink: 0; }
       .profile-field-wrap { flex: 1; min-width: 0; }
-      .profile-input { width: 100%; min-width: 28px; font-size: 11px; font-weight: 700; height: 22px; }
-      .profile-elo-tag { display: none; } /* hide ELO tag on mobile to save space */
+      .profile-input { width: 100%; min-width: 28px; font-size: 12px; font-weight: 700; height: 22px; text-align: center; }
+      .profile-elo-tag { display: none; }
       .profile-country-btn { padding: 2px 4px; font-size: 10px; }
 
       /* Room code pill: compact */
@@ -3761,17 +3770,19 @@
         gap: 4px;
         flex-shrink: 0;
         height: 30px;
+        justify-content: center;
       }
       #friend-id { font-size: 11px; }
 
-      /* Auth buttons: compact */
-      .auth-btn-group { gap: 4px; }
+      /* Auth buttons: compact & centered */
+      .auth-btn-group { gap: 4px; flex-shrink: 0; justify-content: center; }
       .account-btn {
         padding: 4px 8px;
         font-size: 11px;
         height: 30px;
         border-radius: 999px;
         gap: 4px;
+        justify-content: center;
       }
       .account-btn span { white-space: nowrap; }
 
@@ -3780,11 +3791,11 @@
       #header-auth-logged-in {
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 4px;
         flex-shrink: 0;
       }
 
-      /* Mute button: always at far right, small */
       .sound-toggle-btn {
         flex-shrink: 0;
         padding: 4px 7px;
@@ -3792,29 +3803,37 @@
         height: 30px;
         gap: 3px;
         border-radius: var(--radius-sm);
+        justify-content: center;
       }
-      .sound-btn-label { display: none; } /* just show the icon on mobile */
+      .sound-btn-label { display: none; }
 
-      /* Main content grids */
-      .home-grid { grid-template-columns: 1fr; gap: 12px; }
-      .battle-deck { padding: 18px 14px; border-radius: var(--radius-lg); gap: 12px; }
-      .deck-header h1 { font-size: 22px; }
-      .deck-header p { font-size: 12px; }
-      .mode-deck-grid { gap: 6px; }
-      .mode-card { padding: 10px 4px; gap: 3px; }
+      /* Main content grids & cards centered */
+      .home-grid { grid-template-columns: 1fr; gap: 12px; width: 100%; }
+      .battle-deck { padding: 18px 14px; border-radius: var(--radius-lg); gap: 12px; text-align: center; align-items: center; }
+      .deck-header { flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; width: 100%; }
+      .deck-header h1 { font-size: 22px; text-align: center; }
+      .deck-header p { font-size: 12px; text-align: center; }
+      .mode-deck-grid { gap: 6px; width: 100%; }
+      .mode-card { padding: 10px 4px; gap: 3px; justify-content: center; }
       .mode-card-badge { font-size: 17px; }
       .mode-card strong { font-size: 11px; }
       .mode-sub { font-size: 9px; }
-      .platform-row { gap: 6px; }
-      .platform-btn { padding: 7px 6px; font-size: 11px; }
-      .info-card { padding: 16px 14px; border-radius: var(--radius-lg); gap: 12px; }
+      .platform-row { gap: 6px; justify-content: center; width: 100%; }
+      .platform-btn { padding: 7px 6px; font-size: 11px; justify-content: center; }
+      .info-card { padding: 16px 14px; border-radius: var(--radius-lg); gap: 12px; text-align: center; align-items: center; }
       .history-scroll-box { max-height: 180px; }
-      .arena-panel { padding: 16px 14px; border-radius: var(--radius-lg); }
-      .arena-header h2 { font-size: 16px; }
-      .race-top-metrics { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
-      .metric-card { padding: 8px 10px; }
+      .arena-panel { padding: 16px 14px; border-radius: var(--radius-lg); text-align: center; align-items: center; }
+      .arena-header { flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; }
+      .arena-header h2 { font-size: 16px; text-align: center; }
+      .race-top-metrics { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; justify-items: center; }
+      .metric-card { padding: 8px 10px; text-align: center; justify-content: center; }
       .metric-label { font-size: 9px; margin-bottom: 2px; }
       .metric-value { font-size: 16px; }
+      .solo-metrics-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px 12px; justify-items: center; text-align: center; }
+      .solo-metric-item { align-items: center; text-align: center; }
+      .solo-metric-item strong { font-size: 16px; }
+      .solo-result-actions { justify-content: center; width: 100%; }
+      .lobby-action-btns { justify-content: center; width: 100%; }
       .race-display { font-size: 15px; line-height: 1.85; padding: 12px 14px; margin-bottom: 10px; height: 96px; max-height: 96px; overflow: hidden; border-left-width: 3px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
       .solo-quote-display { font-size: 15px; line-height: 1.85; height: 96px; max-height: 96px; overflow: hidden; }
       .word-span { margin-right: 0.3em; }
@@ -3824,35 +3843,36 @@
       .visual-pill-grid.two-cols { grid-template-columns: 1fr; }
       .countdown-number { font-size: 64px; }
       .results-table { margin-bottom: 16px; gap: 6px; }
-      .result-row { grid-template-columns: 24px 1fr auto auto; padding: 8px 10px; font-size: 11px; gap: 6px; }
+      .result-row { grid-template-columns: 24px 1fr auto auto; padding: 8px 10px; font-size: 11px; gap: 6px; justify-content: center; }
       .room-card { grid-template-columns: 1fr auto; gap: 8px; }
       .room-card > div:nth-child(2) { display: none; }
-      .tier-modal-content, .profile-modal-content { padding: 18px 16px; }
-      .tier-row { grid-template-columns: 28px 1fr auto; gap: 8px; padding: 8px 10px; font-size: 12px; }
-      .footer-content { flex-direction: column; gap: 6px; text-align: center; }
+      .tier-modal-content, .profile-modal-content { padding: 18px 16px; width: 100%; margin: 0 auto; text-align: center; }
+      .tier-row { grid-template-columns: 28px 1fr auto auto; gap: 6px; padding: 8px 10px; font-size: 11.5px; }
+      .footer-content { flex-direction: column; gap: 6px; text-align: center; align-items: center; justify-content: center; }
     }
 
     @media (max-width: 420px) {
-      .shell { padding: 6px 6px 12px; }
-      header { padding: 6px 8px; gap: 5px; }
-      .brand { font-size: 13px; gap: 4px; }
+      .shell { padding: 6px 8px 12px; margin-left: auto; margin-right: auto; text-align: center; }
+      header { padding: 8px 6px; gap: 6px; justify-content: center; }
+      .brand { font-size: 13px; gap: 4px; margin-left: auto; margin-right: auto; }
       .brand-title { font-size: 13px; }
       .brand-svg-mark { width: 22px; height: 22px; border-radius: 6px; }
 
-      /* Tighten right-side tools on very small screens */
-      .header-tools { gap: 4px; }
+      /* Tighten & center right-side tools on very small screens */
+      .header-tools { gap: 4px; margin-left: auto; margin-right: auto; justify-content: center; }
       .account-btn { padding: 3px 6px; font-size: 10px; height: 26px; }
-      .auth-btn-group { gap: 3px; }
+      .auth-btn-group { gap: 3px; justify-content: center; }
 
-      .profile-box { padding: 2px 5px 2px 2px; gap: 3px; height: 28px; max-width: 120px; }
+      .profile-box { padding: 2px 5px 2px 2px; gap: 3px; height: 28px; max-width: 120px; justify-content: center; }
       .profile-country-btn { padding: 1px 3px; font-size: 8.5px; }
       .profile-avatar { width: 18px; height: 18px; font-size: 9px; }
-      .profile-input { font-size: 10px; }
+      .profile-input { font-size: 11px; text-align: center; }
       .code-pill { padding: 2px 5px; font-size: 8.5px; height: 28px; }
       .sound-toggle-btn { padding: 3px 5px; height: 26px; font-size: 12px; }
 
-      .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 6px; }
-      .stat-strip-card { padding: 7px 8px; gap: 6px; }
+      .solo-result-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; justify-items: center; }
+      .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 6px; justify-items: center; }
+      .stat-strip-card { padding: 7px 8px; gap: 6px; justify-content: center; }
       .stat-icon-wrap { width: 28px; height: 28px; font-size: 13px; }
       .stat-info-wrap small { font-size: 8px; }
       .stat-info-wrap strong { font-size: 11px; }
@@ -4970,7 +4990,7 @@
       <div class="auth-modal-header">
         <div class="auth-modal-title">
           <h3 id="auth-modal-heading">Account Access</h3>
-          <p id="auth-modal-sub">Log in or create an account with Google, Email, or Username to compete in Ranked.</p>
+          <p id="auth-modal-sub">Log in or create a new account with Google, Nickname, or @username.</p>
         </div>
         <button class="btn-secondary" id="close-auth-modal-btn" type="button" style="padding: 4px 8px;">✕</button>
       </div>
@@ -4986,45 +5006,42 @@
         <span>Continue with Google (Gmail)</span>
       </button>
 
-      <div class="auth-divider-line">or continue with username & password (no email required)</div>
+      <div class="auth-divider-line">or choose your authentication method</div>
 
-      <!-- Log In / Sign Up Tab Switcher -->
+      <!-- Tab Switcher -->
       <div class="auth-tab-row">
         <button class="auth-tab-btn active" id="auth-tab-login" type="button">🔑 Log In</button>
-        <button class="auth-tab-btn" id="auth-tab-signup" type="button">✨ Sign Up (New Player)</button>
+        <button class="auth-tab-btn" id="auth-tab-signup" type="button">✨ New to Platform? Register</button>
       </div>
 
       <!-- Log In Form -->
       <form class="auth-form-fields" id="auth-login-form">
         <div class="auth-field-group">
-          <label for="auth-login-ident">Username or Email</label>
-          <input class="auth-input-elem" id="auth-login-ident" placeholder="Your username or email" autocomplete="username" required>
+          <label for="auth-login-ident">@username or Email</label>
+          <input class="auth-input-elem" id="auth-login-ident" placeholder="e.g. @ninja_99 or email" autocomplete="username" required>
         </div>
         <div class="auth-field-group">
           <label for="auth-login-pass">Password</label>
           <input class="auth-input-elem" id="auth-login-pass" type="password" placeholder="••••••••" autocomplete="current-password" required>
         </div>
-        <button class="auth-submit-btn" id="auth-login-submit" type="submit">Log In</button>
+        <button class="auth-submit-btn" id="auth-login-submit" type="submit">Log In to Account</button>
       </form>
 
-      <!-- Sign Up Form -->
+      <!-- New Player Register Form -->
       <form class="auth-form-fields hidden" id="auth-signup-form">
-        <div style="font-size: 11.5px; color: var(--text-dim); margin-bottom: 4px;">
-          ⚡ No email or Gmail required — simply choose a username and password to create your account!
+        <div class="auth-field-group">
+          <label for="auth-signup-nickname">Nickname / Display Name</label>
+          <input class="auth-input-elem" id="auth-signup-nickname" placeholder="e.g. Ninja Typer (change anytime)" maxlength="24" autocomplete="nickname" required>
         </div>
         <div class="auth-field-group">
-          <label for="auth-signup-user">Username</label>
-          <input class="auth-input-elem" id="auth-signup-user" placeholder="Choose a player name (3-20 chars)" autocomplete="username" required>
+          <label for="auth-signup-user">Unique @username Handle</label>
+          <input class="auth-input-elem" id="auth-signup-user" placeholder="e.g. @ninja_99 (3-24 letters/numbers)" maxlength="24" autocomplete="username" required>
         </div>
         <div class="auth-field-group">
           <label for="auth-signup-pass">Password</label>
-          <input class="auth-input-elem" id="auth-signup-pass" type="password" placeholder="Choose a password (min 6 chars)" autocomplete="new-password" required>
+          <input class="auth-input-elem" id="auth-signup-pass" type="password" placeholder="Min 6 characters" autocomplete="new-password" required>
         </div>
-        <div class="auth-field-group">
-          <label for="auth-signup-mail">Email Address (Optional / Recovery)</label>
-          <input class="auth-input-elem" id="auth-signup-mail" type="email" placeholder="Optional: name@example.com" autocomplete="email">
-        </div>
-        <button class="auth-submit-btn" id="auth-signup-submit" type="submit">Create Account & Play</button>
+        <button class="auth-submit-btn" id="auth-signup-submit" type="submit">✨ Register & Start Playing</button>
       </form>
 
       <!-- Message Banner -->
@@ -6315,8 +6332,8 @@
     const authSignupForm = document.querySelector('#auth-signup-form');
     const authLoginIdent = document.querySelector('#auth-login-ident');
     const authLoginPass = document.querySelector('#auth-login-pass');
+    const authSignupNickname = document.querySelector('#auth-signup-nickname');
     const authSignupUser = document.querySelector('#auth-signup-user');
-    const authSignupMail = document.querySelector('#auth-signup-mail');
     const authSignupPass = document.querySelector('#auth-signup-pass');
     const authModalMsg = document.querySelector('#auth-modal-msg');
     let currentAuthTab = 'login';
@@ -6330,7 +6347,7 @@
           authTabSignup.classList.add('active');
           authLoginForm.classList.add('hidden');
           authSignupForm.classList.remove('hidden');
-          setTimeout(() => authSignupUser && authSignupUser.focus(), 60);
+          setTimeout(() => authSignupNickname && authSignupNickname.focus(), 60);
         } else {
           authTabSignup.classList.remove('active');
           authTabLogin.classList.add('active');
@@ -6382,13 +6399,13 @@
         const password = authLoginPass ? authLoginPass.value : '';
         if (!identifier || !password) {
           if (authModalMsg) {
-            authModalMsg.textContent = 'Please enter your username/email and password.';
+            authModalMsg.textContent = 'Please enter your @username or email and password.';
             authModalMsg.style.color = 'var(--rose)';
           }
           return;
         }
         if (authModalMsg) {
-          authModalMsg.textContent = 'Verifying credentials...';
+          authModalMsg.textContent = 'Logging in...';
           authModalMsg.style.color = 'var(--text-muted)';
         }
         socket.emit('login', { identifier, password });
@@ -6398,13 +6415,13 @@
     if (authSignupForm) {
       authSignupForm.addEventListener('submit', (e) => {
         e.preventDefault();
+        const nickname = authSignupNickname ? authSignupNickname.value.trim() : '';
         const username = authSignupUser ? authSignupUser.value.trim() : '';
-        const email = authSignupMail ? authSignupMail.value.trim() : '';
         const password = authSignupPass ? authSignupPass.value : '';
 
-        if (!username || !password) {
+        if (!nickname || !username || !password) {
           if (authModalMsg) {
-            authModalMsg.textContent = 'Please enter a username and password.';
+            authModalMsg.textContent = 'Please fill out Nickname, @username handle, and Password.';
             authModalMsg.style.color = 'var(--rose)';
           }
           return;
@@ -6417,12 +6434,14 @@
           return;
         }
         if (authModalMsg) {
-          authModalMsg.textContent = 'Creating account...';
+          authModalMsg.textContent = 'Registering account...';
           authModalMsg.style.color = 'var(--text-muted)';
         }
-        socket.emit('registerDirect', { username, email, password, country: userCountry });
+        socket.emit('registerDirect', { nickname, username, password, country: userCountry });
       });
     }
+
+
 
     // Setup Credentials Onboarding Modal Controller
     const setupCredentialsModal = document.querySelector('#setup-credentials-modal');
@@ -6501,20 +6520,35 @@
     // Open Profile Modal Function
     function openProfileModal() {
       if (!userProfile) return;
+      const displayNickname = userProfile.nickname || userProfile.username || 'Player';
+      const displayHandle = userProfile.username ? `@${userProfile.username}` : (userProfile.email || 'Registered Player');
+
       if (userProfile.imageUrl) {
         modalProfileAvatar.innerHTML = `<img src="${escapeHtml(userProfile.imageUrl)}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
       } else {
-        modalProfileAvatar.textContent = userProfile.username.slice(0, 1).toUpperCase();
+        modalProfileAvatar.textContent = displayNickname.slice(0, 1).toUpperCase();
       }
-      modalProfileUsername.innerHTML = `${renderCountryBadge(userProfile.country || userCountry)} ${escapeHtml(userProfile.username)}`;
-      modalProfileEmail.textContent = userProfile.email || 'Registered Player';
+      modalProfileUsername.innerHTML = `${renderCountryBadge(userProfile.country || userCountry)} <span id="profile-nick-span" title="Click to edit Nickname" style="cursor:pointer;">${escapeHtml(displayNickname)} ✏️</span>`;
+      modalProfileEmail.textContent = displayHandle;
       modalProfileElo.textContent = `${userProfile.rating || 1000} ELO`;
-      profileEditNameInput.value = userProfile.username;
+      profileEditNameInput.value = displayNickname;
       profileEditCountrySelect.value = getCountry(userProfile.country || userCountry).code;
       profileCurrPass.value = '';
       profileNewPass.value = '';
       profileModalMsg.textContent = '';
       profileModal.classList.remove('hidden');
+
+      setTimeout(() => {
+        const nickSpan = document.querySelector('#profile-nick-span');
+        if (nickSpan) {
+          nickSpan.addEventListener('click', () => {
+            if (profileEditNameInput) {
+              profileEditNameInput.focus();
+              profileEditNameInput.select();
+            }
+          });
+        }
+      }, 50);
     }
 
     closeProfileModalBtn.addEventListener('click', () => profileModal.classList.add('hidden'));
@@ -8292,8 +8326,23 @@
 
     socket.on('authError', (msg) => {
       if (authModalMsg) {
-        authModalMsg.textContent = msg;
         authModalMsg.style.color = 'var(--rose)';
+        if (/already (registered|taken|exists)/i.test(msg)) {
+          const typedUserOrEmail = (authSignupUser ? authSignupUser.value.trim() : '') || (authSignupMail ? authSignupMail.value.trim() : '');
+          authModalMsg.innerHTML = `<div style="font-weight: 800;">⚠️ ${msg}</div><button type="button" id="switch-to-login-link-btn" style="margin-top: 6px; padding: 5px 12px; background: var(--primary); color: #fff; border: 0; border-radius: 6px; font-weight: 800; font-size: 11.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">🔑 Click here to Log In now</button>`;
+          const switchBtn = document.querySelector('#switch-to-login-link-btn');
+          if (switchBtn) {
+            switchBtn.addEventListener('click', () => {
+              openUnifiedAuthModal('login');
+              if (typedUserOrEmail && authLoginIdent) {
+                authLoginIdent.value = typedUserOrEmail;
+                if (authLoginPass) authLoginPass.focus();
+              }
+            });
+          }
+        } else {
+          authModalMsg.textContent = msg;
+        }
       }
       if (setupModalMsg) {
         setupModalMsg.textContent = msg;
