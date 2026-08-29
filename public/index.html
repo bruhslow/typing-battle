@@ -183,20 +183,11 @@
       line-height: 0;
     }
 
-    .header-top-bar {
-      display: contents;
-    }
-
-    .header-tools-bar {
+    .header-tools {
       display: flex;
       align-items: center;
       gap: 10px;
-    }
-
-    .header-auth-slot {
-      display: flex;
-      align-items: center;
-      order: 3;
+      justify-content: flex-end;
     }
 
     /* EDITABLE USERNAME BOX */
@@ -2384,44 +2375,39 @@
       .stat-strip-card { padding: 8px 10px; }
       .stat-strip-card:nth-child(5) { grid-column: span 2; }
       
-      /* Mobile Balanced Dual-Row Header */
+      /* Mobile Balanced Dual-Row Header (Mobile Only) */
       header {
         display: flex;
-        flex-direction: column;
-        align-items: stretch;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
         padding: 10px 12px;
         border-radius: var(--radius-lg);
-        gap: 9px;
+        gap: 8px;
         margin-bottom: 4px;
       }
 
-      .header-top-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
+      .brand {
+        order: 1;
+        font-size: 18px;
         gap: 8px;
       }
-
-      .header-tools-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        gap: 8px;
-      }
-
-      .brand { font-size: 18px; gap: 8px; }
       .brand-svg-mark { width: 32px; height: 32px; border-radius: 9px; }
 
-      .header-auth-slot {
-        order: unset;
+      .header-tools {
+        display: contents;
+      }
+
+      #header-auth-logged-out,
+      #header-auth-logged-in {
+        order: 2;
         display: flex;
         align-items: center;
         gap: 6px;
       }
 
       .profile-box {
+        order: 3;
         flex: 1;
         min-width: 0;
         padding: 3px 8px 3px 4px;
@@ -2433,7 +2419,15 @@
       .profile-input { width: 100%; min-width: 35px; font-size: 12px; }
       .profile-elo-tag { font-size: 10px; padding: 2px 6px; }
       .profile-country-btn { padding: 2px 5px; font-size: 10px; }
-      .code-pill { padding: 4px 8px; font-size: 10px; gap: 4px; flex-shrink: 0; }
+
+      #code-pill-wrap {
+        order: 4;
+        padding: 4px 8px;
+        font-size: 10px;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+
       .account-btn { padding: 6px 12px; font-size: 11px; }
       .auth-btn-group { gap: 6px; }
       .home-grid { grid-template-columns: 1fr; gap: 12px; }
@@ -2495,44 +2489,25 @@
     <div class="viewport-screen">
       <!-- HEADER -->
       <header>
-        <!-- Top Bar (Brand on Left, Auth Buttons on Right on Mobile) -->
-        <div class="header-top-bar">
-          <a class="brand" id="home-link" href="/" aria-label="Typendo Home">
-            <div class="brand-svg-mark">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"/>
-                <path d="M6 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"/>
-                <path d="M6 12h12"/>
-              </svg>
-            </div>
-            <span class="brand-title">TYPENDO<span class="brand-dot">.</span></span>
-          </a>
-
-          <div class="header-auth-slot">
-            <!-- Auth Controls (Clerk Log In & Sign Up) -->
-            <div class="auth-btn-group" id="header-auth-logged-out">
-              <button class="account-btn" id="clerk-open-login-btn" type="button" title="Log In with Google or Email via Clerk">
-                <span>🔑</span>
-                <span>Log In</span>
-              </button>
-              <button class="account-btn signup-accent-btn" id="clerk-open-signup-btn" type="button" title="Sign Up with Google or Email via Clerk">
-                <span>✨</span>
-                <span>Sign Up</span>
-              </button>
-            </div>
-
-            <!-- Logged In User Profile Trigger -->
-            <div class="account-wrapper hidden" id="header-auth-logged-in">
-              <button class="account-btn is-logged-in" id="account-button" type="button" title="View Profile & Stats">
-                <span id="account-btn-icon">👤</span>
-                <span id="account-btn-text">Player</span>
-              </button>
-            </div>
+        <a class="brand" id="home-link" href="/" aria-label="Typendo Home">
+          <div class="brand-svg-mark">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"/>
+              <path d="M6 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"/>
+              <path d="M6 12h12"/>
+            </svg>
           </div>
-        </div>
+          <span class="brand-title">TYPENDO<span class="brand-dot">.</span></span>
+        </a>
 
-        <!-- Bottom Bar (Player Profile & Room Code on Mobile) -->
-        <div class="header-tools-bar">
+        <div class="header-tools">
+          <!-- Room Code Pill -->
+          <div class="code-pill" id="code-pill-wrap" title="Your private room code">
+            <span>CODE</span>
+            <strong id="friend-id">...</strong>
+            <button id="reset-code" type="button" title="Get a new room code">↻</button>
+          </div>
+
           <!-- PROMINENT USERNAME PILL WITH COUNTRY BADGE -->
           <div class="profile-box" title="Your player profile & country">
             <button class="profile-country-btn" id="header-country-btn" type="button" title="Click to change your country">
@@ -2547,11 +2522,24 @@
             <div class="profile-elo-tag" id="header-elo" title="Click to view ELO Division Tiers">1000 ELO</div>
           </div>
 
-          <!-- Room Code Pill -->
-          <div class="code-pill" id="code-pill-wrap" title="Your private room code">
-            <span>CODE</span>
-            <strong id="friend-id">...</strong>
-            <button id="reset-code" type="button" title="Get a new room code">↻</button>
+          <!-- Auth Controls (Clerk Log In & Sign Up) -->
+          <div class="auth-btn-group" id="header-auth-logged-out">
+            <button class="account-btn" id="clerk-open-login-btn" type="button" title="Log In with Google or Email via Clerk">
+              <span>🔑</span>
+              <span>Log In</span>
+            </button>
+            <button class="account-btn signup-accent-btn" id="clerk-open-signup-btn" type="button" title="Sign Up with Google or Email via Clerk">
+              <span>✨</span>
+              <span>Sign Up</span>
+            </button>
+          </div>
+
+          <!-- Logged In User Profile Trigger -->
+          <div class="account-wrapper hidden" id="header-auth-logged-in">
+            <button class="account-btn is-logged-in" id="account-button" type="button" title="View Profile & Stats">
+              <span id="account-btn-icon">👤</span>
+              <span id="account-btn-text">Player</span>
+            </button>
           </div>
         </div>
       </header>
@@ -2633,9 +2621,18 @@
             <div class="mode-features-box" id="mode-features-box">
               <div class="mode-perks-list" id="mode-perks-list">
                 <span class="mode-perk-item">⚡ <strong>Fast Matchmaking</strong></span>
-                <span class="mode-perk-item">⏱️ <strong>90s Round Limit</strong></span>
+                <span class="mode-perk-item">⏱️ <strong>30s Round Limit</strong></span>
                 <span class="mode-perk-item">🌐 <strong>Cross-Platform</strong></span>
                 <span class="mode-perk-item">🛡️ <strong>Casual Rating Safe</strong></span>
+              </div>
+            </div>
+
+            <!-- Quick Match Difficulty Sub-mode Selector (Quick Duel Only) -->
+            <div class="field-block" id="quick-diff-choice-box">
+              <label class="field-label">Quick Match Difficulty (30s Round)</label>
+              <div class="platform-row" role="group">
+                <button class="platform-btn quick-diff-btn active" data-quickdiff="easy" type="button">🌱 Easy (30s)</button>
+                <button class="platform-btn quick-diff-btn" data-quickdiff="hard" type="button">🔥 Hard (30s)</button>
               </div>
             </div>
 
@@ -2778,15 +2775,15 @@
               <div class="visual-pill-grid" id="host-diff-pills">
                 <button class="visual-pill-btn" data-diff="easy" type="button">
                   <strong>🟢 Easy</strong>
-                  <span>Short & simple sentences</span>
+                  <span>Short sentences (60s)</span>
                 </button>
                 <button class="visual-pill-btn active" data-diff="medium" type="button">
                   <strong>🟡 Medium</strong>
-                  <span>Balanced standard text</span>
+                  <span>Balanced standard (60s)</span>
                 </button>
                 <button class="visual-pill-btn" data-diff="hard" type="button">
                   <strong>🔴 Hard</strong>
-                  <span>Complex vocabulary</span>
+                  <span>Complex text (30s)</span>
                 </button>
               </div>
             </div>
@@ -3091,15 +3088,15 @@
         <div class="visual-pill-grid" id="modal-diff-pills">
           <button class="visual-pill-btn" data-diff="easy" type="button">
             <strong>🟢 Easy</strong>
-            <span>Short sentences</span>
+            <span>Short sentences (60s)</span>
           </button>
           <button class="visual-pill-btn active" data-diff="medium" type="button">
             <strong>🟡 Medium</strong>
-            <span>Balanced standard</span>
+            <span>Balanced standard (60s)</span>
           </button>
           <button class="visual-pill-btn" data-diff="hard" type="button">
             <strong>🔴 Hard</strong>
-            <span>Complex vocabulary</span>
+            <span>Complex text (30s)</span>
           </button>
         </div>
       </div>
@@ -3827,6 +3824,29 @@
       profileModalMsg.style.color = 'var(--rose)';
     });
 
+    let selectedQuickDiff = 'easy';
+    const quickDiffChoiceBox = document.querySelector('#quick-diff-choice-box');
+
+    function updateQuickPerks() {
+      if (selectedMode === 'quick') {
+        const isHard = selectedQuickDiff === 'hard';
+        modePerksList.innerHTML = `
+          <span class="mode-perk-item">⚡ <strong>Fast Matchmaking</strong></span>
+          <span class="mode-perk-item">⏱️ <strong>30s Round Limit</strong></span>
+          <span class="mode-perk-item">${isHard ? '🔥' : '🌱'} <strong>${isHard ? 'Complex Vocabulary' : 'Short & Simple Words'}</strong></span>
+          <span class="mode-perk-item">🛡️ <strong>Casual Rating Safe</strong></span>
+        `;
+      }
+    }
+
+    document.querySelectorAll('.quick-diff-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        selectedQuickDiff = btn.dataset.quickdiff || 'easy';
+        document.querySelectorAll('.quick-diff-btn').forEach((b) => b.classList.toggle('active', b === btn));
+        updateQuickPerks();
+      });
+    });
+
     // Mode Selector Switch
     document.querySelectorAll('.mode-card').forEach((card) => card.addEventListener('click', () => {
       selectedMode = card.dataset.mode;
@@ -3834,30 +3854,28 @@
       
       const isCustom = selectedMode === 'custom';
       const isRanked = selectedMode === 'ranked';
+      const isQuick = selectedMode === 'quick';
       
       privateFields.classList.toggle('visible', isCustom);
       randomButton.classList.toggle('hidden', isCustom);
+      if (quickDiffChoiceBox) quickDiffChoiceBox.classList.toggle('hidden', !isQuick);
       deviceChoiceBox.classList.toggle('hidden', isCustom || isRanked);
       rankedFairnessBox.classList.toggle('hidden', !isRanked);
 
       if (selectedMode === 'quick') {
-        modePerksList.innerHTML = `
-          <span class="mode-perk-item">⚡ <strong>Fast Matchmaking</strong></span>
-          <span class="mode-perk-item">⏱️ <strong>90s Round Limit</strong></span>
-          <span class="mode-perk-item">🌐 <strong>Cross-Platform</strong></span>
-          <span class="mode-perk-item">🛡️ <strong>Casual Rating Safe</strong></span>
-        `;
+        updateQuickPerks();
       } else if (selectedMode === 'ranked') {
         modePerksList.innerHTML = `
           <span class="mode-perk-item">🏆 <strong>Ranked Stakes (±25 to ±50 ELO)</strong></span>
           <span class="mode-perk-item">🔒 <strong>Strict Fairplay Device Lock</strong></span>
+          <span class="mode-perk-item">⏱️ <strong>60s Round Limit</strong></span>
           <span class="mode-perk-item">🛡️ <strong>Anti-Cheat Verification</strong></span>
         `;
       } else {
         modePerksList.innerHTML = `
           <span class="mode-perk-item">👥 <strong>Custom Room Lobbies</strong></span>
           <span class="mode-perk-item">🔑 <strong>Invite Friends via Code</strong></span>
-          <span class="mode-perk-item">⚙️ <strong>Host Difficulty Control</strong></span>
+          <span class="mode-perk-item">⚙️ <strong>Host Duration (Easy/Med: 60s, Hard: 30s)</strong></span>
         `;
       }
     }));
@@ -4259,7 +4277,8 @@
       socket.emit('findMatch', { 
         username, 
         country: userCountry,
-        mode: selectedMode, 
+        mode: selectedMode,
+        difficulty: selectedQuickDiff,
         platform: selectedMode === 'ranked' ? currentDevice : selectedPlatform, 
         device: currentDevice 
       });

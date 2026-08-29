@@ -189,10 +189,30 @@ const PLAYER_COLORS = [
 const paragraphs = {
   easy: [
     'The quick brown fox jumps over the lazy dog on a sunny afternoon.',
-    'A good idea often starts as a small question. With practice, it grows.',
-    'Early morning light spread across the quiet station as the first train arrived.',
+    'A good idea often starts as a small question with a simple answer.',
+    'Early morning light spread across the quiet station as the train arrived.',
     'Coding is the art of telling a computer what to do step by step.',
     'Clear skies and a gentle breeze made it a pleasant day for a walk in the park.',
+    'Practice every day to build speed, accuracy, and confidence at the keyboard.',
+    'The cat rested on the warm wooden windowsill watching the birds fly by.',
+    'Music filled the room with cheerful energy and lifted everyone spirits.',
+    'Fresh bread straight from the oven always smells delicious and inviting.',
+    'She opened the front door and smiled as the cool morning air rushed in.',
+    'Fast fingers dance across the keys while typing every single letter.',
+    'A cup of hot tea and a good book make for a cozy evening at home.',
+    'The stars shone brightly in the clear night sky above the mountain tops.',
+    'Never be afraid to make mistakes, because that is how we learn and grow.',
+    'A gentle stream flowed peacefully through the green forest in the valley.',
+    'He found an old treasure map hidden inside the wooden chest in the attic.',
+    'The colorful flowers bloomed right after the first spring rain of the season.',
+    'Working together as a team makes every difficult challenge much easier.',
+    'The library was quiet and filled with rows of fascinating stories to explore.',
+    'Bright yellow sunflowers turned toward the warm sun throughout the afternoon.',
+    'Keep your focus sharp and your hands relaxed to achieve your highest typing speed.',
+    'The silver airplane soared high above the white fluffy clouds in the sky.',
+    'A friendly smile and kind words can brighten someone entire day.',
+    'Running along the sandy beach at sunset is always a relaxing experience.',
+    'Every journey of a thousand miles begins with a single confident step forward.',
   ],
   medium: [
     'The morning train arrived just as the first light spread across the station windows. Travelers gathered their bags and stepped into the new day with quiet purpose.',
@@ -200,12 +220,53 @@ const paragraphs = {
     'Beyond the hill, the river curved through the green valley and reflected the clouds moving slowly across the afternoon sky.',
     'Teamwork is built from clear communication, steady effort, and trust. When people share progress openly, difficult tasks become easier to finish together.',
     'Focus on the small improvements each day. Over time, consistent effort transforms modest beginnings into remarkable achievements.',
+    'The ancient clock tower chimed at the stroke of midnight, echoing across the cobbled streets of the sleeping coastal village.',
+    'Modern technology allows us to collaborate across vast oceans in real time, connecting creative minds from every corner of the world.',
+    'As the autumn leaves turned vibrant shades of gold and crimson, the crisp breeze signaled the arrival of cooler winter months ahead.',
+    'Deep in the laboratory, researchers conducted experiments to unlock the mysteries of renewable clean energy for future generations.',
+    'Writing elegant software requires both creative imagination and disciplined logic, balancing rapid innovation with rock-solid stability.',
+    'The bustling city market was filled with vibrant colors, exotic spices, and the cheerful chatter of merchants and shoppers.',
+    'Patience and persistence are essential virtues when mastering any craft, whether you are playing an instrument or learning a new language.',
+    'The space telescope captured breathtaking images of distant galaxies, revealing cosmic wonders that had remained hidden for billions of years.',
+    'A lighthouse stood resolutely upon the rugged cliffside, guiding weary sailors safely through thick fog and treacherous stormy seas.',
+    'Curiosity is the engine of human progress, driving explorers and scientists to venture beyond the boundaries of established knowledge.',
+    'The gentle hum of the electric engine and the smooth glide over the highway made for an effortless cross-country road trip.',
+    'True craftsmanship is found in the subtle details that most people overlook, where every curve and polished edge reflects dedicated passion.',
+    'Reading literature broadens our perspective, allowing us to experience different cultures and walk in the shoes of diverse characters.',
+    'The aroma of roasted coffee beans drifted through the open cafe doors, inviting early risers to sit down and enjoy the morning.',
+    'In competitive sports and esports, mental resilience under pressure often separates good competitors from true champions.',
+    'The botanical garden housed thousands of exotic plant species, creating a lush tropical oasis in the center of the metropolis.',
+    'A well-designed user interface should feel effortless and intuitive, anticipating user needs without creating unnecessary friction.',
+    'The sunset painted the evening sky in radiant gradients of magenta and gold, casting long shadows across the peaceful harbor.',
+    'Discipline is choosing between what you want right now and what you truly want most in the long run.',
+    'Behind every successful project lies a series of unseen iterations, failed attempts, and lessons learned through deliberate practice.',
   ],
   hard: [
     'Technological revolutions frequently originate at the intersection of diverse disciplines, demanding resilience, rigorous empirical testing, and unyielding intellectual curiosity.',
     'Complex asynchronous architectures necessitate meticulous state synchronization, preventing race conditions through deterministic dispatch cycles and resilient event boundaries.',
     'The philosophical juxtaposition of computational abstraction against concrete algorithmic optimization remains an intriguing paradox for modern systems architects.',
     'Distributed consensus protocols guarantee deterministic convergence under adversarial network partitions through cryptographic Byzantine fault tolerance paradigms.',
+    'Quantum entanglement challenges classical notions of spatial locality, introducing non-deterministic probabilistic amplitudes into fundamental particle interactions.',
+    'Microservices ecosystems demand sophisticated observability pipelines, orchestrating distributed tracing, telemetry metrics, and automated canary deployments.',
+    'Epistemological inquiries regarding cognitive introspection reveal fundamental limitations in human heuristics, cognitive biases, and sensory deduction.',
+    'Hyperdimensional vector embeddings facilitate nuanced semantic retrieval across heterogeneous multi-modal transformer neural architectures.',
+    'Cryptographic zero-knowledge succinct non-interactive arguments of knowledge establish verifiable computation without compromising privacy.',
+    'Thermodynamic entropy dictates the inexorable progression toward cosmic equilibrium, governing the evolutionary trajectory of stellar nucleosynthesis.',
+    'Sophisticated typographical aesthetics synthesize proportional kerning, baseline grid alignment, and typographic hierarchy to optimize legibility.',
+    'High-frequency quantitative trading algorithms leverage sub-millisecond execution pipelines, deterministic FPGA accelerators, and stochastic volatility modeling.',
+    'The idiosyncratic vernacular of Elizabethan drama juxtaposes archaic syntactical structures against evocative metaphorical imagery and iambic pentameter.',
+    'Immutable append-only ledger architectures mitigate unauthorized tampering by establishing cryptographically chained cryptographic hash digests.',
+    'Neuroplasticity facilitates adaptive synaptic reorganization in response to experiential stimuli, environmental perturbations, and targeted cognitive rehabilitation.',
+    'Decentralized autonomous organizations synthesize smart contracts, tokenized governance mechanics, and quadratic voting paradigms to coordinate collective capital.',
+    'The socioeconomic implications of pervasive automation necessitate proactive structural realignment, progressive fiscal policy, and universal upskilling initiatives.',
+    'Multithreaded concurrency paradigms must rigorously address deadlock vulnerabilities, thread starvation, and cache-coherency synchronization overheads.',
+    'Atmospheric thermodynamic fluctuations precipitate turbulent convective vortices, challenging meteorological predictive simulations and aerodynamic stability.',
+    'The epistemological dilemma of artificial general intelligence centers on alignment architectures, value extrapolation, and recursive self-improvement constraints.',
+    'Bioinformatics workflows orchestrate high-throughput genomic sequencing pipelines, variant identification algorithms, and phylogenetic reconstructions.',
+    'Topological quantum computation utilizes non-Abelian anyons to perform fault-tolerant logic gates protected by geometric braid invariants.',
+    'The ontological status of mathematical realism posits abstract structures existing independently of empirical observation or linguistic formulation.',
+    'Comprehensive architectural resilience encompasses proactive chaos engineering, automated disaster failover topologies, and continuous vulnerability remediation.',
+    'Ubiquitous telemetry ingestion pipelines demand horizontally partitioned time-series storage engines capable of handling petabyte-scale throughput.',
   ],
 };
 
@@ -222,9 +283,18 @@ app.get('/api/config', (req, res) => {
   });
 });
 
-function getRandomParagraph(difficulty = 'medium') {
+function getRoomMaxDurationSec(room) {
+  if (!room) return 30;
+  if (room.mode === 'quick') return 30; // Quick Play is always 30s
+  if (room.difficulty === 'hard') return 30; // Hard custom lobby is 30s
+  return 60; // Easy and Medium custom lobbies / Ranked are 60s
+}
+
+function getRandomParagraph(difficulty = 'medium', lastParagraph = '') {
   const list = paragraphs[difficulty] || paragraphs.medium;
-  return list[Math.floor(Math.random() * list.length)];
+  const filtered = list.filter((p) => p !== lastParagraph);
+  const pool = filtered.length > 0 ? filtered : list;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function broadcastServerStats() {
@@ -334,15 +404,17 @@ function startRace(roomId, countdownMs = 3500) {
   const startTime = Date.now() + countdownMs;
   room.startedAt = startTime;
   room.finishData = new Map();
-  room.paragraph = getRandomParagraph(room.difficulty);
+  room.paragraph = getRandomParagraph(room.difficulty, room.lastParagraph || '');
+  room.lastParagraph = room.paragraph;
 
+  const durationSec = getRoomMaxDurationSec(room);
   const playersList = roomPlayers(room);
 
   io.to(roomId).emit('raceStarted', {
     paragraph: room.paragraph,
     difficulty: room.difficulty,
     typingMode: room.typingMode || 'standard',
-    maxDurationSec: MAX_RACE_DURATION_SEC,
+    maxDurationSec: durationSec,
     startTime,
     countdownMs,
     players: playersList,
@@ -352,8 +424,8 @@ function startRace(roomId, countdownMs = 3500) {
   broadcastServerStats();
 
   room.maxDurationTimer = setTimeout(() => {
-    finishRace(roomId, true, 'Time limit reached (90s)');
-  }, countdownMs + (MAX_RACE_DURATION_SEC * 1000));
+    finishRace(roomId, true, `Time limit reached (${durationSec}s)`);
+  }, countdownMs + (durationSec * 1000));
 
   return true;
 }
@@ -526,16 +598,35 @@ function createQuickMatch() {
       continue;
     }
 
-    const secondIndex = queuedPlayers.findIndex((candidate, index) => {
+    const firstDiff = firstPlayer.data?.difficulty || 'easy';
+
+    // First try to match exact same difficulty (easy vs easy, hard vs hard)
+    let secondIndex = queuedPlayers.findIndex((candidate, index) => {
       if (index === 0) return false;
       const candidatePlayer = io.sockets.sockets.get(candidate.socketId);
       if (!candidatePlayer) return false;
+      const candidateDiff = candidatePlayer.data?.difficulty || 'easy';
+      if (firstDiff !== candidateDiff) return false;
       return (
         first.platform === 'cross' ||
         candidate.platform === 'cross' ||
         (first.platform === candidatePlayer.data?.device && candidate.platform === firstPlayer.data?.device)
       );
     });
+
+    // If waiting and no exact match, pair with compatible platform
+    if (secondIndex === -1 && queuedPlayers.length > 2) {
+      secondIndex = queuedPlayers.findIndex((candidate, index) => {
+        if (index === 0) return false;
+        const candidatePlayer = io.sockets.sockets.get(candidate.socketId);
+        if (!candidatePlayer) return false;
+        return (
+          first.platform === 'cross' ||
+          candidate.platform === 'cross' ||
+          (first.platform === candidatePlayer.data?.device && candidate.platform === firstPlayer.data?.device)
+        );
+      });
+    }
 
     if (secondIndex === -1) break;
 
@@ -558,6 +649,7 @@ function createQuickMatch() {
       continue;
     }
 
+    const assignedDiff = firstPlayer.data?.difficulty || secondPlayer.data?.difficulty || 'easy';
     const roomId = `match-quick-${firstPlayer.id}-${secondPlayer.id}`;
     const room = {
       paragraph: null,
@@ -565,7 +657,7 @@ function createQuickMatch() {
       finished: false,
       started: false,
       mode: 'quick',
-      difficulty: 'medium',
+      difficulty: assignedDiff,
       typingMode: 'standard',
     };
     rooms.set(roomId, room);
@@ -1464,7 +1556,7 @@ io.on('connection', (socket) => {
     startRace(roomId, 5000);
   });
 
-  socket.on('findMatch', ({ username, country, mode = 'quick', platform = 'pc', device = 'pc' }) => {
+  socket.on('findMatch', ({ username, country, mode = 'quick', difficulty = 'easy', platform = 'pc', device = 'pc' }) => {
     if (typeof username !== 'string' || !username.trim()) {
       socket.emit('errorMessage', 'Choose a username first.');
       return;
@@ -1488,6 +1580,7 @@ io.on('connection', (socket) => {
     if (typeof country === 'string' && country.trim()) socket.data.country = country.trim().slice(0, 5).toUpperCase();
     socket.data.platform = platform;
     socket.data.device = device;
+    socket.data.difficulty = ['easy', 'hard'].includes(difficulty) ? difficulty : 'easy';
     socket.data.queuedAt = Date.now();
     ratings.set(socket.id, ratings.get(socket.id) || 1000);
     const queuePlatform = mode === 'ranked' ? device : platform;
@@ -1496,6 +1589,7 @@ io.on('connection', (socket) => {
     socket.emit('matchmaking', {
       position: matchmakingQueues[mode][queuePlatform].length,
       mode,
+      difficulty: socket.data.difficulty,
       platform,
       queuePlatform,
       rating: getRating(socket.id),
