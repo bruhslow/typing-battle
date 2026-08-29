@@ -5158,6 +5158,7 @@
         <div class="profile-meta-wrap">
           <h3 id="modal-profile-username">Player</h3>
           <p id="modal-profile-email">@guest</p>
+          <p id="modal-profile-registered-email" style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">✉️ Email: Not registered (Guest)</p>
           <div style="margin-top: 6px; display: flex; gap: 6px; align-items: center;">
             <span class="profile-elo-tag" id="modal-profile-elo">1000 ELO</span>
             <span style="font-size: 11px; font-weight: 700; color: var(--primary);" id="modal-profile-tier">🥉 Bronze I</span>
@@ -6679,6 +6680,13 @@
       }
       modalProfileUsername.innerHTML = `${renderCountryBadge(userProfile?.country || userCountry)} <span id="profile-nick-span" title="Click to edit Nickname" style="cursor:pointer;">${escapeHtml(displayNickname)} ✏️</span>`;
       modalProfileEmail.textContent = displayHandle;
+      const regEmailEl = document.querySelector('#modal-profile-registered-email');
+      const registeredEmail = userProfile?.email || '';
+      if (regEmailEl) {
+        regEmailEl.textContent = registeredEmail && !registeredEmail.endsWith('@typendo.local')
+          ? `✉️ Email: ${registeredEmail}`
+          : '✉️ Email: Not registered (Guest)';
+      }
       modalProfileElo.textContent = `${userProfile?.rating || 1000} ELO`;
       profileEditNameInput.value = displayNickname;
       profileEditCountrySelect.value = getCountry(userProfile?.country || userCountry).code;

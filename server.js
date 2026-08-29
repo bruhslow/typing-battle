@@ -1644,6 +1644,13 @@ io.on('connection', (socket) => {
     }
 
     const account = accounts.get(accountKey);
+
+    // Enforce one-time setup: If password already set for this account, block duplicate setup
+    if (account.hash && account.salt) {
+      socket.emit('authError', 'Credentials have already been configured for this account. Please use "Update Password" to modify your password.');
+      return;
+    }
+
     const cleanName = typeof username === 'string' ? username.trim() : '';
 
     if (cleanName) {
