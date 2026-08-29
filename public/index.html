@@ -1022,15 +1022,56 @@
     /* SOLO TEST YOURSELF (WPM CALCULATOR)         */
     /* ═══════════════════════════════════════════ */
     /* ═══════════════════════════════════════════ */
-    /* PREMIUM SOLO SPEED LAB (WPM CALCULATOR)     */
     /* ═══════════════════════════════════════════ */
-    .solo-test-card {
-      margin-top: 18px;
-      padding: 22px 24px;
-      background: var(--bg-card);
+    /* STANDALONE SOLO PRACTICE SECTION            */
+    /* ═══════════════════════════════════════════ */
+    .solo-practice-section {
+      width: 100%;
+      max-width: 880px;
+      margin: 36px auto 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .solo-section-divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      gap: 14px;
+      color: var(--text-dim);
+    }
+
+    .solo-section-divider::before,
+    .solo-section-divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1.5px dashed var(--border-subtle);
+    }
+
+    .solo-section-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      padding: 6px 18px;
+      border-radius: 999px;
       border: 1.5px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow-xs);
+      font-size: 11.5px;
+      font-weight: 900;
+      color: var(--primary);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .solo-test-card {
+      margin-top: 0;
+      padding: 24px 28px;
+      background: #ffffff;
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -1045,13 +1086,13 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 3px;
+      height: 4px;
       background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 50%, #3b82f6 100%);
     }
 
     .solo-test-card:hover {
       border-color: var(--border-strong);
-      box-shadow: var(--shadow-md);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.07);
     }
 
     .solo-test-header {
@@ -1069,21 +1110,21 @@
     }
 
     .solo-test-badge-icon {
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: var(--radius-md);
       background: linear-gradient(135deg, rgba(29, 90, 63, 0.12) 0%, rgba(224, 114, 44, 0.15) 100%);
       color: var(--primary);
       display: grid;
       place-items: center;
-      font-size: 20px;
+      font-size: 22px;
       flex-shrink: 0;
       box-shadow: inset 0 0 0 1px var(--primary-border);
     }
 
     .solo-test-title-group h3 {
       font-size: 16px;
-      font-weight: 800;
+      font-weight: 900;
       color: var(--text-main);
       margin: 0;
       display: flex;
@@ -1096,7 +1137,7 @@
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      padding: 2px 7px;
+      padding: 2px 8px;
       background: var(--primary-subtle);
       color: var(--primary);
       border-radius: 999px;
@@ -1173,8 +1214,8 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
-      padding: 10px 14px;
-      background: linear-gradient(135deg, var(--bg-subtle) 0%, rgba(255, 255, 255, 0.7) 100%);
+      padding: 12px 16px;
+      background: linear-gradient(135deg, var(--bg-subtle) 0%, rgba(255, 255, 255, 0.8) 100%);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
       font-family: 'JetBrains Mono', monospace;
@@ -1195,7 +1236,7 @@
     }
 
     .solo-metric-item strong {
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 900;
       color: var(--primary);
       line-height: 1.1;
@@ -1205,51 +1246,57 @@
       color: var(--secondary);
     }
 
-    /* Monkeytype-Style Stage */
+    /* Monkeytype-Style Integrated Stage */
     .solo-stage-container {
       position: relative;
-      background: #fff;
-      border: 1.5px solid var(--border-subtle);
+      background: var(--bg-subtle);
+      border: 2px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      padding: 16px 18px;
+      padding: 24px 22px 14px;
       cursor: text;
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       transition: all 0.2s ease;
     }
 
-    .solo-stage-container:focus-within,
-    .solo-stage-container.is-active {
+    .solo-stage-container:hover {
+      border-color: var(--border-strong);
+    }
+
+    .solo-stage-container.is-active,
+    .solo-stage-container:focus-within {
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-glow), inset 0 2px 4px rgba(0, 0, 0, 0.02);
+      background: #ffffff;
+      box-shadow: 0 0 0 4px var(--primary-glow);
     }
 
     .solo-quote-display {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 15.5px;
-      line-height: 2;
+      font-size: 17.5px;
+      line-height: 2.1;
       color: var(--text-dim);
       user-select: none;
       word-break: break-word;
-      min-height: 70px;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.03em;
     }
 
     .solo-char-correct {
       color: var(--primary);
       font-weight: 700;
-      text-shadow: 0 0 1px var(--primary);
     }
 
     .solo-char-incorrect {
       color: #fff;
       background: var(--rose);
-      border-radius: 2px;
+      border-radius: 3px;
       padding: 0 1px;
     }
 
     .solo-char-current {
-      background: rgba(29, 90, 63, 0.14);
-      border-bottom: 2.5px solid var(--primary);
+      background: rgba(29, 90, 63, 0.18);
+      border-bottom: 3px solid var(--primary);
       border-radius: 2px 2px 0 0;
       animation: caretPulse 1s infinite;
     }
@@ -1260,27 +1307,24 @@
     }
 
     .solo-input-wrap {
-      margin-top: 10px;
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      height: 0;
+      width: 0;
+      overflow: hidden;
     }
 
-    .solo-type-input {
-      width: 100%;
-      height: 42px;
-      padding: 0 14px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 14px;
-      border: 1.5px solid var(--border-strong);
-      border-radius: var(--radius-md);
-      background: #fafafa;
-      color: var(--text-main);
-      outline: none;
-      transition: all 0.2s ease;
-    }
-
-    .solo-type-input:focus {
-      background: #fff;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-glow);
+    .solo-stage-hint {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-dim);
+      padding-top: 10px;
+      margin-top: 12px;
+      border-top: 1px dashed var(--border-subtle);
     }
 
     /* ═══════════════════════════════════════════ */
@@ -3386,126 +3430,141 @@
         </div>
 
         <!-- STANDALONE DEDICATED SECTION: TEST YOURSELF (SOLO SPEED LAB) -->
-        <div class="solo-test-card" id="solo-test-card">
-          <div class="solo-test-header">
-            <div class="solo-test-title-group">
-              <div class="solo-test-badge-icon">⚡</div>
-              <div>
-                <h3>
-                  <span>Test Yourself</span>
-                  <span class="solo-lab-tag">Speed Lab</span>
-                </h3>
-                <p>Solo Speed Practice & Real-Time WPM Telemetry Calculator</p>
-              </div>
-            </div>
-            <div class="solo-header-actions">
-              <div class="solo-timer-pills" role="group" aria-label="Test Duration">
-                <button class="solo-timer-pill active" data-duration="15" type="button">15s</button>
-                <button class="solo-timer-pill" data-duration="30" type="button">30s</button>
-                <button class="solo-timer-pill" data-duration="60" type="button">60s</button>
-              </div>
-              <button class="solo-refresh-btn" id="solo-refresh-btn" type="button" title="Get a new practice sentence">
-                <span>🔄</span>
-                <span>New Text</span>
-              </button>
+        <section class="solo-practice-section" id="solo-practice-section">
+          <div class="solo-section-divider">
+            <div class="solo-section-badge">
+              <span>⚡</span>
+              <span>SOLO SPEED PRACTICE ARENA</span>
             </div>
           </div>
 
-          <!-- Live Telemetry HUD Strip during solo test -->
-          <div class="solo-metrics-strip" id="solo-metrics-strip">
-            <div class="solo-metric-item">
-              <small>Live Speed</small>
-              <strong id="solo-live-wpm">0 WPM</strong>
+          <div class="solo-test-card" id="solo-test-card">
+            <div class="solo-test-header">
+              <div class="solo-test-title-group">
+                <div class="solo-test-badge-icon">⚡</div>
+                <div>
+                  <h3>
+                    <span>Test Yourself</span>
+                    <span class="solo-lab-tag">Speed Lab</span>
+                  </h3>
+                  <p>Solo Speed Practice & Real-Time WPM Telemetry Calculator</p>
+                </div>
+              </div>
+              <div class="solo-header-actions">
+                <div class="solo-timer-pills" role="group" aria-label="Test Duration">
+                  <button class="solo-timer-pill active" data-duration="15" type="button">15s</button>
+                  <button class="solo-timer-pill" data-duration="30" type="button">30s</button>
+                  <button class="solo-timer-pill" data-duration="60" type="button">60s</button>
+                </div>
+                <button class="solo-refresh-btn" id="solo-refresh-btn" type="button" title="Get a new practice sentence">
+                  <span>🔄</span>
+                  <span>New Text</span>
+                </button>
+              </div>
             </div>
-            <div class="solo-metric-item">
-              <small>Accuracy</small>
-              <strong id="solo-live-acc">100%</strong>
+
+            <!-- Live Telemetry HUD Strip during solo test -->
+            <div class="solo-metrics-strip" id="solo-metrics-strip">
+              <div class="solo-metric-item">
+                <small>Live Speed</small>
+                <strong id="solo-live-wpm">0 WPM</strong>
+              </div>
+              <div class="solo-metric-item">
+                <small>Accuracy</small>
+                <strong id="solo-live-acc">100%</strong>
+              </div>
+              <div class="solo-metric-item">
+                <small>Remaining</small>
+                <strong id="solo-live-time">15s</strong>
+              </div>
+              <div class="solo-metric-item accent-secondary">
+                <small>Precision</small>
+                <strong id="solo-live-streak">🔥 0 Streak</strong>
+              </div>
             </div>
-            <div class="solo-metric-item">
-              <small>Remaining</small>
-              <strong id="solo-live-time">15s</strong>
+
+            <!-- Monkeytype-Style Integrated Stage -->
+            <div class="solo-stage-container" id="solo-stage-container" title="Click anywhere here to type">
+              <!-- Solo Paragraph Display with character highlighting & cursor -->
+              <div class="solo-quote-display" id="solo-quote-display"></div>
+
+              <!-- Live Integrated Hint -->
+              <div class="solo-stage-hint">
+                <span>⌨️ Click anywhere to start typing</span>
+                <span>Restart: <kbd style="background:#fff; padding:1px 5px; border-radius:4px; border:1px solid var(--border-subtle); font-family:inherit;">Tab + Enter</kbd></span>
+              </div>
+
+              <!-- Solo Typing Hidden Input -->
+              <div class="solo-input-wrap">
+                <input class="solo-type-input" id="solo-type-input" placeholder="Type here..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+              </div>
             </div>
-            <div class="solo-metric-item accent-secondary">
-              <small>Precision</small>
-              <strong id="solo-live-streak">🔥 0 Streak</strong>
+
+            <!-- Themed Solo Results Showcase -->
+            <div class="solo-result-box hidden" id="solo-result-box">
+              <div class="solo-result-hero">
+                <div class="solo-rank-badge" id="solo-rank-badge">
+                  <span id="solo-rank-icon">⚡</span>
+                  <span id="solo-rank-text">Master Typist</span>
+                </div>
+                <div class="solo-hero-wpm-wrap">
+                  <span class="solo-hero-wpm-num" id="solo-res-wpm">0</span>
+                  <span class="solo-hero-wpm-unit">WPM</span>
+                </div>
+                <span class="solo-pb-tag hidden" id="solo-pb-tag">🏆 NEW PERSONAL BEST!</span>
+              </div>
+
+              <!-- 6 Key Metrics Grid -->
+              <div class="solo-result-grid">
+                <div class="solo-res-stat stat-highlight">
+                  <span class="res-num" id="solo-res-acc">100%</span>
+                  <span class="res-lbl">Accuracy</span>
+                </div>
+                <div class="solo-res-stat">
+                  <span class="res-num" id="solo-res-raw">0</span>
+                  <span class="res-lbl">Raw WPM</span>
+                </div>
+                <div class="solo-res-stat stat-secondary">
+                  <span class="res-num" id="solo-res-streak">🔥 0</span>
+                  <span class="res-lbl">Peak Streak</span>
+                </div>
+                <div class="solo-res-stat">
+                  <span class="res-num" id="solo-res-chars">0</span>
+                  <span class="res-lbl">Keystrokes</span>
+                </div>
+                <div class="solo-res-stat">
+                  <span class="res-num" id="solo-res-err">0</span>
+                  <span class="res-lbl">Errors</span>
+                </div>
+                <div class="solo-res-stat">
+                  <span class="res-num" id="solo-res-time">15s</span>
+                  <span class="res-lbl">Duration</span>
+                </div>
+              </div>
+
+              <!-- Summary Feedback Insight -->
+              <div class="solo-feedback-banner" id="solo-feedback-banner">
+                <span id="solo-feedback-text">🎯 Laser sharp accuracy with outstanding typing rhythm!</span>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="solo-result-actions">
+                <button class="solo-retry-action-btn" id="solo-retry-btn" type="button" title="Shortcut: Press Enter or Tab">
+                  <span>🔁</span>
+                  <span>Next Sentence (Enter)</span>
+                </button>
+                <button class="solo-copy-action-btn" id="solo-copy-stats-btn" type="button" title="Copy score to clipboard">
+                  <span>📋</span>
+                  <span id="solo-copy-text">Copy Stats</span>
+                </button>
+                <button class="solo-duel-jump-btn" id="solo-jump-duel-btn" type="button" title="Jump to Ranked / Quick matchmaking">
+                  <span>⚔️</span>
+                  <span>Play Quick Match (30s)</span>
+                </button>
+              </div>
             </div>
           </div>
-
-          <!-- Monkeytype-Style Stage Container -->
-          <div class="solo-stage-container" id="solo-stage-container" title="Click anywhere here to type">
-            <!-- Solo Paragraph Display with character highlighting & cursor -->
-            <div class="solo-quote-display" id="solo-quote-display"></div>
-
-            <!-- Solo Typing Input -->
-            <div class="solo-input-wrap">
-              <input class="solo-type-input" id="solo-type-input" placeholder="Click here and start typing to begin the test..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
-            </div>
-          </div>
-
-          <!-- Themed Solo Results Showcase -->
-          <div class="solo-result-box hidden" id="solo-result-box">
-            <div class="solo-result-hero">
-              <div class="solo-rank-badge" id="solo-rank-badge">
-                <span id="solo-rank-icon">⚡</span>
-                <span id="solo-rank-text">Master Typist</span>
-              </div>
-              <div class="solo-hero-wpm-wrap">
-                <span class="solo-hero-wpm-num" id="solo-res-wpm">0</span>
-                <span class="solo-hero-wpm-unit">WPM</span>
-              </div>
-              <span class="solo-pb-tag hidden" id="solo-pb-tag">🏆 NEW PERSONAL BEST!</span>
-            </div>
-
-            <!-- 6 Key Metrics Grid -->
-            <div class="solo-result-grid">
-              <div class="solo-res-stat stat-highlight">
-                <span class="res-num" id="solo-res-acc">100%</span>
-                <span class="res-lbl">Accuracy</span>
-              </div>
-              <div class="solo-res-stat">
-                <span class="res-num" id="solo-res-raw">0</span>
-                <span class="res-lbl">Raw WPM</span>
-              </div>
-              <div class="solo-res-stat stat-secondary">
-                <span class="res-num" id="solo-res-streak">🔥 0</span>
-                <span class="res-lbl">Peak Streak</span>
-              </div>
-              <div class="solo-res-stat">
-                <span class="res-num" id="solo-res-chars">0</span>
-                <span class="res-lbl">Keystrokes</span>
-              </div>
-              <div class="solo-res-stat">
-                <span class="res-num" id="solo-res-err">0</span>
-                <span class="res-lbl">Errors</span>
-              </div>
-              <div class="solo-res-stat">
-                <span class="res-num" id="solo-res-time">15s</span>
-                <span class="res-lbl">Duration</span>
-              </div>
-            </div>
-
-            <!-- Summary Feedback Insight -->
-            <div class="solo-feedback-banner" id="solo-feedback-banner">
-              <span id="solo-feedback-text">🎯 Laser sharp accuracy with outstanding typing rhythm!</span>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="solo-result-actions">
-              <button class="solo-retry-action-btn" id="solo-retry-btn" type="button" title="Shortcut: Press Enter or Tab">
-                <span>🔁</span>
-                <span>Next Sentence (Enter)</span>
-              </button>
-              <button class="solo-copy-action-btn" id="solo-copy-stats-btn" type="button" title="Copy score to clipboard">
-                <span>📋</span>
-                <span id="solo-copy-text">Copy Stats</span>
-              </button>
-              <button class="solo-duel-jump-btn" id="solo-jump-duel-btn" type="button" title="Jump to Ranked / Quick matchmaking">
-                <span>⚔️</span>
-                <span>Play Quick Match (30s)</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        </section>
       </section>
 
       <!-- ARENA / WAITING / ACTIVE BATTLE SCREEN -->
