@@ -6333,7 +6333,8 @@
         const netWpm = soloResWpm ? soloResWpm.textContent : '0';
         const acc = soloResAcc ? soloResAcc.textContent : '100%';
         const rank = soloRankText ? soloRankText.textContent : 'Typist';
-        const shareText = `⚡ Typendo Speed Lab Scorecard ⚡\n🏆 Rank: ${rank}\n🚀 Speed: ${netWpm} WPM\n🎯 Accuracy: ${acc}\n⏱️ Time: ${soloDurationSec}s\nPlay now at https://typing-battle-34rr.onrender.com`;
+        const currentOrigin = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : 'https://typendo.onrender.com';
+        const shareText = `⚡ Typendo Speed Lab Scorecard ⚡\n🏆 Rank: ${rank}\n🚀 Speed: ${netWpm} WPM\n🎯 Accuracy: ${acc}\n⏱️ Time: ${soloDurationSec}s\nPlay now at ${currentOrigin}`;
         
         navigator.clipboard.writeText(shareText).then(() => {
           showToast('📋 Scorecard copied to clipboard!');
