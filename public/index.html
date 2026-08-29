@@ -3697,74 +3697,72 @@
     }
 
     @media (max-width: 768px) {
-      .shell { width: 100%; max-width: 100%; margin: 0 auto; padding: 10px 12px 16px; text-align: center; }
-      .viewport-screen { gap: 12px; align-items: center; }
+      .shell { width: 100%; max-width: 100%; margin: 0 auto; padding: 10px 12px 16px; }
+      .viewport-screen { gap: 12px; }
 
       .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; justify-content: center; width: 100%; }
       .stat-strip-card { padding: 8px 10px; justify-content: center; text-align: center; }
       .stat-strip-card:nth-child(5) { grid-column: span 2; }
 
-      /* ── Mobile Header: centered stack ── */
+      /* ── Mobile Header: Logo at top-left corner, username & tools next to / under it ── */
       header {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
         padding: 10px 12px;
         border-radius: var(--radius-lg);
         gap: 8px;
         margin: 0 auto 6px;
         width: 100%;
         box-sizing: border-box;
-        text-align: center;
       }
 
-      /* Logo: centered on mobile */
+      /* Logo: pinned to left corner */
       .brand {
         flex-shrink: 0;
-        font-size: 17px;
+        font-size: 16px;
         gap: 6px;
-        margin: 0 auto;
-        justify-content: center;
-        text-align: center;
+        margin: 0;
+        justify-content: flex-start;
+        text-align: left;
       }
-      .brand-svg-mark { width: 28px; height: 28px; border-radius: 8px; }
+      .brand-svg-mark { width: 26px; height: 26px; border-radius: 8px; }
       .brand-title { font-size: 15px; }
 
-      /* Tools wrapper: centered flex row on mobile */
+      /* Tools & Username wrapper on mobile */
       .header-tools {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-end;
         gap: 6px;
-        margin: 0 auto;
-        flex-shrink: 1;
+        margin: 0;
+        flex: 1;
         min-width: 0;
-        max-width: 100%;
-        width: 100%;
       }
 
-      /* Profile box: compact & centered */
+      /* Profile box: compact, aligned left inside flex */
       .profile-box {
         padding: 3px 8px 3px 4px;
         gap: 5px;
         height: 32px;
         min-width: 0;
         flex-shrink: 1;
-        max-width: 150px;
-        justify-content: center;
-        margin: 0 auto;
+        max-width: 160px;
+        justify-content: flex-start;
+        margin: 0;
       }
       .profile-field-label { display: none !important; }
       .profile-avatar { width: 22px; height: 22px; font-size: 10px; flex-shrink: 0; }
       .profile-field-wrap { flex: 1; min-width: 0; }
-      .profile-input { width: 100%; min-width: 28px; font-size: 12px; font-weight: 700; height: 22px; text-align: center; }
-      .profile-elo-tag { display: none; }
+      .profile-input { width: 100%; min-width: 32px; font-size: 12px; font-weight: 700; height: 22px; text-align: left; }
+      .profile-elo-tag { display: inline-flex; font-size: 9px; padding: 2px 4px; border-radius: 4px; }
       .profile-country-btn { padding: 2px 4px; font-size: 10px; }
 
-      /* Room code pill: compact & centered */
+      /* Room code pill */
       #code-pill-wrap {
         padding: 3px 7px;
         font-size: 10px;
@@ -3772,12 +3770,12 @@
         flex-shrink: 0;
         height: 30px;
         justify-content: center;
-        margin: 0 auto;
+        margin: 0;
       }
       #friend-id { font-size: 11px; }
 
-      /* Auth buttons: compact & centered */
-      .auth-btn-group { gap: 4px; flex-shrink: 0; justify-content: center; margin: 0 auto; }
+      /* Auth buttons */
+      .auth-btn-group { gap: 4px; flex-shrink: 0; justify-content: flex-end; margin: 0; }
       .account-btn {
         padding: 4px 8px;
         font-size: 11px;
@@ -3793,10 +3791,10 @@
       #header-auth-logged-in {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-end;
         gap: 4px;
         flex-shrink: 0;
-        margin: 0 auto;
+        margin: 0;
       }
 
       .sound-toggle-btn {
@@ -3807,7 +3805,7 @@
         gap: 3px;
         border-radius: var(--radius-sm);
         justify-content: center;
-        margin: 0 auto;
+        margin: 0;
       }
       .sound-btn-label { display: none; }
 
@@ -3856,23 +3854,22 @@
     }
 
     @media (max-width: 420px) {
-      .shell { padding: 6px 8px 12px; margin: 0 auto; text-align: center; }
-      header { padding: 8px 6px; gap: 6px; justify-content: center; }
-      .brand { font-size: 14px; gap: 4px; margin: 0 auto; }
+      .shell { padding: 6px 8px 12px; margin: 0 auto; }
+      header { padding: 8px 6px; gap: 6px; justify-content: space-between; }
+      .brand { font-size: 14px; gap: 4px; margin: 0; }
       .brand-title { font-size: 14px; }
       .brand-svg-mark { width: 24px; height: 24px; border-radius: 6px; }
 
-      /* Tighten & center right-side tools on very small screens */
-      .header-tools { gap: 4px; margin: 0 auto; justify-content: center; width: 100%; }
+      .header-tools { gap: 4px; margin: 0; justify-content: flex-end; width: auto; }
       .account-btn { padding: 3px 6px; font-size: 10px; height: 26px; }
-      .auth-btn-group { gap: 3px; justify-content: center; margin: 0 auto; }
+      .auth-btn-group { gap: 3px; justify-content: flex-end; margin: 0; }
 
-      .profile-box { padding: 2px 5px 2px 2px; gap: 3px; height: 28px; max-width: 120px; justify-content: center; margin: 0 auto; }
+      .profile-box { padding: 2px 5px 2px 2px; gap: 3px; height: 28px; max-width: 120px; justify-content: flex-start; margin: 0; }
       .profile-country-btn { padding: 1px 3px; font-size: 8.5px; }
       .profile-avatar { width: 18px; height: 18px; font-size: 9px; }
-      .profile-input { font-size: 11px; text-align: center; }
-      .code-pill { padding: 2px 5px; font-size: 8.5px; height: 28px; margin: 0 auto; }
-      .sound-toggle-btn { padding: 3px 5px; height: 26px; font-size: 12px; margin: 0 auto; }
+      .profile-input { font-size: 11px; text-align: left; }
+      .code-pill { padding: 2px 5px; font-size: 8.5px; height: 28px; margin: 0; }
+      .sound-toggle-btn { padding: 3px 5px; height: 26px; font-size: 12px; margin: 0; }
 
       .solo-result-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; justify-items: center; }
       .top-stats-strip { grid-template-columns: repeat(2, 1fr); gap: 6px; justify-items: center; }
