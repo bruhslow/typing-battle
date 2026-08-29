@@ -2249,6 +2249,193 @@
       animation: rise 0.25s ease-out;
     }
 
+    /* ═══════════════════════════════════════════ */
+    /* UNIFIED MULTI-METHOD AUTH MODAL             */
+    /* ═══════════════════════════════════════════ */
+    .unified-auth-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 26px 22px;
+      width: min(420px, 100%);
+      box-shadow: var(--shadow-xl);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+    }
+
+    .auth-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .auth-modal-title h3 {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 0 0 3px;
+    }
+
+    .auth-modal-title p {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin: 0;
+      line-height: 1.35;
+    }
+
+    /* Big Google / Gmail SSO Button */
+    .google-sso-btn {
+      width: 100%;
+      height: 42px;
+      background: #fff;
+      border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: var(--shadow-xs);
+      transition: all 0.2s ease;
+    }
+
+    .google-sso-btn:hover {
+      border-color: #4285F4;
+      background: #f8fafc;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .google-icon-svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .auth-divider-line {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      gap: 10px;
+    }
+
+    .auth-divider-line::before,
+    .auth-divider-line::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    /* Auth Tab Pill Switcher */
+    .auth-tab-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: var(--bg-subtle);
+      padding: 4px;
+      border-radius: var(--radius-md);
+    }
+
+    .auth-tab-btn {
+      background: none;
+      border: 0;
+      padding: 7px 10px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .auth-tab-btn.active {
+      background: #fff;
+      color: var(--text-main);
+      font-weight: 800;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .auth-form-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .auth-field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .auth-field-group label {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .auth-input-elem {
+      width: 100%;
+      height: 38px;
+      padding: 0 12px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: #fff;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.15s ease;
+    }
+
+    .auth-input-elem:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .auth-submit-btn {
+      width: 100%;
+      height: 42px;
+      background: linear-gradient(135deg, var(--primary) 0%, #2a7a5a 100%);
+      color: #fff;
+      border: 0;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(29, 90, 63, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .auth-submit-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(29, 90, 63, 0.35);
+    }
+
+    .auth-msg-banner {
+      min-height: 16px;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.4;
+    }
+
     .ready-dialog {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
@@ -3178,6 +3365,69 @@
         </div>
       </div>
     </footer>
+  <!-- UNIFIED MULTI-METHOD AUTH MODAL -->
+  <div class="modal-overlay hidden" id="unified-auth-modal">
+    <div class="unified-auth-card">
+      <div class="auth-modal-header">
+        <div class="auth-modal-title">
+          <h3 id="auth-modal-heading">Account Access</h3>
+          <p id="auth-modal-sub">Log in or create an account with Google, Email, or Username to compete in Ranked.</p>
+        </div>
+        <button class="btn-secondary" id="close-auth-modal-btn" type="button" style="padding: 4px 8px;">✕</button>
+      </div>
+
+      <!-- Google Single Sign-On (Gmail) via Clerk -->
+      <button class="google-sso-btn" id="auth-google-btn" type="button">
+        <svg class="google-icon-svg" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Continue with Google (Gmail)</span>
+      </button>
+
+      <div class="auth-divider-line">or continue with username / email</div>
+
+      <!-- Log In / Sign Up Tab Switcher -->
+      <div class="auth-tab-row">
+        <button class="auth-tab-btn active" id="auth-tab-login" type="button">🔑 Log In</button>
+        <button class="auth-tab-btn" id="auth-tab-signup" type="button">✨ Sign Up</button>
+      </div>
+
+      <!-- Log In Form -->
+      <form class="auth-form-fields" id="auth-login-form">
+        <div class="auth-field-group">
+          <label for="auth-login-ident">Username or Email Address</label>
+          <input class="auth-input-elem" id="auth-login-ident" placeholder="Enter username or email" autocomplete="username" required>
+        </div>
+        <div class="auth-field-group">
+          <label for="auth-login-pass">Password</label>
+          <input class="auth-input-elem" id="auth-login-pass" type="password" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <button class="auth-submit-btn" id="auth-login-submit" type="submit">Log In</button>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form class="auth-form-fields hidden" id="auth-signup-form">
+        <div class="auth-field-group">
+          <label for="auth-signup-user">Username</label>
+          <input class="auth-input-elem" id="auth-signup-user" placeholder="Choose a username" autocomplete="username" required>
+        </div>
+        <div class="auth-field-group">
+          <label for="auth-signup-mail">Email Address (Optional / Recovery)</label>
+          <input class="auth-input-elem" id="auth-signup-mail" type="email" placeholder="name@example.com" autocomplete="email">
+        </div>
+        <div class="auth-field-group">
+          <label for="auth-signup-pass">Password</label>
+          <input class="auth-input-elem" id="auth-signup-pass" type="password" placeholder="Min 6 characters" autocomplete="new-password" required>
+        </div>
+        <button class="auth-submit-btn" id="auth-signup-submit" type="submit">Create Account</button>
+      </form>
+
+      <!-- Message Banner -->
+      <div class="auth-msg-banner" id="auth-modal-msg"></div>
+    </div>
   </div>
 
   <!-- USER PROFILE / ACCOUNT MANAGEMENT MODAL -->
@@ -3991,17 +4241,124 @@
       window.location.href = targetUrl;
     }
 
+    // ══════════════════════════════════════════════════════
+    // UNIFIED MULTI-METHOD AUTH MODAL HANDLERS
+    // ══════════════════════════════════════════════════════
+    const unifiedAuthModal = document.querySelector('#unified-auth-modal');
+    const closeAuthModalBtn = document.querySelector('#close-auth-modal-btn');
+    const authGoogleBtn = document.querySelector('#auth-google-btn');
+    const authTabLogin = document.querySelector('#auth-tab-login');
+    const authTabSignup = document.querySelector('#auth-tab-signup');
+    const authLoginForm = document.querySelector('#auth-login-form');
+    const authSignupForm = document.querySelector('#auth-signup-form');
+    const authLoginIdent = document.querySelector('#auth-login-ident');
+    const authLoginPass = document.querySelector('#auth-login-pass');
+    const authSignupUser = document.querySelector('#auth-signup-user');
+    const authSignupMail = document.querySelector('#auth-signup-mail');
+    const authSignupPass = document.querySelector('#auth-signup-pass');
+    const authModalMsg = document.querySelector('#auth-modal-msg');
+    let currentAuthTab = 'login';
+
+    function openUnifiedAuthModal(tab = 'login') {
+      currentAuthTab = tab;
+      if (authModalMsg) authModalMsg.textContent = '';
+      if (authTabLogin && authTabSignup && authLoginForm && authSignupForm) {
+        if (tab === 'signup') {
+          authTabLogin.classList.remove('active');
+          authTabSignup.classList.add('active');
+          authLoginForm.classList.add('hidden');
+          authSignupForm.classList.remove('hidden');
+          setTimeout(() => authSignupUser && authSignupUser.focus(), 60);
+        } else {
+          authTabSignup.classList.remove('active');
+          authTabLogin.classList.add('active');
+          authSignupForm.classList.add('hidden');
+          authLoginForm.classList.remove('hidden');
+          setTimeout(() => authLoginIdent && authLoginIdent.focus(), 60);
+        }
+      }
+      if (unifiedAuthModal) unifiedAuthModal.classList.remove('hidden');
+    }
+
     if (clerkOpenLoginBtn) {
       clerkOpenLoginBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        openClerkAuth('signIn');
+        openUnifiedAuthModal('login');
       });
     }
 
     if (clerkOpenSignupBtn) {
       clerkOpenSignupBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        openClerkAuth('signUp');
+        openUnifiedAuthModal('signup');
+      });
+    }
+
+    if (closeAuthModalBtn) {
+      closeAuthModalBtn.addEventListener('click', () => {
+        if (unifiedAuthModal) unifiedAuthModal.classList.add('hidden');
+      });
+    }
+
+    if (authTabLogin) {
+      authTabLogin.addEventListener('click', () => openUnifiedAuthModal('login'));
+    }
+    if (authTabSignup) {
+      authTabSignup.addEventListener('click', () => openUnifiedAuthModal('signup'));
+    }
+
+    if (authGoogleBtn) {
+      authGoogleBtn.addEventListener('click', () => {
+        openClerkAuth(currentAuthTab === 'signup' ? 'signUp' : 'signIn');
+      });
+    }
+
+    if (authLoginForm) {
+      authLoginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const identifier = authLoginIdent ? authLoginIdent.value.trim() : '';
+        const password = authLoginPass ? authLoginPass.value : '';
+        if (!identifier || !password) {
+          if (authModalMsg) {
+            authModalMsg.textContent = 'Please enter your username/email and password.';
+            authModalMsg.style.color = 'var(--rose)';
+          }
+          return;
+        }
+        if (authModalMsg) {
+          authModalMsg.textContent = 'Verifying credentials...';
+          authModalMsg.style.color = 'var(--text-muted)';
+        }
+        socket.emit('login', { identifier, password });
+      });
+    }
+
+    if (authSignupForm) {
+      authSignupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const username = authSignupUser ? authSignupUser.value.trim() : '';
+        const email = authSignupMail ? authSignupMail.value.trim() : '';
+        const password = authSignupPass ? authSignupPass.value : '';
+
+        if (!username || !password) {
+          if (authModalMsg) {
+            authModalMsg.textContent = 'Please enter a username and password.';
+            authModalMsg.style.color = 'var(--rose)';
+          }
+          return;
+        }
+        if (password.length < 6) {
+          if (authModalMsg) {
+            authModalMsg.textContent = 'Password must be at least 6 characters.';
+            authModalMsg.style.color = 'var(--rose)';
+          }
+          return;
+        }
+        if (authModalMsg) {
+          authModalMsg.textContent = 'Creating account...';
+          authModalMsg.style.color = 'var(--text-muted)';
+        }
+        socket.emit('registerDirect', { username, email, password, country: userCountry });
       });
     }
 
@@ -4715,8 +5072,8 @@
     randomButton.addEventListener('click', () => {
       const username = usernameInput.value.trim() || 'Player';
       if (selectedMode === 'ranked' && !loggedIn) {
-        showToast('Please Log In or Sign Up to play Ranked.');
-        openClerkAuth('signIn');
+        showToast('Please Log In or Sign Up to play Ranked.', true);
+        openUnifiedAuthModal('login');
         return;
       }
       joinMessage.textContent = '';
@@ -5049,20 +5406,30 @@
         localStorage.setItem('typendoEloHistory', JSON.stringify(eloHistory));
       }
 
+      // Close auth modal and clear inputs
+      if (unifiedAuthModal) unifiedAuthModal.classList.add('hidden');
+      if (authLoginPass) authLoginPass.value = '';
+      if (authSignupPass) authSignupPass.value = '';
+      if (authModalMsg) authModalMsg.textContent = '';
+
       renderDuelHistory();
       renderEloHistory(rating);
       updateOverallStats(rating);
       socket.emit('getLeaderboard');
-      showToast(`Welcome back, ${username}! (${rating} ELO)`);
+      showToast(`Welcome, ${username}! (${rating} ELO)`);
     });
 
     socket.on('authError', (msg) => {
+      if (authModalMsg) {
+        authModalMsg.textContent = msg;
+        authModalMsg.style.color = 'var(--rose)';
+      }
       showToast(msg, true);
     });
 
     socket.on('authRequired', () => {
-      showToast('Please Log In or Sign Up to play Ranked.');
-      openClerkAuth('signIn');
+      openUnifiedAuthModal('login');
+      showToast('Please log in or create an account to compete in Ranked.', true);
     });
 
     socket.on('matchmaking', ({ mode, platform, rating }) => {

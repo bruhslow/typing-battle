@@ -1170,6 +1170,64 @@ io.on('connection', (socket) => {
     });
   });
 
+  socket.on('registerDirect', ({ username, email, password, country }) => {
+    const cleanUsername = typeof username === 'string' ? username.trim() : '';
+    const cleanEmail = typeof email === 'string' && email.trim() ? email.trim().toLowerCase() : `${cleanUsername.toLowerCase()}@typendo.local`;
+    const cleanCountry = typeof country === 'string' && country.trim() ? country.trim().slice(0, 5).toUpperCase() : (socket.data.country || 'IND');
+
+    if (!cleanUsername || !/^[a-zA-Z0-9_ ]{3,20}$/.test(cleanUsername)) {
+      socket.emit('authError', 'Username must be 3-20 letters, numbers, spaces, or underscores.');
+      return;
+    }
+    if (typeof password !== 'string' || password.length < 6) {
+      socket.emit('authError', 'Password must be at least 6 characters.');
+      return;
+    }
+
+    const accountKey = cleanUsername.toLowerCase();
+    if (accounts.has(accountKey)) {
+      socket.emit('authError', 'That username is already taken. Please choose another username.');
+      return;
+    }
+    const existingByEmail = [...accounts.values()].find((acc) => acc.email && acc.email.toLowerCase() === cleanEmail && !acc.email.endsWith('@typendo.local'));
+    if (existingByEmail) {
+      socket.emit('authError', 'An account with that email already exists. Please log in.');
+      return;
+    }
+
+    const credentials = hashPassword(password);
+    const newAccount = {
+      username: cleanUsername,
+      email: cleanEmail,
+      country: cleanCountry,
+      ...credentials,
+      rating: 1000,
+      createdAt: Date.now(),
+      duelHistory: [],
+      eloHistory: [],
+    };
+
+    accounts.set(accountKey, newAccount);
+    saveAccounts();
+    broadcastLeaderboard();
+
+    socket.data.accountKey = accountKey;
+    socket.data.username = newAccount.username;
+    socket.data.country = newAccount.country;
+    rotateFriendId(socket);
+
+    socket.emit('authSuccess', {
+      username: newAccount.username,
+      email: newAccount.email,
+      country: newAccount.country,
+      rating: 1000,
+      accountKey,
+      createdAt: newAccount.createdAt,
+      duelHistory: [],
+      eloHistory: [],
+    });
+  });
+
   socket.on('verifyOtp', ({ email, code }) => {
     const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
     const cleanCode = typeof code === 'string' ? code.trim() : '';
