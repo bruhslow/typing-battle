@@ -4065,9 +4065,379 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
+
+    /* ══════════════════════════════════════════════════════
+       FRIENDS SYSTEM — FAB + DRAWER
+    ══════════════════════════════════════════════════════ */
+
+    /* FAB: fixed left-edge pill */
+    .friends-fab {
+      position: fixed;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1200;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      padding: 14px 10px 14px 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      box-shadow: 2px 0 16px rgba(29,90,63,0.25);
+      transition: padding 0.2s ease, background 0.2s ease;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+    }
+    .friends-fab:hover { background: var(--primary-hover); padding-right: 14px; }
+    .friends-fab-icon { font-size: 16px; writing-mode: horizontal-tb; }
+    .friends-fab-badge {
+      background: #e53e3e;
+      color: #fff;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 1px 5px;
+      min-width: 16px;
+      text-align: center;
+      writing-mode: horizontal-tb;
+      display: none;
+      position: absolute;
+      top: 8px;
+      right: -4px;
+    }
+    .friends-fab-badge.visible { display: block; }
+
+    /* Scrim */
+    .friends-scrim {
+      position: fixed;
+      inset: 0;
+      z-index: 1299;
+      background: rgba(0,0,0,0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .friends-scrim.open { opacity: 1; pointer-events: all; }
+
+    /* Drawer */
+    .friends-drawer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 1300;
+      width: min(340px, 90vw);
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 4px 0 32px rgba(0,0,0,0.15);
+      transform: translateX(-105%);
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+      overflow: hidden;
+    }
+    .friends-drawer.open { transform: translateX(0); }
+
+    /* Drawer header */
+    .friends-drawer-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 16px 12px;
+      border-bottom: 1.5px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .friends-drawer-title {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--text-main);
+      flex: 1;
+      letter-spacing: -0.02em;
+    }
+    .friends-drawer-close {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--text-muted);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s ease, color 0.15s ease;
+      line-height: 1;
+    }
+    .friends-drawer-close:hover { background: var(--bg-subtle); color: var(--text-main); }
+
+    /* Search/add row */
+    .friends-search-row {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1.5px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .friends-search-input {
+      flex: 1;
+      background: var(--bg-subtle);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 8px 11px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .friends-search-input::placeholder { color: var(--text-dim); }
+    .friends-search-input:focus {
+      background: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .friends-add-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 8px 14px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s ease;
+      flex-shrink: 0;
+    }
+    .friends-add-btn:hover { background: var(--primary-hover); }
+    .friends-add-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .friends-search-msg {
+      font-size: 11px;
+      padding: 0 16px 8px;
+      flex-shrink: 0;
+      display: none;
+    }
+    .friends-search-msg.visible { display: block; }
+    .friends-search-msg.error { color: var(--secondary); }
+    .friends-search-msg.success { color: var(--primary); }
+
+    /* Tab bar */
+    .friends-tab-bar {
+      display: flex;
+      gap: 0;
+      padding: 8px 12px;
+      border-bottom: 1.5px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .friends-tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 7px 4px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
+    }
+    .friends-tab-btn:hover { background: var(--bg-subtle); color: var(--text-main); }
+    .friends-tab-btn.active {
+      background: var(--primary-subtle);
+      color: var(--primary);
+    }
+    .friends-tab-badge {
+      background: #e53e3e;
+      color: #fff;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 1px 5px;
+      margin-left: 3px;
+      display: none;
+    }
+    .friends-tab-badge.visible { display: inline; }
+
+    /* Tab panes */
+    .friends-pane {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+      display: none;
+    }
+    .friends-pane.active { display: block; }
+
+    /* Friend row */
+    .friend-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      transition: background 0.15s ease;
+      position: relative;
+    }
+    .friend-row:hover { background: var(--bg-subtle); }
+    .friend-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #9ca3af;
+      flex-shrink: 0;
+    }
+    .friend-status-dot.online { background: #22c55e; box-shadow: 0 0 0 2px rgba(34,197,94,0.25); }
+    .friend-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--primary-subtle);
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .friend-info { flex: 1; min-width: 0; }
+    .friend-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .friend-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+    .friend-row-actions {
+      display: flex;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+    .friend-action-btn {
+      background: transparent;
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 4px 8px;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .friend-action-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-subtle); }
+    .friend-action-btn.danger:hover { border-color: var(--secondary); color: var(--secondary); background: #fff5f5; }
+    .friend-action-btn.accept { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .friend-action-btn.accept:hover { background: var(--primary-hover); }
+
+    /* Section label inside pending pane */
+    .friends-section-label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      padding: 6px 16px 4px;
+    }
+
+    /* Empty state */
+    .friends-empty {
+      text-align: center;
+      padding: 32px 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .friends-empty-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+
+    /* Guest prompt */
+    .friends-guest-msg {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
+
+  <!-- ══ FRIENDS SYSTEM ══ -->
+  <!-- FAB: fixed left-edge opener -->
+  <button class="friends-fab" id="friends-fab" type="button" aria-label="Open Friends Panel">
+    <span class="friends-fab-icon">👥</span>
+    <span>FRIENDS</span>
+    <span class="friends-fab-badge" id="friends-fab-badge">0</span>
+  </button>
+
+  <!-- Scrim overlay -->
+  <div class="friends-scrim" id="friends-scrim"></div>
+
+  <!-- Left-slide drawer -->
+  <aside class="friends-drawer" id="friends-drawer" aria-label="Friends Panel">
+    <!-- Header -->
+    <div class="friends-drawer-head">
+      <span class="friends-fab-icon" style="font-size:20px;">👥</span>
+      <span class="friends-drawer-title">Friends</span>
+      <button class="friends-drawer-close" id="friends-drawer-close" type="button" aria-label="Close Friends Panel">✕</button>
+    </div>
+
+    <!-- Search / Add row -->
+    <div class="friends-search-row">
+      <input
+        class="friends-search-input"
+        id="friends-search-input"
+        type="text"
+        placeholder="Username or Friend Code…"
+        maxlength="32"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <button class="friends-add-btn" id="friends-add-btn" type="button">➕ Add</button>
+    </div>
+    <div class="friends-search-msg" id="friends-search-msg"></div>
+
+    <!-- Tab bar -->
+    <div class="friends-tab-bar" role="tablist">
+      <button class="friends-tab-btn active" id="ftab-online" type="button" role="tab" aria-selected="true">
+        🟢 Online
+      </button>
+      <button class="friends-tab-btn" id="ftab-all" type="button" role="tab" aria-selected="false">
+        👥 All
+      </button>
+      <button class="friends-tab-btn" id="ftab-pending" type="button" role="tab" aria-selected="false">
+        📬 Pending<span class="friends-tab-badge" id="ftab-pending-badge">0</span>
+      </button>
+    </div>
+
+    <!-- Pane: Online Friends -->
+    <div class="friends-pane active" id="fpane-online" role="tabpanel">
+      <div class="friends-guest-msg hidden" id="friends-guest-msg">
+        🔒 Log in to use the Friends system
+      </div>
+      <div id="fpane-online-list"></div>
+    </div>
+
+    <!-- Pane: All Friends -->
+    <div class="friends-pane" id="fpane-all" role="tabpanel">
+      <div id="fpane-all-list"></div>
+    </div>
+
+    <!-- Pane: Pending -->
+    <div class="friends-pane" id="fpane-pending" role="tabpanel">
+      <div id="fpane-pending-list"></div>
+    </div>
+  </aside>
+
   <div class="shell">
     <div class="viewport-screen">
       <!-- HEADER -->
@@ -4266,29 +4636,6 @@
             <div>
               <button class="start-cta" id="random-button" type="button">START BATTLE</button>
               <p class="status-msg" id="join-message" aria-live="polite"></p>
-            </div>
-
-            <!-- Challenge a Friend — Direct 1v1 Casual Invite -->
-            <div class="challenge-friend-card" id="challenge-friend-section">
-              <div class="challenge-friend-head">
-                <div class="challenge-friend-icon">⚔️</div>
-                <div>
-                  <div class="challenge-friend-title">Challenge a Friend</div>
-                  <div class="challenge-friend-sub">Direct 1v1 · Casual · No ELO · Private</div>
-                </div>
-              </div>
-              <div class="challenge-friend-row">
-                <input
-                  class="challenge-code-input"
-                  id="challenge-friend-input"
-                  maxlength="8"
-                  placeholder="Friend's code (e.g. AB3X7F)"
-                  autocomplete="off"
-                  spellcheck="false"
-                >
-                <button class="challenge-send-btn" id="challenge-send-btn" type="button">🎯 Challenge</button>
-              </div>
-              <p class="status-msg" id="challenge-message" aria-live="polite" style="margin:0; font-size:12px;"></p>
             </div>
           </div>
 
@@ -6263,6 +6610,7 @@
       updateAuthHeaderUI(false);
       profileModal.classList.add('hidden');
       updateOverallStats(1000);
+      if (typeof clearFriendsData === 'function') clearFriendsData();
       showToast('Logged out.');
     }
 
@@ -7980,6 +8328,8 @@
       renderEloHistory(rating);
       updateOverallStats(rating);
       socket.emit('getLeaderboard');
+      socket.emit('getFriendsList');
+      socket.emit('getFriendRequests');
       showToast(`Welcome, ${username}! (${rating} ELO)`);
 
       // If user signed in via Google/Clerk and has never set a password,
@@ -8492,7 +8842,7 @@
     });
 
     // ══════════════════════════════════════════════════════
-    // FRIEND INVITE SYSTEM — CLIENT-SIDE
+    // FRIEND INVITE BANNER & CASUAL 1v1 SYSTEM
     // ══════════════════════════════════════════════════════
 
     // DOM refs
@@ -8503,9 +8853,6 @@
     const inviteTimerFill = document.querySelector('#invite-timer-fill');
     const inviteAcceptBtn = document.querySelector('#invite-accept-btn');
     const inviteDeclineBtn = document.querySelector('#invite-decline-btn');
-    const challengeFriendInput = document.querySelector('#challenge-friend-input');
-    const challengeSendBtn = document.querySelector('#challenge-send-btn');
-    const challengeMessage = document.querySelector('#challenge-message');
     const lobbyInviteRow = document.querySelector('#lobby-invite-row');
     const lobbyInviteInput = document.querySelector('#lobby-invite-input');
     const lobbyInviteBtn = document.querySelector('#lobby-invite-btn');
@@ -8518,12 +8865,9 @@
     const INVITE_TIMEOUT_MS = 30000;
 
     function showInviteBanner({ type, roomCode, roomId, roomName, fromUsername, fromFriendId }) {
-      // Clear any previous pending invite
       dismissInviteBanner();
-
       pendingInvite = { type, roomCode, roomId, roomName, fromUsername, fromFriendId };
 
-      // Set icon and text based on type
       if (type === 'room') {
         inviteBannerIcon.textContent = '🚪';
         inviteBannerTitle.textContent = `${fromUsername} invited you to their lobby!`;
@@ -8534,16 +8878,13 @@
         inviteBannerSub.textContent = `Casual 1v1 · No ELO · "${roomName}"`;
       }
 
-      // Show the banner
       inviteBanner.classList.add('visible');
       SoundEngine.playButtonClick();
 
-      // Countdown timer bar
       const startTime = Date.now();
       inviteTimerFill.style.transition = 'none';
       inviteTimerFill.style.width = '100%';
 
-      // Force reflow then animate
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           inviteTimerFill.style.transition = `width ${INVITE_TIMEOUT_MS}ms linear`;
@@ -8551,7 +8892,6 @@
         });
       });
 
-      // Auto-dismiss after timeout
       inviteAutoDismissTimer = setTimeout(() => {
         dismissInviteBanner();
       }, INVITE_TIMEOUT_MS);
@@ -8560,110 +8900,85 @@
     function dismissInviteBanner() {
       clearTimeout(inviteAutoDismissTimer);
       clearInterval(inviteTimerInterval);
-      inviteBanner.classList.remove('visible');
+      if (inviteBanner) inviteBanner.classList.remove('visible');
       pendingInvite = null;
     }
 
-    // Accept button
-    inviteAcceptBtn.addEventListener('click', () => {
-      if (!pendingInvite) return;
-      SoundEngine.playButtonClick();
-      const { roomCode, roomId } = pendingInvite;
-      const username = usernameInput.value.trim() || 'Player';
-      dismissInviteBanner();
-      resetRaceState();
-      socket.emit('joinCustomRoom', {
-        friendId: roomCode,
-        roomId,
-        username,
-        country: userCountry,
-        platform: selectedPlatform,
-        device: currentDevice,
+    if (inviteAcceptBtn) {
+      inviteAcceptBtn.addEventListener('click', () => {
+        if (!pendingInvite) return;
+        SoundEngine.playButtonClick();
+        const { roomCode, roomId } = pendingInvite;
+        const username = usernameInput.value.trim() || 'Player';
+        dismissInviteBanner();
+        resetRaceState();
+        socket.emit('joinCustomRoom', {
+          friendId: roomCode,
+          roomId,
+          username,
+          country: userCountry,
+          platform: selectedPlatform,
+          device: currentDevice,
+        });
       });
-    });
+    }
 
-    // Decline button
-    inviteDeclineBtn.addEventListener('click', () => {
-      if (!pendingInvite) return;
-      SoundEngine.playButtonClick();
-      const { fromFriendId } = pendingInvite;
-      socket.emit('declineFriendInvite', { fromFriendId });
-      dismissInviteBanner();
-    });
-
-    // ── Challenge-a-Friend card (home screen) ──────────────────────
-    challengeSendBtn.addEventListener('click', () => {
-      SoundEngine.playButtonClick();
-      const targetCode = challengeFriendInput.value.trim().toUpperCase();
-      if (!targetCode || targetCode.length < 4) {
-        challengeMessage.textContent = 'Please enter a valid Friend Code.';
-        challengeMessage.style.color = 'var(--secondary)';
-        return;
-      }
-      challengeMessage.textContent = '';
-      challengeSendBtn.disabled = true;
-      challengeSendBtn.textContent = '⏳ Sending...';
-      socket.emit('sendFriendInvite', { targetFriendId: targetCode, type: 'casual' });
-    });
-
-    challengeFriendInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') challengeSendBtn.click();
-    });
+    if (inviteDeclineBtn) {
+      inviteDeclineBtn.addEventListener('click', () => {
+        if (!pendingInvite) return;
+        SoundEngine.playButtonClick();
+        const { fromFriendId } = pendingInvite;
+        socket.emit('declineFriendInvite', { fromFriendId });
+        dismissInviteBanner();
+      });
+    }
 
     // ── Lobby Invite-to-Room row ────────────────────────────────────
-    lobbyInviteBtn.addEventListener('click', () => {
-      SoundEngine.playButtonClick();
-      const targetCode = lobbyInviteInput.value.trim().toUpperCase();
-      if (!targetCode || targetCode.length < 4) {
-        showToast('Please enter a valid Friend Code.', true);
-        return;
-      }
-      lobbyInviteBtn.disabled = true;
-      lobbyInviteBtn.textContent = '⏳';
-      socket.emit('sendFriendInvite', { targetFriendId: targetCode, type: 'room' });
-      setTimeout(() => {
-        lobbyInviteBtn.disabled = false;
-        lobbyInviteBtn.textContent = '📨 Invite';
-      }, 3000);
-    });
+    if (lobbyInviteBtn) {
+      lobbyInviteBtn.addEventListener('click', () => {
+        SoundEngine.playButtonClick();
+        const targetCode = (lobbyInviteInput?.value || '').trim().toUpperCase();
+        if (!targetCode || targetCode.length < 3) {
+          showToast('Please enter a valid Friend Code or Username.', true);
+          return;
+        }
+        lobbyInviteBtn.disabled = true;
+        lobbyInviteBtn.textContent = '⏳';
+        socket.emit('sendFriendInvite', { targetFriendId: targetCode, type: 'room' });
+        setTimeout(() => {
+          if (lobbyInviteBtn) {
+            lobbyInviteBtn.disabled = false;
+            lobbyInviteBtn.textContent = '📨 Invite';
+          }
+        }, 3000);
+      });
+    }
 
-    lobbyInviteInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') lobbyInviteBtn.click();
-    });
+    if (lobbyInviteInput) {
+      lobbyInviteInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && lobbyInviteBtn) lobbyInviteBtn.click();
+      });
+    }
 
-    // Show/hide the lobby invite row when entering/leaving a custom room
-    // Hook into existing customRoomCreated and playerJoinedRoom to show the row
-    const _origCustomRoomCreatedHandle = socket._callbacks?.['$customRoomCreated']?.[0];
     socket.on('customRoomCreated', () => {
-      lobbyInviteRow.classList.remove('hidden');
-      lobbyInviteInput.value = '';
+      if (lobbyInviteRow) lobbyInviteRow.classList.remove('hidden');
+      if (lobbyInviteInput) lobbyInviteInput.value = '';
     });
 
     socket.on('playerJoinedRoom', () => {
-      // Show for all members (not just host) — everyone can invite
-      lobbyInviteRow.classList.remove('hidden');
+      if (lobbyInviteRow) lobbyInviteRow.classList.remove('hidden');
     });
 
-    // Hide invite row when leaving back to join screen
-    const _origResetRaceState = typeof resetRaceState === 'function' ? resetRaceState : null;
-    // Patch: also hide on cancel button click
     document.querySelector('#cancel-button').addEventListener('click', () => {
-      lobbyInviteRow.classList.add('hidden');
-      lobbyInviteInput.value = '';
-      challengeSendBtn.disabled = false;
-      challengeSendBtn.textContent = '🎯 Challenge';
-    }, true /* capture, so it fires even if existing handler stops propagation */);
+      if (lobbyInviteRow) lobbyInviteRow.classList.add('hidden');
+      if (lobbyInviteInput) lobbyInviteInput.value = '';
+    }, true);
 
-    // ── Socket responses ────────────────────────────────────────────
-
-    // Incoming invite from another player
     socket.on('friendInviteReceived', (invite) => {
       showInviteBanner(invite);
     });
 
-    // Our invite was successfully sent (casual challenge created us a room)
     socket.on('casualChallengeCreated', ({ friendCode, roomId, roomName, players, playerCount, maxPlayers, toUsername }) => {
-      // Treat exactly like customRoomCreated — enter the lobby screen
       resetRaceState();
       currentRoomId = roomId;
       isHost = true;
@@ -8678,33 +8993,385 @@
 
       renderLobbyMembers(players, socket.id);
       startRoomButton.classList.add('hidden');
-      hostSettingsPanel.classList.add('hidden'); // No config in 1v1 casual invite rooms
-      lobbyInviteRow.classList.add('hidden'); // Already challenged one person
+      hostSettingsPanel.classList.add('hidden');
+      if (lobbyInviteRow) lobbyInviteRow.classList.add('hidden');
 
-      showToast(`⚔️ Challenge sent to ${toUsername}! Waiting for them...`);
-
-      // Reset challenge card
-      challengeSendBtn.disabled = false;
-      challengeSendBtn.textContent = '🎯 Challenge';
-      challengeFriendInput.value = '';
-      challengeMessage.textContent = '';
+      showToast(`⚔️ Challenge sent to ${toUsername}! Waiting for response...`);
     });
 
-    // Our invite was sent (room invite type)
     socket.on('friendInviteSent', ({ type, toUsername }) => {
       if (type === 'room') {
         showToast(`📨 Invite sent to ${toUsername}! Waiting for them to join...`);
-        lobbyInviteInput.value = '';
+        if (lobbyInviteInput) lobbyInviteInput.value = '';
       }
     });
 
-    // Our challenge was declined
     socket.on('friendInviteDeclined', ({ byUsername }) => {
       showToast(`❌ ${byUsername} declined your challenge.`, true);
-      // If we're in an invite-created room alone, go back to home
-      if (currentRoomId && socket.data) {
-        // Let them stay in the room in case they want to invite someone else
+    });
+
+    // ══════════════════════════════════════════════════════
+    // PERSISTENT FRIENDS SYSTEM & SLIDING DRAWER
+    // ══════════════════════════════════════════════════════
+
+    const friendsFab = document.querySelector('#friends-fab');
+    const friendsFabBadge = document.querySelector('#friends-fab-badge');
+    const friendsScrim = document.querySelector('#friends-scrim');
+    const friendsDrawer = document.querySelector('#friends-drawer');
+    const friendsDrawerClose = document.querySelector('#friends-drawer-close');
+    const friendsSearchInput = document.querySelector('#friends-search-input');
+    const friendsAddBtn = document.querySelector('#friends-add-btn');
+    const friendsSearchMsg = document.querySelector('#friends-search-msg');
+
+    const ftabOnline = document.querySelector('#ftab-online');
+    const ftabAll = document.querySelector('#ftab-all');
+    const ftabPending = document.querySelector('#ftab-pending');
+    const ftabPendingBadge = document.querySelector('#ftab-pending-badge');
+
+    const fpaneOnline = document.querySelector('#fpane-online');
+    const fpaneAll = document.querySelector('#fpane-all');
+    const fpanePending = document.querySelector('#fpane-pending');
+    const fpaneOnlineList = document.querySelector('#fpane-online-list');
+    const fpaneAllList = document.querySelector('#fpane-all-list');
+    const fpanePendingList = document.querySelector('#fpane-pending-list');
+    const friendsGuestMsg = document.querySelector('#friends-guest-msg');
+
+    let friendsCache = [];
+    let pendingRequestsCache = { sent: [], received: [] };
+    let activeFriendsTab = 'online';
+
+    function openFriendsDrawer() {
+      if (friendsDrawer) friendsDrawer.classList.add('open');
+      if (friendsScrim) friendsScrim.classList.add('open');
+      if (loggedIn) {
+        socket.emit('getFriendsList');
+        socket.emit('getFriendRequests');
       }
+      renderFriendsPanes();
+    }
+
+    function closeFriendsDrawer() {
+      if (friendsDrawer) friendsDrawer.classList.remove('open');
+      if (friendsScrim) friendsScrim.classList.remove('open');
+      if (friendsSearchMsg) {
+        friendsSearchMsg.className = 'friends-search-msg';
+        friendsSearchMsg.textContent = '';
+      }
+    }
+
+    if (friendsFab) friendsFab.addEventListener('click', openFriendsDrawer);
+    if (friendsDrawerClose) friendsDrawerClose.addEventListener('click', closeFriendsDrawer);
+    if (friendsScrim) friendsScrim.addEventListener('click', closeFriendsDrawer);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && friendsDrawer?.classList.contains('open')) {
+        closeFriendsDrawer();
+      }
+    });
+
+    function switchFriendsTab(tab) {
+      activeFriendsTab = tab;
+      [ftabOnline, ftabAll, ftabPending].forEach(b => {
+        if (b) {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+        }
+      });
+      [fpaneOnline, fpaneAll, fpanePending].forEach(p => {
+        if (p) p.classList.remove('active');
+      });
+
+      if (tab === 'online' && ftabOnline && fpaneOnline) {
+        ftabOnline.classList.add('active');
+        ftabOnline.setAttribute('aria-selected', 'true');
+        fpaneOnline.classList.add('active');
+      } else if (tab === 'all' && ftabAll && fpaneAll) {
+        ftabAll.classList.add('active');
+        ftabAll.setAttribute('aria-selected', 'true');
+        fpaneAll.classList.add('active');
+      } else if (tab === 'pending' && ftabPending && fpanePending) {
+        ftabPending.classList.add('active');
+        ftabPending.setAttribute('aria-selected', 'true');
+        fpanePending.classList.add('active');
+      }
+    }
+
+    if (ftabOnline) ftabOnline.addEventListener('click', () => switchFriendsTab('online'));
+    if (ftabAll) ftabAll.addEventListener('click', () => switchFriendsTab('all'));
+    if (ftabPending) ftabPending.addEventListener('click', () => switchFriendsTab('pending'));
+
+    function showFriendsSearchMsg(text, type) {
+      if (!friendsSearchMsg) return;
+      friendsSearchMsg.textContent = text;
+      friendsSearchMsg.className = `friends-search-msg visible ${type || ''}`;
+      if (type === 'success') {
+        setTimeout(() => {
+          if (friendsSearchMsg.textContent === text) {
+            friendsSearchMsg.className = 'friends-search-msg';
+            friendsSearchMsg.textContent = '';
+          }
+        }, 4000);
+      }
+    }
+
+    function handleSendFriendRequest() {
+      if (!loggedIn) {
+        openUnifiedAuthModal('login');
+        showToast('Please log in to add friends.', true);
+        return;
+      }
+      const val = (friendsSearchInput?.value || '').trim();
+      if (!val) {
+        showFriendsSearchMsg('Please enter a username or Friend Code.', 'error');
+        return;
+      }
+      showFriendsSearchMsg('Sending friend request...', '');
+      socket.emit('sendFriendRequest', { targetIdentifier: val });
+    }
+
+    if (friendsAddBtn) friendsAddBtn.addEventListener('click', handleSendFriendRequest);
+    if (friendsSearchInput) {
+      friendsSearchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleSendFriendRequest();
+      });
+    }
+
+    function renderFriendsPanes() {
+      const isAuth = Boolean(loggedIn && userProfile);
+      if (!isAuth) {
+        if (friendsGuestMsg) friendsGuestMsg.classList.remove('hidden');
+        if (fpaneOnlineList) fpaneOnlineList.innerHTML = '';
+        if (fpaneAllList) fpaneAllList.innerHTML = '';
+        if (fpanePendingList) fpanePendingList.innerHTML = '';
+        if (ftabPendingBadge) ftabPendingBadge.classList.remove('visible');
+        if (friendsFabBadge) friendsFabBadge.classList.remove('visible');
+        return;
+      }
+      if (friendsGuestMsg) friendsGuestMsg.classList.add('hidden');
+
+      // 1. Online Pane
+      const onlineFriends = friendsCache.filter(f => f.isOnline);
+      if (fpaneOnlineList) {
+        if (onlineFriends.length === 0) {
+          fpaneOnlineList.innerHTML = `
+            <div class="friends-empty">
+              <span class="friends-empty-icon">🟢</span>
+              <strong>No friends online right now</strong><br>
+              <span style="font-size:11px; color:var(--text-muted);">Friends will appear here with an instant duel button when they connect.</span>
+            </div>
+          `;
+        } else {
+          fpaneOnlineList.innerHTML = onlineFriends.map(f => {
+            const flag = getCountry(f.country || 'IND').flag;
+            const letter = (f.username || 'P').slice(0, 1).toUpperCase();
+            return `
+              <div class="friend-row" data-account="${escapeHtml(f.accountKey)}">
+                <span class="friend-status-dot online" title="Online"></span>
+                <div class="friend-avatar">${letter}</div>
+                <div class="friend-info">
+                  <div class="friend-name">${escapeHtml(f.username)} <span style="font-size:11px;">${flag}</span></div>
+                  <div class="friend-meta">🏆 ${f.rating} ELO</div>
+                </div>
+                <div class="friend-row-actions">
+                  <button class="friend-action-btn accept" onclick="sendFriendCasualDuel('${escapeHtml(f.accountKey)}', '${escapeHtml(f.username)}')" type="button" title="Challenge to direct 1v1 casual duel">⚔️ Duel</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // 2. All Friends Pane
+      if (fpaneAllList) {
+        if (friendsCache.length === 0) {
+          fpaneAllList.innerHTML = `
+            <div class="friends-empty">
+              <span class="friends-empty-icon">👥</span>
+              <strong>No friends added yet</strong><br>
+              <span style="font-size:11px; color:var(--text-muted);">Search and add friends above by username or 6-letter Friend Code!</span>
+            </div>
+          `;
+        } else {
+          const sorted = [...friendsCache].sort((a, b) => {
+            if (a.isOnline === b.isOnline) return a.username.localeCompare(b.username);
+            return a.isOnline ? -1 : 1;
+          });
+
+          fpaneAllList.innerHTML = sorted.map(f => {
+            const flag = getCountry(f.country || 'IND').flag;
+            const letter = (f.username || 'P').slice(0, 1).toUpperCase();
+            const statusDot = f.isOnline ? 'online' : '';
+            const statusText = f.isOnline ? '🟢 Online' : '⚪ Offline';
+            return `
+              <div class="friend-row" data-account="${escapeHtml(f.accountKey)}">
+                <span class="friend-status-dot ${statusDot}" title="${statusText}"></span>
+                <div class="friend-avatar">${letter}</div>
+                <div class="friend-info">
+                  <div class="friend-name">${escapeHtml(f.username)} <span style="font-size:11px;">${flag}</span></div>
+                  <div class="friend-meta">${statusText} · ${f.rating} ELO</div>
+                </div>
+                <div class="friend-row-actions">
+                  ${f.isOnline ? `<button class="friend-action-btn accept" onclick="sendFriendCasualDuel('${escapeHtml(f.accountKey)}', '${escapeHtml(f.username)}')" type="button" title="Challenge to duel">⚔️</button>` : ''}
+                  <button class="friend-action-btn danger" onclick="removeFriendFromList('${escapeHtml(f.accountKey)}', '${escapeHtml(f.username)}')" type="button" title="Remove friend">✕</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // 3. Pending Pane
+      const received = pendingRequestsCache.received || [];
+      const sent = pendingRequestsCache.sent || [];
+      const pendingCount = received.length;
+
+      if (ftabPendingBadge) {
+        ftabPendingBadge.textContent = pendingCount;
+        ftabPendingBadge.classList.toggle('visible', pendingCount > 0);
+      }
+      if (friendsFabBadge) {
+        friendsFabBadge.textContent = pendingCount;
+        friendsFabBadge.classList.toggle('visible', pendingCount > 0);
+      }
+
+      if (fpanePendingList) {
+        if (received.length === 0 && sent.length === 0) {
+          fpanePendingList.innerHTML = `
+            <div class="friends-empty">
+              <span class="friends-empty-icon">📬</span>
+              <strong>No pending requests</strong><br>
+              <span style="font-size:11px; color:var(--text-muted);">Incoming requests and outgoing invitations will appear here.</span>
+            </div>
+          `;
+        } else {
+          let html = '';
+          if (received.length > 0) {
+            html += `<div class="friends-section-label">📥 Received (${received.length})</div>`;
+            html += received.map(r => {
+              const flag = getCountry(r.country || 'IND').flag;
+              const letter = (r.username || 'P').slice(0, 1).toUpperCase();
+              return `
+                <div class="friend-row" data-account="${escapeHtml(r.accountKey)}">
+                  <div class="friend-avatar">${letter}</div>
+                  <div class="friend-info">
+                    <div class="friend-name">${escapeHtml(r.username)} <span style="font-size:11px;">${flag}</span></div>
+                    <div class="friend-meta">🏆 ${r.rating} ELO</div>
+                  </div>
+                  <div class="friend-row-actions">
+                    <button class="friend-action-btn accept" onclick="acceptFriendReq('${escapeHtml(r.accountKey)}')" type="button">✅ Accept</button>
+                    <button class="friend-action-btn danger" onclick="declineFriendReq('${escapeHtml(r.accountKey)}')" type="button">✕</button>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+          if (sent.length > 0) {
+            html += `<div class="friends-section-label" style="margin-top:8px;">📤 Sent (${sent.length})</div>`;
+            html += sent.map(r => {
+              const flag = getCountry(r.country || 'IND').flag;
+              const letter = (r.username || 'P').slice(0, 1).toUpperCase();
+              return `
+                <div class="friend-row" data-account="${escapeHtml(r.accountKey)}">
+                  <div class="friend-avatar">${letter}</div>
+                  <div class="friend-info">
+                    <div class="friend-name">${escapeHtml(r.username)} <span style="font-size:11px;">${flag}</span></div>
+                    <div class="friend-meta" style="color:var(--text-muted);">⏳ Pending response...</div>
+                  </div>
+                  <div class="friend-row-actions">
+                    <button class="friend-action-btn" onclick="cancelFriendReq('${escapeHtml(r.accountKey)}')" type="button">Cancel</button>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+          fpanePendingList.innerHTML = html;
+        }
+      }
+    }
+
+    window.sendFriendCasualDuel = function(accountKey, username) {
+      SoundEngine.playButtonClick();
+      socket.emit('sendFriendInvite', { targetFriendId: accountKey, type: 'casual' });
+      showToast(`⚔️ Sending 1v1 duel invite to ${username}...`);
+    };
+
+    window.acceptFriendReq = function(fromAccountKey) {
+      SoundEngine.playButtonClick();
+      socket.emit('acceptFriendRequest', { fromAccountKey });
+    };
+
+    window.declineFriendReq = function(fromAccountKey) {
+      SoundEngine.playButtonClick();
+      socket.emit('declineFriendRequest', { fromAccountKey });
+    };
+
+    window.cancelFriendReq = function(targetAccountKey) {
+      SoundEngine.playButtonClick();
+      socket.emit('cancelFriendRequest', { targetAccountKey });
+    };
+
+    window.removeFriendFromList = function(targetAccountKey, username) {
+      if (!confirm(`Remove ${username} from your friends list?`)) return;
+      SoundEngine.playButtonClick();
+      socket.emit('removeFriend', { targetAccountKey });
+    };
+
+    function clearFriendsData() {
+      friendsCache = [];
+      pendingRequestsCache = { sent: [], received: [] };
+      renderFriendsPanes();
+    }
+
+    socket.on('friendsList', (list) => {
+      friendsCache = list || [];
+      renderFriendsPanes();
+    });
+
+    socket.on('pendingRequests', (data) => {
+      pendingRequestsCache = data || { sent: [], received: [] };
+      renderFriendsPanes();
+    });
+
+    socket.on('friendStatusChanged', ({ accountKey, isOnline }) => {
+      const f = friendsCache.find(x => x.accountKey === accountKey);
+      if (f) {
+        f.isOnline = isOnline;
+        renderFriendsPanes();
+      } else if (isOnline) {
+        socket.emit('getFriendsList');
+      }
+    });
+
+    socket.on('friendRequestReceived', ({ fromUsername }) => {
+      SoundEngine.playSelectSound();
+      showToast(`📬 Friend request received from ${fromUsername}!`);
+      if (friendsFabBadge) friendsFabBadge.classList.add('visible');
+      socket.emit('getFriendRequests');
+    });
+
+    socket.on('friendRequestAccepted', ({ byUsername }) => {
+      SoundEngine.playSelectSound();
+      showToast(`🎉 ${byUsername} accepted your friend request!`);
+      socket.emit('getFriendsList');
+      socket.emit('getFriendRequests');
+    });
+
+    socket.on('friendRequestDeclined', ({ byUsername }) => {
+      showToast(`${byUsername} declined your friend request.`);
+      socket.emit('getFriendRequests');
+    });
+
+    socket.on('friendSuccess', (msg) => {
+      showToast(msg);
+      showFriendsSearchMsg(msg, 'success');
+      if (friendsSearchInput) friendsSearchInput.value = '';
+      socket.emit('getFriendsList');
+      socket.emit('getFriendRequests');
+    });
+
+    socket.on('friendError', (msg) => {
+      showToast(msg, true);
+      showFriendsSearchMsg(msg, 'error');
     });
 
   </script>

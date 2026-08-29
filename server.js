@@ -1163,6 +1163,8 @@ io.on('connection', (socket) => {
         duelHistory: acc.duelHistory || [],
         eloHistory: acc.eloHistory || [],
       });
+      // Notify this player's friends they came online
+      notifyFriendsStatusChange(accountKey, true);
     }
     if (restoreSession(socket, savedFriendId)) return;
     if (typeof username === 'string' && username.trim()) socket.data.username = username.trim();
@@ -1239,6 +1241,7 @@ io.on('connection', (socket) => {
     rotateFriendId(socket);
 
     socket.emit('authSuccess', formatAccountResponse(account, accountKey));
+    notifyFriendsStatusChange(accountKey, true);
   });
 
   socket.on('clerkSignOut', () => {
@@ -1294,6 +1297,7 @@ io.on('connection', (socket) => {
     rotateFriendId(socket);
 
     socket.emit('authSuccess', formatAccountResponse(newAccount, accountKey));
+    notifyFriendsStatusChange(accountKey, true);
   });
 
   // ══════════════════════════════════════════════════════
@@ -1417,6 +1421,7 @@ io.on('connection', (socket) => {
     rotateFriendId(socket);
 
     socket.emit('authSuccess', formatAccountResponse(newAccount, accountKey));
+    notifyFriendsStatusChange(accountKey, true);
   });
 
   socket.on('verifyOtp', ({ email, code }) => {
@@ -1481,6 +1486,7 @@ io.on('connection', (socket) => {
     rotateFriendId(socket);
 
     socket.emit('authSuccess', formatAccountResponse(newAccount, accountKey));
+    notifyFriendsStatusChange(accountKey, true);
   });
 
   socket.on('login', ({ identifier, username, email, password }) => {
@@ -1508,6 +1514,7 @@ io.on('connection', (socket) => {
     socket.data.country = account.country || 'IND';
     rotateFriendId(socket);
     socket.emit('authSuccess', formatAccountResponse(account, accountKey));
+    notifyFriendsStatusChange(accountKey, true);
   });
 
   // Profile update handler: change display name, country and/or password
@@ -1616,6 +1623,7 @@ io.on('connection', (socket) => {
     saveAccounts();
     broadcastLeaderboard();
     socket.emit('authSuccess', formatAccountResponse(account, socket.data.accountKey));
+    notifyFriendsStatusChange(socket.data.accountKey, true);
   });
 
   // ══════════════════════════════════════════════════════
@@ -2087,12 +2095,24 @@ io.on('connection', (socket) => {
       return;
     }
 
-    const normalizedCode = targetFriendId.trim().toUpperCase();
-    const targetSocketId = friendIds.get(normalizedCode);
-    const targetSocket = targetSocketId && io.sockets.sockets.get(targetSocketId);
+    const cleanInput = targetFriendId.trim();
+    const normalizedCode = cleanInput.toUpperCase();
+    let targetSocketId = friendIds.get(normalizedCode);
+    let targetSocket = targetSocketId && io.sockets.sockets.get(targetSocketId);
+
+    // If not found by friend code, attempt lookup by accountKey or username
+    if (!targetSocket) {
+      const cleanLower = cleanInput.toLowerCase();
+      for (const s of io.sockets.sockets.values()) {
+        if (s.data?.accountKey === cleanLower || (s.data?.username && s.data.username.toLowerCase() === cleanLower)) {
+          targetSocket = s;
+          break;
+        }
+      }
+    }
 
     if (!targetSocket || targetSocket.id === socket.id) {
-      socket.emit('errorMessage', `Friend code "${normalizedCode}" is not online right now. Make sure they have Typendo open.`);
+      socket.emit('errorMessage', `Player "${cleanInput}" is not online right now.`);
       return;
     }
 
@@ -2212,8 +2232,317 @@ io.on('connection', (socket) => {
     }
   });
 
+  // ══════════════════════════════════════════════════════
+  // PERSISTENT FRIEND SYSTEM
+  // ══════════════════════════════════════════════════════
+
+  // Helper: get Set of accountKeys for all connected authenticated sockets
+  function getOnlineAccountKeys() {
+    const online = new Set();
+    for (const s of io.sockets.sockets.values()) {
+      if (s.data?.accountKey) online.add(s.data.accountKey);
+    }
+    return online;
+  }
+
+  // Helper: get socket for a given accountKey (first match)
+  function getSocketForAccount(accountKey) {
+    for (const s of io.sockets.sockets.values()) {
+      if (s.data?.accountKey === accountKey) return s;
+    }
+    return null;
+  }
+
+  // Helper: build friend list payload for a given account
+  function buildFriendsList(accountKey) {
+    const acc = accounts.get(accountKey);
+    if (!acc) return [];
+    const online = getOnlineAccountKeys();
+    return (acc.friends || []).map((fKey) => {
+      const fAcc = accounts.get(fKey);
+      if (!fAcc) return null;
+      return {
+        accountKey: fKey,
+        username: fAcc.username || fKey,
+        country: fAcc.country || 'IND',
+        rating: fAcc.rating || 1000,
+        isOnline: online.has(fKey),
+        friendCode: online.has(fKey) ? (getSocketForAccount(fKey)?.data?.friendId || null) : null,
+      };
+    }).filter(Boolean);
+  }
+
+  // Helper: build pending requests payload for a given account
+  function buildPendingRequests(accountKey) {
+    const acc = accounts.get(accountKey);
+    if (!acc) return { sent: [], received: [] };
+    const requests = acc.friendRequests || { sent: [], received: [] };
+    const online = getOnlineAccountKeys();
+
+    const mapKey = (key) => {
+      const a = accounts.get(key);
+      return a ? {
+        accountKey: key,
+        username: a.username || key,
+        country: a.country || 'IND',
+        rating: a.rating || 1000,
+        isOnline: online.has(key),
+      } : { accountKey: key, username: key, country: 'IND', rating: 1000, isOnline: false };
+    };
+
+    return {
+      sent: (requests.sent || []).map(mapKey),
+      received: (requests.received || []).map(mapKey),
+    };
+  }
+
+  // Helper: notify a player's friends of their online status change
+  function notifyFriendsStatusChange(accountKey, isOnline) {
+    const acc = accounts.get(accountKey);
+    if (!acc) return;
+    (acc.friends || []).forEach((fKey) => {
+      const fSocket = getSocketForAccount(fKey);
+      if (fSocket) {
+        fSocket.emit('friendStatusChanged', { accountKey, isOnline });
+      }
+    });
+  }
+
+  // ── sendFriendRequest ───────────────────────────────────────────
+  socket.on('sendFriendRequest', ({ targetIdentifier }) => {
+    const myKey = socket.data?.accountKey;
+    if (!myKey || !accounts.has(myKey)) {
+      socket.emit('friendError', 'You must be logged in to send friend requests.');
+      return;
+    }
+    if (!targetIdentifier || typeof targetIdentifier !== 'string') {
+      socket.emit('friendError', 'Please enter a username or Friend Code.');
+      return;
+    }
+
+    const clean = targetIdentifier.trim();
+
+    // Try to resolve by accountKey/username first, then by Friend Code
+    let targetKey = null;
+    const byKey = clean.toLowerCase();
+    if (accounts.has(byKey)) {
+      targetKey = byKey;
+    } else {
+      // Try Friend Code lookup
+      const code = clean.toUpperCase();
+      const targetSocketId = friendIds.get(code);
+      const targetSocket = targetSocketId && io.sockets.sockets.get(targetSocketId);
+      if (targetSocket?.data?.accountKey) {
+        targetKey = targetSocket.data.accountKey;
+      }
+    }
+
+    // Also try by username field directly
+    if (!targetKey) {
+      for (const [k, a] of accounts.entries()) {
+        if (a.username && a.username.toLowerCase() === clean.toLowerCase()) {
+          targetKey = k;
+          break;
+        }
+      }
+    }
+
+    if (!targetKey || !accounts.has(targetKey)) {
+      socket.emit('friendError', `Player "${clean}" not found. Make sure they're registered.`);
+      return;
+    }
+    if (targetKey === myKey) {
+      socket.emit('friendError', "You can't add yourself as a friend.");
+      return;
+    }
+
+    const myAcc = accounts.get(myKey);
+    const targetAcc = accounts.get(targetKey);
+
+    if (!myAcc.friends) myAcc.friends = [];
+    if (!myAcc.friendRequests) myAcc.friendRequests = { sent: [], received: [] };
+    if (!targetAcc.friends) targetAcc.friends = [];
+    if (!targetAcc.friendRequests) targetAcc.friendRequests = { sent: [], received: [] };
+
+    if (myAcc.friends.includes(targetKey)) {
+      socket.emit('friendError', `You're already friends with ${targetAcc.username}.`);
+      return;
+    }
+    if ((myAcc.friendRequests.sent || []).includes(targetKey)) {
+      socket.emit('friendError', `You already sent a request to ${targetAcc.username}.`);
+      return;
+    }
+    // If target already sent us a request, auto-accept
+    if ((myAcc.friendRequests.received || []).includes(targetKey)) {
+      myAcc.friends.push(targetKey);
+      targetAcc.friends.push(myKey);
+      myAcc.friendRequests.received = myAcc.friendRequests.received.filter(k => k !== targetKey);
+      if (targetAcc.friendRequests) {
+        targetAcc.friendRequests.sent = (targetAcc.friendRequests.sent || []).filter(k => k !== myKey);
+      }
+      saveAccounts();
+      socket.emit('friendsList', buildFriendsList(myKey));
+      socket.emit('pendingRequests', buildPendingRequests(myKey));
+      socket.emit('friendSuccess', `You and ${targetAcc.username} are now friends! (auto-accepted mutual request)`);
+      const tSocket = getSocketForAccount(targetKey);
+      if (tSocket) {
+        tSocket.emit('friendsList', buildFriendsList(targetKey));
+        tSocket.emit('pendingRequests', buildPendingRequests(targetKey));
+        tSocket.emit('friendRequestAccepted', { byUsername: myAcc.username, byAccountKey: myKey });
+      }
+      return;
+    }
+
+    // Add request
+    if (!myAcc.friendRequests.sent) myAcc.friendRequests.sent = [];
+    if (!targetAcc.friendRequests.received) targetAcc.friendRequests.received = [];
+    myAcc.friendRequests.sent.push(targetKey);
+    targetAcc.friendRequests.received.push(myKey);
+    saveAccounts();
+
+    socket.emit('pendingRequests', buildPendingRequests(myKey));
+    socket.emit('friendSuccess', `Friend request sent to ${targetAcc.username}!`);
+
+    const tSocket = getSocketForAccount(targetKey);
+    if (tSocket) {
+      tSocket.emit('friendRequestReceived', {
+        fromAccountKey: myKey,
+        fromUsername: myAcc.username,
+        fromCountry: myAcc.country || 'IND',
+        fromRating: myAcc.rating || 1000,
+      });
+      tSocket.emit('pendingRequests', buildPendingRequests(targetKey));
+    }
+  });
+
+  // ── acceptFriendRequest ─────────────────────────────────────────
+  socket.on('acceptFriendRequest', ({ fromAccountKey }) => {
+    const myKey = socket.data?.accountKey;
+    if (!myKey || !accounts.has(myKey) || !fromAccountKey || !accounts.has(fromAccountKey)) return;
+
+    const myAcc = accounts.get(myKey);
+    const fromAcc = accounts.get(fromAccountKey);
+
+    if (!myAcc.friendRequests?.received?.includes(fromAccountKey)) {
+      socket.emit('friendError', 'No pending request from that player.');
+      return;
+    }
+
+    if (!myAcc.friends) myAcc.friends = [];
+    if (!fromAcc.friends) fromAcc.friends = [];
+    if (!myAcc.friends.includes(fromAccountKey)) myAcc.friends.push(fromAccountKey);
+    if (!fromAcc.friends.includes(myKey)) fromAcc.friends.push(myKey);
+
+    myAcc.friendRequests.received = (myAcc.friendRequests.received || []).filter(k => k !== fromAccountKey);
+    if (!fromAcc.friendRequests) fromAcc.friendRequests = { sent: [], received: [] };
+    fromAcc.friendRequests.sent = (fromAcc.friendRequests.sent || []).filter(k => k !== myKey);
+    saveAccounts();
+
+    socket.emit('friendsList', buildFriendsList(myKey));
+    socket.emit('pendingRequests', buildPendingRequests(myKey));
+    socket.emit('friendSuccess', `You and ${fromAcc.username} are now friends!`);
+
+    const fromSocket = getSocketForAccount(fromAccountKey);
+    if (fromSocket) {
+      fromSocket.emit('friendsList', buildFriendsList(fromAccountKey));
+      fromSocket.emit('pendingRequests', buildPendingRequests(fromAccountKey));
+      fromSocket.emit('friendRequestAccepted', { byUsername: myAcc.username, byAccountKey: myKey });
+    }
+  });
+
+  // ── declineFriendRequest ────────────────────────────────────────
+  socket.on('declineFriendRequest', ({ fromAccountKey }) => {
+    const myKey = socket.data?.accountKey;
+    if (!myKey || !accounts.has(myKey) || !fromAccountKey) return;
+
+    const myAcc = accounts.get(myKey);
+    const fromAcc = accounts.get(fromAccountKey);
+
+    myAcc.friendRequests = myAcc.friendRequests || { sent: [], received: [] };
+    myAcc.friendRequests.received = (myAcc.friendRequests.received || []).filter(k => k !== fromAccountKey);
+
+    if (fromAcc) {
+      fromAcc.friendRequests = fromAcc.friendRequests || { sent: [], received: [] };
+      fromAcc.friendRequests.sent = (fromAcc.friendRequests.sent || []).filter(k => k !== myKey);
+    }
+    saveAccounts();
+
+    socket.emit('pendingRequests', buildPendingRequests(myKey));
+
+    const fromSocket = getSocketForAccount(fromAccountKey);
+    if (fromSocket) {
+      fromSocket.emit('pendingRequests', buildPendingRequests(fromAccountKey));
+      fromSocket.emit('friendRequestDeclined', {
+        byUsername: myAcc.username || 'Someone',
+        byAccountKey: myKey,
+      });
+    }
+  });
+
+  // ── cancelFriendRequest ─────────────────────────────────────────
+  socket.on('cancelFriendRequest', ({ targetAccountKey }) => {
+    const myKey = socket.data?.accountKey;
+    if (!myKey || !accounts.has(myKey) || !targetAccountKey) return;
+
+    const myAcc = accounts.get(myKey);
+    const targetAcc = accounts.get(targetAccountKey);
+
+    if (myAcc.friendRequests) {
+      myAcc.friendRequests.sent = (myAcc.friendRequests.sent || []).filter(k => k !== targetAccountKey);
+    }
+    if (targetAcc?.friendRequests) {
+      targetAcc.friendRequests.received = (targetAcc.friendRequests.received || []).filter(k => k !== myKey);
+    }
+    saveAccounts();
+
+    socket.emit('pendingRequests', buildPendingRequests(myKey));
+    const tSocket = getSocketForAccount(targetAccountKey);
+    if (tSocket) tSocket.emit('pendingRequests', buildPendingRequests(targetAccountKey));
+  });
+
+  // ── removeFriend ────────────────────────────────────────────────
+  socket.on('removeFriend', ({ targetAccountKey }) => {
+    const myKey = socket.data?.accountKey;
+    if (!myKey || !accounts.has(myKey) || !targetAccountKey) return;
+
+    const myAcc = accounts.get(myKey);
+    const targetAcc = accounts.get(targetAccountKey);
+
+    myAcc.friends = (myAcc.friends || []).filter(k => k !== targetAccountKey);
+    if (targetAcc) targetAcc.friends = (targetAcc.friends || []).filter(k => k !== myKey);
+    saveAccounts();
+
+    socket.emit('friendsList', buildFriendsList(myKey));
+    const tSocket = getSocketForAccount(targetAccountKey);
+    if (tSocket) tSocket.emit('friendsList', buildFriendsList(targetAccountKey));
+  });
+
+  // ── getFriendsList ──────────────────────────────────────────────
+  socket.on('getFriendsList', () => {
+    const myKey = socket.data?.accountKey;
+    if (!myKey || !accounts.has(myKey)) {
+      socket.emit('friendsList', []);
+      return;
+    }
+    socket.emit('friendsList', buildFriendsList(myKey));
+  });
+
+  // ── getFriendRequests ───────────────────────────────────────────
+  socket.on('getFriendRequests', () => {
+    const myKey = socket.data?.accountKey;
+    if (!myKey || !accounts.has(myKey)) {
+      socket.emit('pendingRequests', { sent: [], received: [] });
+      return;
+    }
+    socket.emit('pendingRequests', buildPendingRequests(myKey));
+  });
+
   socket.on('disconnect', () => {
     removeFromQueue(socket);
+    // Notify friends this player went offline
+    if (socket.data?.accountKey) {
+      notifyFriendsStatusChange(socket.data.accountKey, false);
+    }
     const room = socket.data?.roomId && rooms.get(socket.data.roomId);
     if (room?.mode === 'custom') {
       sessions.set(socket.data.friendId, {
@@ -2232,6 +2561,19 @@ io.on('connection', (socket) => {
     broadcastServerStats();
   });
 });
+
+// Notify friends when a player comes online (after auth)
+// This is called client-side after authSuccess via getFriendsList which
+// triggers a server-push; we also push status to friends here.
+function notifyFriendsOnlineStatus(socket) {
+  const myKey = socket.data?.accountKey;
+  if (!myKey) return;
+  notifyFriendsStatusChange(myKey, true);
+}
+
+// Hook into restoreSession and authSuccess to notify online status
+// We broadcast via the getFriendsList emit path which includes isOnline
+// The direct notification is handled in notifyFriendsStatusChange above
 
 server.listen(PORT, () => {
   console.log(`Typing race server listening on port ${PORT}`);
