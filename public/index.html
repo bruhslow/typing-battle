@@ -4501,7 +4501,7 @@
               <span>👑</span>
               <span>Admin</span>
             </button>
-            <button class="account-btn is-logged-in" id="account-button" type="button" title="View Profile & Stats">
+            <button class="account-btn is-logged-in hidden" id="account-button" type="button" style="display: none !important;" title="View Profile & Stats">
               <span id="account-btn-icon">👤</span>
               <span id="account-btn-text">Player</span>
               <span class="admin-crown-badge hidden" id="header-admin-badge">👑 ADMIN</span>
@@ -5797,6 +5797,17 @@
     
     usernameInput.value = savedUsername;
     headerAvatar.textContent = savedUsername.slice(0, 1).toUpperCase();
+    if (headerAvatar) {
+      headerAvatar.style.cursor = 'pointer';
+      headerAvatar.title = 'Click to view profile & stats';
+      headerAvatar.addEventListener('click', () => {
+        if (loggedIn) {
+          profileModal.classList.remove('hidden');
+        } else {
+          openUnifiedAuthModal('login');
+        }
+      });
+    }
     rankedDeviceNotice.textContent = currentDevice === 'phone' ? 'Mobile vs Mobile (Fair ELO competition)' : 'Desktop vs Desktop (Fair ELO competition)';
 
     // ══════════════════════════════════════════════════════
