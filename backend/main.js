@@ -1891,7 +1891,7 @@ io.on('connection', (socket) => {
       });
 
       socket.emit('reviewSubmitSuccess', {
-        message: 'Thank you! Your rating and review were saved to the SQL database.',
+        message: 'Thank you! Your rating and review have been posted.',
         review: newReview,
       });
 
