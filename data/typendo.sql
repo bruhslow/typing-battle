@@ -1,5 +1,5 @@
 -- ========================================================
--- TYPENDO SQL DATABASE SCHEMA & SEED DATA
+-- TYPENDO SQL DATABASE SCHEMA
 -- Exported At: 2026-10-26T00:00:00.000Z
 -- ========================================================
 
@@ -28,10 +28,10 @@ CREATE TABLE IF NOT EXISTS reviews (
     created_at TEXT NOT NULL
 );
 
--- INITIAL REVIEWS & RATINGS SEED DATA
-INSERT INTO reviews (id, username, rating, review, word_count, is_logged_in, created_at)
-VALUES 
-('rev_init_1', 'SpeedDemon_99', 5, 'The real-time keyboard latency is unbelievable! Solo Practice helped me break 115 WPM in just 2 days. Best typing battle arena on the web.', 24, 1, '2026-10-25T12:00:00.000Z'),
-('rev_init_2', 'VortexTypist', 5, 'Ranked duels get intense! Love the live racer tracks and audio effects. The new winning streak tracker makes every match count.', 21, 1, '2026-10-25T18:00:00.000Z'),
-('rev_init_3', 'KeyboardRookie', 4, 'Super clean design and love that guests can practice without login. Beautiful UI and smooth animations!', 16, 0, '2026-10-25T21:00:00.000Z')
-ON CONFLICT(id) DO NOTHING;
+CREATE TABLE IF NOT EXISTS user_accounts (
+    account_key TEXT PRIMARY KEY,
+    username TEXT NOT NULL,
+    email TEXT,
+    data JSONB NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
