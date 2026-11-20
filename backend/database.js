@@ -143,14 +143,20 @@ class SqlDatabase {
       });
 
       console.log(`Loaded ${this.tables.player_stats.size} SQL players and ${this.tables.reviews.size} reviews from PostgreSQL.`);
-
-      // Seed initial reviews if PostgreSQL is completely fresh
-      if (this.tables.reviews.size === 0) {
-        this.seedInitialReviews();
-      }
+      // Purge any fake seed reviews from PostgreSQL
+      this.purgeFakeReviews();
     } catch (err) {
       console.error('Error loading data from PostgreSQL:', err.message);
     }
+  }
+
+  purgeFakeReviews() {
+    ['rev_init_1', 'rev_init_2', 'rev_init_3'].forEach((id) => {
+      this.tables.reviews.delete(id);
+      if (this.pgPool) {
+        this.pgPool.query('DELETE FROM reviews WHERE id = $1', [id]).catch(() => {});
+      }
+    });
   }
 
   loadData() {
@@ -165,7 +171,9 @@ class SqlDatabase {
         }
         if (data.reviews && typeof data.reviews === 'object') {
           Object.entries(data.reviews).forEach(([k, v]) => {
-            this.tables.reviews.set(k, v);
+            if (!k.startsWith('rev_init_')) {
+              this.tables.reviews.set(k, v);
+            }
           });
         }
         console.log(`Loaded ${this.tables.player_stats.size} SQL players and ${this.tables.reviews.size} reviews from local storage.`);
@@ -174,53 +182,7 @@ class SqlDatabase {
       console.error('Error loading SQL storage file:', e.message);
     }
 
-    if (this.tables.reviews.size === 0) {
-      this.seedInitialReviews();
-    }
-  }
-
-  seedInitialReviews() {
-    const seedData = [
-      {
-        id: 'rev_init_1',
-        username: 'SpeedDemon_99',
-        rating: 5,
-        review: 'The real-time keyboard latency is unbelievable! Solo Practice helped me break 115 WPM in just 2 days. Best typing battle arena on the web.',
-        word_count: 24,
-        is_logged_in: 1,
-        created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
-      },
-      {
-        id: 'rev_init_2',
-        username: 'VortexTypist',
-        rating: 5,
-        review: 'Ranked duels get intense! Love the live racer tracks and audio effects. The new winning streak tracker makes every match count.',
-        word_count: 21,
-        is_logged_in: 1,
-        created_at: new Date(Date.now() - 3600000 * 12).toISOString(),
-      },
-      {
-        id: 'rev_init_3',
-        username: 'KeyboardRookie',
-        rating: 4,
-        review: 'Super clean design and love that guests can practice without login. Beautiful UI and smooth animations!',
-        word_count: 16,
-        is_logged_in: 0,
-        created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
-      },
-    ];
-
-    seedData.forEach((rev) => {
-      this.tables.reviews.set(rev.id, rev);
-      if (this.hasPostgres && this.pgPool) {
-        this.pgPool.query(
-          `INSERT INTO reviews (id, username, rating, review, word_count, is_logged_in, created_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO NOTHING`,
-          [rev.id, rev.username, rev.rating, rev.review, rev.word_count, rev.is_logged_in, rev.created_at]
-        ).catch(() => {});
-      }
-    });
-    this.persistLocal();
+    this.purgeFakeReviews();
   }
 
   persistLocal() {

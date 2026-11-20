@@ -10530,13 +10530,17 @@
       if (!data) return;
       const { reviews, totalReviews, averageRating, ratingCounts } = data;
 
-      if (revAvgScore) revAvgScore.textContent = (averageRating || 5.0).toFixed(1);
+      if (revAvgScore) revAvgScore.textContent = totalReviews > 0 ? (averageRating || 5.0).toFixed(1) : '--';
       if (revSummaryStars) {
-        const rounded = Math.round(averageRating || 5);
-        revSummaryStars.textContent = '★'.repeat(rounded) + '☆'.repeat(Math.max(0, 5 - rounded));
+        if (totalReviews > 0) {
+          const rounded = Math.round(averageRating || 5);
+          revSummaryStars.textContent = '★'.repeat(rounded) + '☆'.repeat(Math.max(0, 5 - rounded));
+        } else {
+          revSummaryStars.textContent = '☆☆☆☆☆';
+        }
       }
       if (revTotalCount) {
-        revTotalCount.textContent = `Based on ${totalReviews} typist review${totalReviews === 1 ? '' : 's'}`;
+        revTotalCount.textContent = totalReviews > 0 ? `Based on ${totalReviews} typist review${totalReviews === 1 ? '' : 's'}` : 'No reviews yet. Be the first to rate!';
       }
 
       // Update Breakdown Progress Bars
