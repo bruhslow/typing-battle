@@ -56,7 +56,7 @@
     }
     .border-inner {
       border: 1px solid #718096;
-      padding: 22px 26px;
+      padding: 24px 28px;
       height: 100%;
       display: flex;
       flex-direction: column;
@@ -80,10 +80,10 @@
     .header {
       text-align: center;
       border-bottom: 2px solid #1a365d;
-      padding-bottom: 12px;
+      padding-bottom: 14px;
     }
     .inst-name {
-      font-size: 17pt;
+      font-size: 18pt;
       font-weight: 700;
       letter-spacing: 3px;
       color: #1a365d;
@@ -91,7 +91,7 @@
       text-transform: uppercase;
     }
     .cert-title {
-      font-size: 13.5pt;
+      font-size: 14pt;
       font-weight: 700;
       letter-spacing: 1.5px;
       color: #2b6cb0;
@@ -110,28 +110,28 @@
       text-align: center;
       font-size: 10.5pt;
       color: #4a5568;
-      margin: 12px 0 8px 0;
-      line-height: 1.45;
+      margin: 14px 0 10px 0;
+      line-height: 1.5;
     }
 
     /* Project Display */
     .project-box {
       text-align: center;
-      margin: 4px 0 10px 0;
-      padding: 10px 14px;
+      margin: 4px 0 12px 0;
+      padding: 12px 16px;
       background: #f7fafc;
       border: 1px dashed #cbd5e0;
       border-radius: 4px;
     }
     .proj-title {
-      font-size: 16pt;
+      font-size: 16.5pt;
       font-weight: 700;
       color: #1a365d;
       letter-spacing: 1.5px;
       margin: 0;
     }
     .proj-tagline {
-      font-size: 9.5pt;
+      font-size: 10pt;
       color: #2b6cb0;
       font-weight: 600;
       letter-spacing: 1px;
@@ -141,17 +141,17 @@
     /* Author Attribution */
     .author-section {
       text-align: center;
-      margin: 8px 0;
+      margin: 10px 0;
     }
     .author-pre {
       font-size: 10pt;
       color: #4a5568;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     .author-name {
-      font-size: 16pt;
+      font-size: 17pt;
       font-weight: 700;
       color: #1a202c;
       letter-spacing: 2px;
@@ -162,12 +162,12 @@
     .meta-table {
       width: 100%;
       border-collapse: collapse;
-      margin: 10px 0;
+      margin: 12px 0;
       font-size: 9pt;
       font-family: Arial, sans-serif;
     }
     .meta-table td {
-      padding: 6px 10px;
+      padding: 7px 12px;
       border: 1px solid #e2e8f0;
     }
     .meta-table .lbl {
@@ -190,9 +190,9 @@
     .license-block {
       border: 1px solid #cbd5e0;
       background: #fafafa;
-      padding: 10px 14px;
+      padding: 12px 16px;
       border-radius: 3px;
-      margin: 8px 0;
+      margin: 10px 0;
     }
     .license-head {
       font-family: Arial, sans-serif;
@@ -201,14 +201,14 @@
       color: #2b6cb0;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
       display: flex;
       justify-content: space-between;
     }
     .license-text {
       font-family: 'Times New Roman', serif;
       font-size: 8pt;
-      line-height: 1.4;
+      line-height: 1.45;
       color: #2d3748;
       text-align: justify;
       margin: 0;
@@ -218,9 +218,9 @@
     .legal-affirmation {
       font-size: 8.5pt;
       color: #4a5568;
-      line-height: 1.4;
+      line-height: 1.45;
       text-align: justify;
-      margin: 8px 0;
+      margin: 10px 0;
     }
 
     /* Signatures & Seal Footer */
@@ -228,42 +228,21 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      margin-top: 14px;
-      padding-top: 10px;
+      margin-top: 18px;
+      padding-top: 14px;
       border-top: 1px solid #cbd5e0;
     }
-    .sig-block {
-      text-align: center;
-      width: 30%;
-    }
-    .sig-line {
-      border-bottom: 1px solid #4a5568;
-      height: 32px;
-      margin-bottom: 5px;
-    }
-    .sig-title {
-      font-size: 8.5pt;
-      font-weight: bold;
-      color: #1a202c;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .sig-sub {
-      font-size: 7.5pt;
-      color: #718096;
-    }
 
-    /* Seal */
+    /* Seal Block (Left) */
     .seal-block {
-      text-align: center;
-      width: 30%;
+      text-align: left;
       display: flex;
-      flex-direction: column;
       align-items: center;
+      gap: 16px;
     }
     .seal-badge {
-      width: 65px;
-      height: 65px;
+      width: 70px;
+      height: 70px;
       border: 2px dashed #2b6cb0;
       border-radius: 50%;
       display: flex;
@@ -276,13 +255,43 @@
       color: #1a365d;
       text-transform: uppercase;
       background: #edf2f7;
-      margin-bottom: 4px;
+    }
+    .seal-info {
+      font-family: Arial, sans-serif;
     }
     .seal-id {
       font-family: 'Courier New', Courier, monospace;
-      font-size: 7.5pt;
-      color: #4a5568;
+      font-size: 8.5pt;
+      color: #1a202c;
       font-weight: bold;
+    }
+    .seal-sub {
+      font-size: 8pt;
+      color: #718096;
+      margin-top: 2px;
+    }
+
+    /* Signature Block (Right) */
+    .sig-block {
+      text-align: center;
+      width: 42%;
+    }
+    .sig-line {
+      border-bottom: 1.5px solid #2d3748;
+      height: 38px;
+      margin-bottom: 6px;
+    }
+    .sig-title {
+      font-size: 9pt;
+      font-weight: bold;
+      color: #1a202c;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .sig-sub {
+      font-size: 8pt;
+      color: #4a5568;
+      margin-top: 2px;
     }
   </style>
 </head>
@@ -298,14 +307,14 @@
 
       <!-- Header -->
       <div class="header">
-        <div class="inst-name">Open Source Software Licensing Registry</div>
-        <div class="cert-title">Certificate of Software Authorship & MIT License Deed</div>
-        <div class="cert-subtitle">Formal Intellectual Property Registration & Public Domain Deployment Grant</div>
+        <div class="inst-name">Software Copyright &amp; License Deed</div>
+        <div class="cert-title">Certificate of Authorship &amp; MIT License Grant</div>
+        <div class="cert-subtitle">Formal Intellectual Property Attestation &amp; Public Production Deployment</div>
       </div>
 
       <!-- Preamble -->
       <div class="preamble">
-        This legal deed and registration certificate officially attests that the computer software system described hereunder has been original-authored, engineered, deployed, and published under open-source software licensing by the designated creator:
+        This legal deed and attestation certificate officially certifies that the computer software system described hereunder has been original-authored, engineered, deployed, and published under open-source software licensing by the designated creator:
       </div>
 
       <!-- Project Name -->
@@ -367,26 +376,25 @@
 
       <!-- Footer & Signatures -->
       <div class="footer-section">
-        <div class="sig-block">
-          <div class="sig-line"></div>
-          <div class="sig-title">GIRIDHARAN N S</div>
-          <div class="sig-sub">Software Architect &amp; Copyright Holder</div>
-        </div>
-
+        <!-- Verification Seal (Left) -->
         <div class="seal-block">
           <div class="seal-badge">
             <span>OFFICIAL</span>
             <span>LICENSED</span>
             <span>MIT 2026</span>
           </div>
-          <div class="seal-id">REF: TYP-MIT-2026-REG01</div>
-          <div class="seal-id">Date: November 14, 2026</div>
+          <div class="seal-info">
+            <div class="seal-id">REF: TYP-MIT-2026-REG01</div>
+            <div class="seal-sub">Production Domain: typendo.slowbag.in</div>
+            <div class="seal-sub">Date of Grant: November 14, 2026</div>
+          </div>
         </div>
 
+        <!-- Author Signature (Right) -->
         <div class="sig-block">
           <div class="sig-line"></div>
-          <div class="sig-title">Software Licensing Registry</div>
-          <div class="sig-sub">Attestation of Open Source Publication</div>
+          <div class="sig-title">GIRIDHARAN N S</div>
+          <div class="sig-sub">Software Architect &amp; Sole Copyright Holder</div>
         </div>
       </div>
 
