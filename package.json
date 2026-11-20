@@ -1,0 +1,17 @@
+{
+  "name": "typing-battle",
+  "version": "1.0.0",
+  "description": "Typendo — Real-Time Multiplayer Competitive Typing Duels",
+  "main": "backend/main.js",
+  "scripts": {
+    "start": "node backend/main.js",
+    "build": "cd backend && npm install"
+  },
+  "dependencies": {
+    "@clerk/express": "^2.1.64",
+    "express": "^5.2.1",
+    "nodemailer": "^6.9.16",
+    "pg": "^8.13.1",
+    "socket.io": "^4.8.3"
+  }
+}
