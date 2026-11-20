@@ -523,13 +523,6 @@ function getRoomMaxDurationSec(room) {
   return 60; // Easy custom lobbies / Ranked are 60s
 }
 
-function getRandomParagraph(difficulty = 'medium', lastParagraph = '') {
-  const list = paragraphs[difficulty] || paragraphs.medium;
-  const filtered = list.filter((p) => p !== lastParagraph);
-  const pool = filtered.length > 0 ? filtered : list;
-  return pool[Math.floor(Math.random() * pool.length)];
-}
-
 function broadcastServerStats() {
   const onlineCount = io.engine.clientsCount || io.sockets.sockets.size;
   const activeMatches = [...rooms.values()].filter((r) => r.started && !r.finished).length;

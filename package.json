@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Typendo — Real-Time Multiplayer Competitive Typing Duels",
   "main": "backend/main.js",
+  "license": "MIT",
   "scripts": {
     "start": "node backend/main.js",
     "build": "cd backend && npm install"

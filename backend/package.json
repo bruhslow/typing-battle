@@ -8,8 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "Giridharan N S & Shivani",
-  "license": "ISC",
+  "author": "Giridharan N S",
+  "license": "MIT",
   "type": "commonjs",
   "dependencies": {
     "@clerk/express": "^2.1.64",
