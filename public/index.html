@@ -5478,16 +5478,6 @@
                     <span>1★</span>
                     <div class="rev-bar-track"><div class="rev-bar-fill" id="rev-bar-1" style="width: 0%;"></div></div>
                     <span id="rev-bar-count-1">0</span>
-                  </div>
-                </div>
-
-                <!-- SQL Database Persistence Badge -->
-                <div class="rev-sql-badge">
-                  <span class="rev-sql-badge-icon">🛡️</span>
-                  <div>
-                    <strong>Connected SQL Database</strong>
-                    <p>All reviews and verified player winning streaks are stored in our relational database.</p>
-                  </div>
                 </div>
               </div>
 
@@ -5555,7 +5545,7 @@
                   <span style="font-size: 16px;">💬</span>
                   <h4>Community Voice & Recent Reviews</h4>
                 </div>
-                <button class="rev-refresh-btn" id="rev-refresh-btn" type="button" title="Refresh reviews from SQL database">
+                <button class="rev-refresh-btn" id="rev-refresh-btn" type="button" title="Refresh community reviews">
                   <span>🔄</span>
                   <span>Refresh</span>
                 </button>
@@ -5843,7 +5833,7 @@
           <div style="margin-top: 6px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
             <span class="profile-elo-tag" id="modal-profile-elo">1000 ELO</span>
             <span style="font-size: 11px; font-weight: 700; color: var(--primary);" id="modal-profile-tier">🥉 Bronze I</span>
-            <span class="profile-sql-badge hidden" id="modal-profile-sql-badge" style="font-size: 10px; font-weight: 800; background: var(--primary-subtle); color: var(--primary); padding: 2px 7px; border-radius: 6px; border: 1px solid var(--primary-border);">🛡️ SQL LINKED</span>
+            <span class="profile-sql-badge hidden" id="modal-profile-sql-badge" style="font-size: 10px; font-weight: 800; background: var(--primary-subtle); color: var(--primary); padding: 2px 7px; border-radius: 6px; border: 1px solid var(--primary-border);">✓ VERIFIED ACCOUNT</span>
           </div>
         </div>
       </div>
@@ -5873,8 +5863,8 @@
             <strong id="modal-stat-matches">0</strong>
           </div>
           <div class="profile-stat-box">
-            <small>SQL Database</small>
-            <strong id="modal-stat-sql-status" style="font-size: 11px; color: var(--text-muted);">Unlinked (Guest)</strong>
+            <small>Account Status</small>
+            <strong id="modal-stat-sql-status" style="font-size: 11px; color: var(--text-muted);">Guest Player</strong>
           </div>
         </div>
       </div>
@@ -7341,10 +7331,10 @@
       }
       if (sqlStatusEl) {
         if (userProfile?.isSqlLinked) {
-          sqlStatusEl.textContent = '🛡️ Synced SQL Profile';
+          sqlStatusEl.textContent = '✓ Verified Typist';
           sqlStatusEl.style.color = 'var(--primary)';
         } else {
-          sqlStatusEl.textContent = 'Unlinked (Guest/Local)';
+          sqlStatusEl.textContent = 'Guest Player';
           sqlStatusEl.style.color = 'var(--text-muted)';
         }
       }
@@ -8952,7 +8942,7 @@
                   ${renderCountryBadge(player.country, isSelf ? 'badge-highlight' : '')}
                   <strong>${escapeHtml(player.username)}</strong>
                   ${isSelf ? '<span style="font-size: 9px; color: var(--primary); font-weight: 800;">(YOU)</span>' : ''}
-                  ${player.isSqlLinked ? '<span title="Verified SQL Cloud Profile" style="font-size: 10px; cursor: help;">🛡️</span>' : ''}
+                  ${player.isSqlLinked ? '<span class="verified-tick-icon" title="Verified Typist" style="width: 13px; height: 13px; font-size: 8px;">✓</span>' : ''}
                 </div>
                 <div style="font-size: 10px; color: var(--text-dim); margin-top: 1px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
                   <span>${player.wins || 0}W • ${player.matches || 0} duels</span>
@@ -10298,7 +10288,7 @@
       }
       if (matchesEl) matchesEl.textContent = userProfile.matchesPlayed;
       if (sqlStatusEl) {
-        sqlStatusEl.textContent = '🛡️ Synced SQL Profile';
+        sqlStatusEl.textContent = '✓ Verified Typist';
         sqlStatusEl.style.color = 'var(--primary)';
       }
       if (sqlBadgeEl) sqlBadgeEl.classList.remove('hidden');
@@ -10460,7 +10450,7 @@
         }
 
         reviewSubmitBtn.disabled = true;
-        if (reviewFormStatus) reviewFormStatus.textContent = 'Saving review to SQL database...';
+        if (reviewFormStatus) reviewFormStatus.textContent = 'Submitting review...';
 
         socket.emit('submitReview', {
           username: author,
@@ -10483,7 +10473,7 @@
       SoundEngine.playVictoryFanfare();
       showToast('⭐ ' + message);
       if (reviewFormStatus) {
-        reviewFormStatus.textContent = '✔ Review saved to SQL database!';
+        reviewFormStatus.textContent = '✔ Review posted successfully!';
         setTimeout(() => { if (reviewFormStatus) reviewFormStatus.textContent = ''; }, 4000);
       }
       if (reviewTextarea) {
@@ -10603,7 +10593,7 @@
       revRefreshBtn.addEventListener('click', () => {
         SoundEngine.playSelectSound();
         socket.emit('getReviews');
-        showToast('🔄 Refreshing reviews from SQL database...');
+        showToast('🔄 Refreshing community reviews...');
       });
     }
 
