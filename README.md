@@ -285,7 +285,7 @@ Win against stronger players = more ELO gained. Lose against weaker players = mo
 
 ## 👥 Authors
 
-**Giridharan N S & Shivani**
+**Giridharan N S **
 
 ---
 
