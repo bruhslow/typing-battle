@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you evaluate or use this software, please cite it as below."
+authors:
+  - family-names: "N S"
+    given-names: "Giridharan"
+title: "TYPENDO: BROWSER BASE TYPING BATTEL"
+version: 1.0.0
+date-released: 2026-11-14
+url: "https://typendo.slowbag.in"
+repository-code: "https://github.com/bruhslow/typing-battle"
+license: MIT
+keywords:
+  - "typing-battle"
+  - "real-time-websockets"
+  - "python-nlp"
+  - "competitive-gaming"

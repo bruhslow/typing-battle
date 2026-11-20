@@ -1,0 +1,25 @@
+{
+  "title": "TYPENDO: BROWSER BASE TYPING BATTEL",
+  "description": "Typendo is a real-time multiplayer competitive typing platform featuring dual-player duel lobbies, WebSocket matchmaking, PostgreSQL telemetry, and Python NLP readability analytics.",
+  "creators": [
+    {
+      "name": "Giridharan N S"
+    }
+  ],
+  "access_right": "open",
+  "license": "MIT",
+  "keywords": [
+    "typing-battle",
+    "python",
+    "real-time-websockets",
+    "postgresql",
+    "typendo"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://typendo.slowbag.in",
+      "relation": "isIdenticalTo",
+      "scheme": "url"
+    }
+  ]
+}
