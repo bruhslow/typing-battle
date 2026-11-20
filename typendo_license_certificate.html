@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Typendo — Certificate of Software Authorship & MIT License Deed</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Times New Roman', Times, serif;
+      background-color: #f7f9fa;
+      color: #1a1e24;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .cert-page {
+      width: 210mm;
+      height: 297mm;
+      padding: 12mm;
+      background: #ffffff;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    @media print {
+      body {
+        background: #ffffff;
+      }
+      .cert-page {
+        box-shadow: none;
+        width: 210mm;
+        height: 297mm;
+        padding: 12mm;
+      }
+    }
+    /* Formal Certificate Borders */
+    .border-outer {
+      border: 3px double #1a365d;
+      padding: 4px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .border-inner {
+      border: 1px solid #718096;
+      padding: 18px 24px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      background: radial-gradient(circle at center, #ffffff 60%, #fafbfc 100%);
+    }
+    /* Corner Ornaments */
+    .corner {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border: 2px solid #1a365d;
+    }
+    .corner-tl { top: 6px; left: 6px; border-right: none; border-bottom: none; }
+    .corner-tr { top: 6px; right: 6px; border-left: none; border-bottom: none; }
+    .corner-bl { bottom: 6px; left: 6px; border-right: none; border-top: none; }
+    .corner-br { bottom: 6px; right: 6px; border-left: none; border-top: none; }
+
+    /* Header */
+    .header {
+      text-align: center;
+      border-bottom: 2px solid #1a365d;
+      padding-bottom: 12px;
+    }
+    .inst-name {
+      font-size: 19pt;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #1a365d;
+      margin: 0 0 4px 0;
+      text-transform: uppercase;
+    }
+    .cert-title {
+      font-size: 14pt;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #2b6cb0;
+      margin: 4px 0 2px 0;
+      text-transform: uppercase;
+    }
+    .cert-subtitle {
+      font-size: 9.5pt;
+      font-style: italic;
+      color: #4a5568;
+      letter-spacing: 0.5px;
+    }
+
+    /* Preamble */
+    .preamble {
+      text-align: center;
+      font-size: 10.5pt;
+      color: #4a5568;
+      margin: 10px 0 6px 0;
+      line-height: 1.4;
+    }
+
+    /* Project Display */
+    .project-box {
+      text-align: center;
+      margin: 4px 0 10px 0;
+      padding: 8px 12px;
+      background: #f7fafc;
+      border: 1px dashed #cbd5e0;
+      border-radius: 4px;
+    }
+    .proj-title {
+      font-size: 15pt;
+      font-weight: 700;
+      color: #1a365d;
+      letter-spacing: 1px;
+      margin: 0;
+    }
+    .proj-tagline {
+      font-size: 9.5pt;
+      color: #2b6cb0;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin-top: 3px;
+    }
+
+    /* Author Attribution */
+    .author-section {
+      text-align: center;
+      margin: 6px 0;
+    }
+    .author-pre {
+      font-size: 10pt;
+      color: #4a5568;
+      margin-bottom: 3px;
+    }
+    .author-name {
+      font-size: 15pt;
+      font-weight: 700;
+      color: #1a202c;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    /* Meta Table */
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 9pt;
+      font-family: Arial, sans-serif;
+    }
+    .meta-table td {
+      padding: 5px 8px;
+      border: 1px solid #e2e8f0;
+    }
+    .meta-table .lbl {
+      background-color: #edf2f7;
+      font-weight: bold;
+      color: #2d3748;
+      width: 25%;
+      text-transform: uppercase;
+      font-size: 8pt;
+    }
+    .meta-table .val {
+      color: #1a202c;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 8.5pt;
+      font-weight: 600;
+    }
+
+    /* License Legal Text Box */
+    .license-block {
+      border: 1px solid #cbd5e0;
+      background: #fafafa;
+      padding: 8px 12px;
+      border-radius: 3px;
+      margin: 6px 0;
+    }
+    .license-head {
+      font-family: Arial, sans-serif;
+      font-size: 8.5pt;
+      font-weight: bold;
+      color: #2b6cb0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .license-text {
+      font-family: 'Times New Roman', serif;
+      font-size: 8pt;
+      line-height: 1.35;
+      color: #2d3748;
+      text-align: justify;
+      margin: 0;
+    }
+
+    /* Declarations */
+    .legal-affirmation {
+      font-size: 8.5pt;
+      color: #4a5568;
+      line-height: 1.35;
+      text-align: justify;
+      margin: 6px 0;
+    }
+
+    /* Signatures & Seal Footer */
+    .footer-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid #cbd5e0;
+    }
+    .sig-block {
+      text-align: center;
+      width: 28%;
+    }
+    .sig-line {
+      border-bottom: 1px solid #4a5568;
+      height: 28px;
+      margin-bottom: 4px;
+    }
+    .sig-title {
+      font-size: 8pt;
+      font-weight: bold;
+      color: #1a202c;
+      text-transform: uppercase;
+    }
+    .sig-sub {
+      font-size: 7.5pt;
+      color: #718096;
+    }
+
+    /* Seal */
+    .seal-block {
+      text-align: center;
+      width: 28%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .seal-badge {
+      width: 60px;
+      height: 60px;
+      border: 2px dashed #2b6cb0;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      font-size: 6pt;
+      font-weight: bold;
+      color: #1a365d;
+      text-transform: uppercase;
+      background: #edf2f7;
+      margin-bottom: 3px;
+    }
+    .seal-id {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 7pt;
+      color: #4a5568;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="cert-page">
+  <div class="border-outer">
+    <div class="border-inner">
+      <div class="corner corner-tl"></div>
+      <div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div>
+      <div class="corner corner-br"></div>
+
+      <!-- Header -->
+      <div class="header">
+        <div class="inst-name">School of SEE</div>
+        <div class="cert-title">Certificate of Software Authorship & Open Source License Deed</div>
+        <div class="cert-subtitle">Formal Intellectual Property Registration & MIT License Grant</div>
+      </div>
+
+      <!-- Preamble -->
+      <div class="preamble">
+        This legal deed and certificate confirms that the computer software project described hereunder has been original-authored, engineered, and legally licensed by the identified student candidate:
+      </div>
+
+      <!-- Project Name -->
+      <div class="project-box">
+        <div class="proj-title">TYPENDO: BROWSER BASE TYPING BATTEL</div>
+        <div class="proj-tagline">EDU-REVELOUTION &mdash; PROJECT BASED SUBJECT: PYTHON</div>
+      </div>
+
+      <!-- Author -->
+      <div class="author-section">
+        <div class="author-pre">Sole Author, Creator &amp; Intellectual Property Holder:</div>
+        <div class="author-name">GIRIDHARAN N S</div>
+      </div>
+
+      <!-- Metadata Table -->
+      <table class="meta-table">
+        <tr>
+          <td class="lbl">Registration No.</td>
+          <td class="val">12601069</td>
+          <td class="lbl">Roll Number</td>
+          <td class="val">03</td>
+        </tr>
+        <tr>
+          <td class="lbl">Academic Section</td>
+          <td class="val">E1P2604</td>
+          <td class="lbl">Academic Subject</td>
+          <td class="val">PYTHON (PROJECT BASED)</td>
+        </tr>
+        <tr>
+          <td class="lbl">Registered Domain</td>
+          <td class="val">https://typendo.slowbag.in</td>
+          <td class="lbl">Hosting / DNS</td>
+          <td class="val">Cloudflare + Render / Vercel</td>
+        </tr>
+        <tr>
+          <td class="lbl">Git Repository</td>
+          <td class="val">github.com/bruhslow/typing-battle</td>
+          <td class="lbl">Database System</td>
+          <td class="val">PostgreSQL Enterprise Storage</td>
+        </tr>
+      </table>
+
+      <!-- License Deed -->
+      <div class="license-block">
+        <div class="license-head">
+          <span>License Classification: MIT Open Source Software License</span>
+          <span>SPDX Identifier: MIT</span>
+        </div>
+        <p class="license-text">
+          <strong>Copyright &copy; 2026 GIRIDHARAN N S. All Rights Reserved.</strong><br>
+          Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &ldquo;Software&rdquo;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the condition that the above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+        </p>
+      </div>
+
+      <!-- Legal Affirmation -->
+      <div class="legal-affirmation">
+        <strong>Authorship Affirmation:</strong> The software embodies full-stack WebSocket architecture, real-time typing battle duel mechanics, multiplayer lobby matchmaking, and Python NLP text analytics. By virtue of this deed, the software is authenticated as legitimate, operational on the verified domain <code>typendo.slowbag.in</code>, and protected under universal copyright and the MIT License framework.
+      </div>
+
+      <!-- Footer & Signatures -->
+      <div class="footer-section">
+        <div class="sig-block">
+          <div class="sig-line"></div>
+          <div class="sig-title">GIRIDHARAN N S</div>
+          <div class="sig-sub">Author &amp; Candidate (Roll: 03)</div>
+        </div>
+
+        <div class="seal-block">
+          <div class="seal-badge">
+            <span>OFFICIAL</span>
+            <span>LICENSED</span>
+            <span>MIT 2026</span>
+          </div>
+          <div class="seal-id">REF: TYP-MIT-12601069-2026</div>
+          <div class="seal-id">Date: November 14, 2026</div>
+        </div>
+
+        <div class="sig-block">
+          <div class="sig-line"></div>
+          <div class="sig-title">Faculty Evaluator</div>
+          <div class="sig-sub">Department of Computer Science / SEE</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
