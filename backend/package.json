@@ -1,0 +1,25 @@
+{
+  "name": "typendo",
+  "version": "1.0.0",
+  "description": "Typendo — Real-Time Multiplayer Competitive Typing Duels",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Giridharan N S & Shivani",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@clerk/express": "^2.1.64",
+    "express": "^5.2.1",
+    "nodemailer": "^6.9.16",
+    "pg": "^8.13.1",
+    "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "socket.io-client": "^4.8.3"
+  }
+}
