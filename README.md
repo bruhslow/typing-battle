@@ -2,7 +2,7 @@
 
 > A modern, high-octane multiplayer typing duel platform. Challenge friends directly, join private lobbies, manage friend lists, or compete in Ranked 1v1 ELO matchmaking.
 
-🔗 **Live Platform:** [typendo.onrender.com](https://typendo.onrender.com)
+🔗 **Live Platform:** [typendo.onrender.com](Typendo.slowbag.in)
 
 ---
 
